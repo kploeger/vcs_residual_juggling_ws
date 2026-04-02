@@ -19,7 +19,8 @@ need_dir() {
 
 if ! command -v vcs >/dev/null 2>&1; then
   echo "vcstool is not installed. Install it first, then run: vcs import . < residual_ws.repos" >&2
-  echo "Ubuntu: sudo apt-get update && sudo apt-get install -y python3-vcstool" >&2
+  echo "Ubuntu: sudo apt-get update && sudo apt-get install -y vcstool" >&2
+  echo "Fallback: python3 -m pip install --user vcstool" >&2
   exit 1
 fi
 
