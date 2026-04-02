@@ -3,6 +3,7 @@
 !README.md
 !residual_ws.repos
 !build_all_images.sh
+!setup_workspace.sh
 !catkin_ws/
 catkin_ws/*
 !catkin_ws/AGENTS.md

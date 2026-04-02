@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 CORE_DOCKERFILE_DIR="$ROOT_DIR/catkin_ws/src/wam_core/wam_utils/docker"
 JUGGLING_DOCKERFILE_DIR="$ROOT_DIR/catkin_ws/src/juggling_wam/juggling_wam_utils/docker"
@@ -12,9 +12,16 @@ need_dir() {
   local dir="$1"
   if [[ ! -d "$dir" ]]; then
     echo "Missing required directory: $dir" >&2
+    echo "Did you run: vcs import . < residual_ws.repos" >&2
     exit 1
   fi
 }
+
+if ! command -v vcs >/dev/null 2>&1; then
+  echo "vcstool is not installed. Install it first, then run: vcs import . < residual_ws.repos" >&2
+  echo "Ubuntu: sudo apt-get update && sudo apt-get install -y python3-vcstool" >&2
+  exit 1
+fi
 
 if ! command -v docker >/dev/null 2>&1; then
   echo "docker is not installed or not in PATH" >&2
