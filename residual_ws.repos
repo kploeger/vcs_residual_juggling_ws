@@ -1,0 +1,55 @@
+repositories:
+  ros_dockerfile:
+    type: git
+    url: git@github.com:kploeger/ros_dockerfile.git
+    version: main
+
+  catkin_ws/src/wam_core:
+    type: git
+    url: git@git.ias.informatik.tu-darmstadt.de:ros/wam/wam_core.git
+    version: dev/dm_control_refactor
+  catkin_ws/src/juggling_wam:
+    type: git
+    url: git@git.ias.informatik.tu-darmstadt.de:juggling/ros_juggling_wam.git
+    version: dev/dm_control_refactor
+  catkin_ws/src/robot_controllers:
+    type: git
+    url: git@git.ias.informatik.tu-darmstadt.de:ros/wam/ros_robot_controllers.git
+    version: master
+  catkin_ws/src/ball_launcher:
+    type: git
+    url: git@git.ias.informatik.tu-darmstadt.de:juggling/ball_launcher.git
+    version: master
+  catkin_ws/src/juggling_demos:
+    type: git
+    url: git@git.ias.informatik.tu-darmstadt.de:juggling/ros_juggling_demos.git
+    version: master
+  catkin_ws/src/optitrack-ball-tracker:
+    type: git
+    url: git@git.ias.informatik.tu-darmstadt.de:juggling/optitrack-ball-tracker.git
+    version: master
+  catkin_ws/src/utility_apps:
+    type: git
+    url: git@git.ias.informatik.tu-darmstadt.de:ros/wam/ros_utility_apps.git
+    version: main
+
+  python_packages/trajectory_planning:
+    type: git
+    url: git@git.ias.informatik.tu-darmstadt.de:ploeger/trajectory_planning.git
+    version: master
+  python_packages/juggle_planning:
+    type: git
+    url: git@git.ias.informatik.tu-darmstadt.de:ploeger/juggle_planning.git
+    version: master
+  python_packages/juggling_residual_learning:
+    type: git
+    url: git@git.ias.informatik.tu-darmstadt.de:ploeger/juggling_residual_learning.git
+    version: dev/dm_control_refactor
+  python_packages/robot_control:
+    type: git
+    url: git@git.ias.informatik.tu-darmstadt.de:ploeger/robot_control.git
+    version: master
+  python_packages/juggling_rl:
+    type: git
+    url: git@git.ias.informatik.tu-darmstadt.de:juggling/juggling_rl.git
+    version: dev/dm_control_refactor

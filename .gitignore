@@ -1,0 +1,13 @@
+*
+!.gitignore
+!README.md
+!residual_ws.repos
+!build_all_images.sh
+!catkin_ws/
+catkin_ws/*
+!catkin_ws/AGENTS.md
+!catkin_ws/CLAUDE.md
+!python_packages/
+python_packages/*
+!python_packages/AGENTS.md
+!python_packages/CLAUDE.md
