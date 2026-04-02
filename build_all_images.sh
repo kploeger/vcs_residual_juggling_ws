@@ -5,7 +5,8 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 CORE_DOCKERFILE_DIR="$ROOT_DIR/catkin_ws/src/wam_core/wam_utils/docker"
 JUGGLING_DOCKERFILE_DIR="$ROOT_DIR/catkin_ws/src/juggling_wam/juggling_wam_utils/docker"
-RESIDUAL_DOCKERFILE_DIR="$ROOT_DIR/python_packages/juggling_residual_learning/docker"
+RESIDUAL_PACKAGE_DIR="$ROOT_DIR/python_packages/juggling_residual_learning"
+RESIDUAL_DOCKERFILE_PATH="$RESIDUAL_PACKAGE_DIR/docker/Dockerfile"
 KAI_DOCKERFILE_DIR="$ROOT_DIR/ros_dockerfile"
 
 need_dir() {
@@ -31,8 +32,13 @@ fi
 
 need_dir "$CORE_DOCKERFILE_DIR"
 need_dir "$JUGGLING_DOCKERFILE_DIR"
-need_dir "$RESIDUAL_DOCKERFILE_DIR"
+need_dir "$RESIDUAL_PACKAGE_DIR"
 need_dir "$KAI_DOCKERFILE_DIR"
+
+if [[ ! -f "$RESIDUAL_DOCKERFILE_PATH" ]]; then
+  echo "Missing required file: $RESIDUAL_DOCKERFILE_PATH" >&2
+  exit 1
+fi
 
 echo "[1/4] Building wam:core"
 docker build --ssh default -t wam:core "$CORE_DOCKERFILE_DIR"
@@ -41,7 +47,7 @@ echo "[2/4] Building wam:juggling"
 docker build --ssh default -t wam:juggling "$JUGGLING_DOCKERFILE_DIR"
 
 echo "[3/4] Building wam:residual"
-docker build --ssh default -t wam:residual "$RESIDUAL_DOCKERFILE_DIR"
+docker build --ssh default -f "$RESIDUAL_DOCKERFILE_PATH" -t wam:residual "$RESIDUAL_PACKAGE_DIR"
 
 echo "[4/4] Building wam:kai (BASE_IMAGE=wam:residual)"
 docker build --ssh default --build-arg BASE_IMAGE=wam:residual -t wam:kai "$KAI_DOCKERFILE_DIR"
