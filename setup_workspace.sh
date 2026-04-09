@@ -42,7 +42,7 @@ echo "Importing repositories from residual_ws.repos"
 vcs import . < residual_ws.repos
 
 echo "Initializing submodules"
-vcs custom --git --args submodule update --init --recursive
+vcs custom catkin_ws/src python_packages --git --args submodule update --init --recursive
 
 echo "Building Docker images"
 bash build_all_images.sh

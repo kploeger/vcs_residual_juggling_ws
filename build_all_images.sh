@@ -41,15 +41,15 @@ if [[ ! -f "$RESIDUAL_DOCKERFILE_PATH" ]]; then
 fi
 
 echo "[1/4] Building wam:core"
-docker build --ssh default -t wam:core "$CORE_DOCKERFILE_DIR"
+"$CORE_DOCKERFILE_DIR/build.sh" --no-cache
 
 echo "[2/4] Building wam:juggling"
-docker build --ssh default -t wam:juggling "$JUGGLING_DOCKERFILE_DIR"
+"$JUGGLING_DOCKERFILE_DIR/build.sh"
 
 echo "[3/4] Building wam:residual"
-docker build --ssh default -f "$RESIDUAL_DOCKERFILE_PATH" -t wam:residual "$RESIDUAL_PACKAGE_DIR"
+"$RESIDUAL_PACKAGE_DIR/docker/build.sh"
 
-echo "[4/4] Building wam:kai (BASE_IMAGE=wam:residual)"
-docker build --ssh default --build-arg BASE_IMAGE=wam:residual -t wam:kai "$KAI_DOCKERFILE_DIR"
+echo "[4/4] Building wam:residual_kai (BASE_IMAGE=wam:residual)"
+docker build --ssh default --build-arg BASE_IMAGE=wam:residual -t wam:residual_kai "$KAI_DOCKERFILE_DIR"
 
-echo "All images built successfully: wam:core, wam:juggling, wam:residual, wam:kai"
+echo "All images built successfully: wam:core, wam:juggling, wam:residual, wam:residual_kai"
