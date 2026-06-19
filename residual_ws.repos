@@ -40,3 +40,6 @@ repositories:
   python_packages/juggling_rl:
     type: git
     url: git@git.ias.informatik.tu-darmstadt.de:juggling/juggling_rl.git
+  python_packages/phone_camera:
+    type: git
+    url: git@github.com:kploeger/phone_camera.git
