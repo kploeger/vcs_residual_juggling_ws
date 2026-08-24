@@ -1,9 +1,48 @@
-# Workspace Notes
+# CLAUDE.md
 
-This directory is mounted into Docker containers as /python_packages.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Quick Context
-- Any required dependencies or tools can be installed globally into the Docker container, but if we need them long term we'll want to add them to the Dockerfile and rebuild the container.
+
+- Non-ROS Python packages mounted into Docker at `/python_packages`
+- All packages here are **auto-pip-installed** (`pip install -e .`) when the Docker container starts, so they are always importable inside the container
+- Dependencies installed globally into the container are ephemeral; add long-term dependencies to the relevant `Dockerfile` and rebuild
+
+## Tests
+
+```bash
+# trajectory_planning
+cd /python_packages/trajectory_planning
+pytest tests/
+
+# juggling_residual_learning (pytest.ini sets testpaths = tests)
+cd /python_packages/juggling_residual_learning
+pytest
+
+# juggle_planning, robot_control
+pytest tests/   # from the respective package root
+```
+
+## Package Overview
+
+### `trajectory_planning`
+Motion planning library built on **CasADi** (symbolic math / NLP) and **Pinocchio** (kinematics/dynamics). Provides single-shooting and multiple-shooting trajectory optimizers, joint-space and Cartesian-space constraints, and cost functions. Used by `juggling_demos` ROS nodes for offline pre-computation of juggling trajectories.
+
+### `juggle_planning`
+Juggling-specific planning layer on top of `trajectory_planning`. Thin wrapper that adds juggling patterns and task-level constraints.
+
+### `robot_control`
+Pinocchio-based robot control algorithms (inverse kinematics, dynamics). Designed to be reused across projects independently of ROS.
+
+### `juggling_rl`
+Gym environment wrappers and training scripts for reinforcement learning on juggling tasks (`gym_envs.py`, `train.py`, `execute_last_policy.py`). Not a setuptools package. Trained checkpoints go in `checkpoints/`.
+
+### `juggling_residual_learning`
+Bayesian optimization + RL framework for residual policy learning on the real robot. Uses `botorch`/`gpytorch` for Bayesian optimization and `dm-control`/`mujoco` for simulation. Contains a `robot_description` submodule with MuJoCo builder scripts.
+
+Two top-level directories for executable code:
+- `runners/` — single-config CLI executors (`exp_30__learn_three_ball_cascade.py`, `exp_31__learn_five_ball_cascade.py`, …). Each runs *one* learning attempt with whatever flags it's given. Stable building blocks.
+- `experiments/` — comparison studies that drive many runner invocations to produce paper figures/tables. One sub-dir per campaign; see `experiments/README.md`.
 
 ## Agent Hints
 - For generic Python packages, warn if we introduce breaking changes. For application specific code (e.g. juggling), don't worry about backward compatibility and keep it clean instead.
@@ -85,3 +124,8 @@ temporary YAML per sweep point and passes `--cfg <tmp>` to
 `exp_31.main()`. No monkey-patches.
 
 
+- For generic packages (`trajectory_planning`, `robot_control`), warn before introducing breaking changes. For application-specific code (juggling packages), prioritize clean code over backward compatibility.
+- Compose code for reuse in new projects.
+- **Never `pkill -f <pattern>`; use `juggling_residual_learning/scripts/killmatch.sh <pattern>`** (`-n` dry-runs). `pkill -f` matches every process whose full command line contains the pattern — including the shell running it and the `docker exec`/`ssh` wrapper that launched it — so killing a runner from a shell that names that runner kills the shell mid-command (exit 137, and anything queued after it silently never runs). `killmatch.sh` excludes self, ancestors and the matcher.
+- **Benchmark with nothing else running.** The ROS stack's 1 kHz control loop has no headroom: launching it with `mj_render:=true`, running direct MuJoCo alongside the driver, or starting a test suite during a timed run all push it under real time, and the late sends read as ball drops — a convincing control failure that is pure artefact. Launch with `mj_render:=false` for measurements.
+- **Siteswap success is measured over attempts, not on attempt 1.** Early throws are expected to be bad; compensating them is what the residual learning is for. Most patterns come good by attempt 3 and essentially all by 5, so report the per-attempt shape (`..SSS`) and the first successful attempt. Runs use `Seed: None`, so a single attempt-1 outcome is noise.
