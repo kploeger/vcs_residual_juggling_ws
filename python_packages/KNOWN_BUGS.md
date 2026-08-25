@@ -146,3 +146,36 @@ upper-only — is still open with the neighbouring workspace.
 at `detail/robot_model-inl.hpp:61` and `:153`. residual_ws has **no**
 caller of `massMatrix` / `massMatrixInverse` — the only references are the
 package's own test — so fixing it there cannot affect this workspace.
+
+---
+
+## Killed runs leak zombie processes in the `rwam` container
+
+Observed 2026-08-25: **177 defunct `python3` processes** in `rwam`, all with
+PPID 1, accumulated over a day of starting and killing experiment runs.
+
+They cost no CPU and no memory -- a zombie is just an exit status waiting to
+be reaped -- so they are not a performance problem. They consume PID slots,
+and the count only grows.
+
+**Cause.** The solver backend spawns subprocess workers
+(`solver_backend`/`solver_worker.py`, "solves routed: {'subprocess': N}").
+When a run is killed rather than exiting cleanly, those children are orphaned
+and reparented to PID 1. The container's PID 1 is not an init that reaps, so
+they stay defunct forever.
+
+**Why it matters, mildly:** a long-lived container plus many killed runs will
+eventually exhaust the PID namespace. At 177 after one heavy day it is not
+close, but nothing clears them short of a container restart, and `rwam` is
+deliberately long-lived (up 24h+).
+
+**Fixes, none applied:**
+* run the container with `--init` (or `--pid=host`), so PID 1 reaps orphans;
+* or have the solver pool install a SIGTERM handler that terminates its
+  workers before exiting, so they are never orphaned in the first place.
+
+**Why deferred:** the first is a container-lifecycle change and Kai owns
+that; the second is a real fix but touches the solver backend, which is on
+the hot path for every run, and the symptom is currently benign. Worth doing
+the SIGTERM handler when the solver backend is next touched for another
+reason.
