@@ -51,3 +51,36 @@ through 5 points after trimming 2 is thin, and rejecting it is defensible.
 evaluation depends on, and the choice is a research judgement about how much
 early-flight data the fallback must tolerate — not a call to make while
 working on something else. Flagged to Kai 2026-08-24.
+
+## Intermittent heap corruption / core dump in long chain runs
+
+**Status:** open. Observed 2026-08-25, five occurrences in one night.
+
+`learn_40__siteswap.py` on segment chains intermittently dies with
+`corrupted size vs. prev_size` followed by `timeout: the monitored command
+dumped core`. Affected logs that night: `chain45lowdrop`, `chain345ol30`,
+`chain345recheck`, `chain345gate`, `chain345ros_reset`.
+
+**Not resource pressure.** It happens with ~31 GB of 62 GB used and load
+well under the 24 cores; it also happened on an otherwise idle machine, not
+just during the 3-4 way parallel sweeps.
+
+Two flavours, and the difference matters when reading results:
+
+- **at teardown**, after the run's own success summary has printed. The
+  result is complete and valid (e.g. `chain345gate` reported 6/30 and then
+  dumped core). Easy to mistake for a failed experiment.
+- **mid-run**, losing the remaining attempts (`chain345ol30` died after 5 of
+  30). The harness reports whatever attempts completed, so a truncated run
+  can be silently under-powered -- check the attempt count against what was
+  requested before quoting a rate.
+
+`corrupted size vs. prev_size` is glibc detecting heap metadata damage, so
+the corruption happens earlier than the abort and the stack at death is not
+the culprit. Suspects worth eliminating: the MuJoCo python bindings under
+repeated model/data construction across attempts, and the solver subprocess
+backend's teardown path (`solver_worker.py`).
+
+**Proposed fix:** none yet. Minimum useful step is to make the runner exit
+non-zero and say so loudly when it produces fewer attempts than requested,
+so a truncated run cannot be quoted as a complete one.
