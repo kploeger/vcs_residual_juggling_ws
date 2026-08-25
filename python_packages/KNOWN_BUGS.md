@@ -81,6 +81,13 @@ the culprit. Suspects worth eliminating: the MuJoCo python bindings under
 repeated model/data construction across attempts, and the solver subprocess
 backend's teardown path (`solver_worker.py`).
 
-**Proposed fix:** none yet. Minimum useful step is to make the runner exit
-non-zero and say so loudly when it produces fewer attempts than requested,
-so a truncated run cannot be quoted as a complete one.
+**Partial mitigation landed** (`learn_40__siteswap.py`, via
+`runners/learner_args.truncation_report`): the runner now compares completed
+attempts against `attempts x runs` and exits 2 with a message naming both
+counts, so a truncated run can no longer be quoted as a complete one. A
+deliberate interrupt reports the shortfall but stays exit 0. The cascade
+runners (`learn_30/31/32`) print the same style of success rate and should
+adopt it too.
+
+**The crash itself is unfixed** -- the guard only stops it corrupting
+results silently.
