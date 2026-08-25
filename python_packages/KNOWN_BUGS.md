@@ -91,3 +91,58 @@ adopt it too.
 
 **The crash itself is unfixed** -- the guard only stops it corrupting
 results silently.
+
+---
+
+## `robot_control` uses the full crba mass matrix without symmetrising
+
+`robot_control/robot_control/control.py:225` does
+
+```python
+M = pin.crba(self.model, self.data, q)
+... nan_to_zero(M @ ddq_des) ...
+```
+
+and consumes the **full** matrix. Historically `crba` fills only the UPPER
+triangle of `data.M` and leaves the lower triangle undefined, which is why
+`juggling_residual_learning/model_consistency.py:188` symmetrises
+explicitly with the comment "crba fills upper only".
+
+**Currently harmless, and measured to be so.** On the pinocchio this
+workspace pins (3.4.0), the Python binding returns a fully symmetric
+matrix: `max |M - M^T| = 0.0` across 50 random configurations of the sample
+manipulator and 20 of the sample humanoid, and the lower triangle is
+populated. So `M @ ddq_des` is correct today and adding a symmetrisation
+would be a pure no-op cost inside a 1 kHz control loop.
+
+**Why it is still worth recording:** the correctness of that line is a
+property of the pinocchio version, not of the code. On any pinocchio where
+`crba` fills upper-only, `M @ ddq_des` silently uses undefined values below
+the diagonal — wrong torques, no crash, no warning. The neighbouring
+`jax_juggling_ros_ws` session measured exactly that asymmetry from the
+**C++** side of `robot_controllers`
+(`detail/robot_model-inl.hpp:61`, `massMatrix()` returning `crba(...)` raw):
+`max |M - M^T| = 6.71` on pinocchio's sample manipulator at q = 0. Same
+library, same call, opposite result — so the two language bindings and/or
+the two containers' pinocchio versions do not agree, and one of them fills
+upper-only.
+
+**Proposed fix (deferred):** either symmetrise at the call site
+
+```python
+M = np.triu(M) + np.triu(M, 1).T
+```
+
+or, better and free, assert the symmetry ONCE at controller construction
+rather than per control step, so a pinocchio upgrade that reintroduces
+upper-only fails loudly at startup instead of quietly producing wrong
+torques for a whole campaign.
+
+**Why deferred:** no defect exists at the pinned version, the hot path
+should not pay for a no-op, and the real question — which pinocchio fills
+upper-only — is still open with the neighbouring workspace.
+
+**Note:** `robot_controllers` (C++, generic package) has the same pattern
+at `detail/robot_model-inl.hpp:61` and `:153`. residual_ws has **no**
+caller of `massMatrix` / `massMatrixInverse` — the only references are the
+package's own test — so fixing it there cannot affect this workspace.
