@@ -202,3 +202,54 @@ visualisation concern, not a correctness one.
 the ROS execution work in flight, and removing it would touch the launcher
 path during an active investigation of launcher-fed catches.
 
+## `_ballistic_inlier_trim` min-point floor defeats the trim it exists to perform
+
+`juggling_residual_learning/juggling_residual_learning/label_generator.py:277`
+
+```python
+min_pts = max(int(self.release_fit_min_fit_points), 6)
+```
+
+The hard floor of 6 is applied to the number of samples SURVIVING the outlier
+trim, but the routine's whole purpose is to discard corrupted early samples and
+fit what remains. With a short early-flight window the floor makes that
+impossible: drop two bad points from seven and five survive, which is below the
+floor, so the routine returns `(None, None)` and reports "no usable
+measurement" for data it successfully cleaned.
+
+**Symptom.** `tests/test_early_flight_fallback.py::test_velocity_offset_learner_uses_fallback_when_descent_data_is_missing`
+fails with `assert None == 'release_fit'` and logs
+
+    no ballistic-consistent measurement subset in the flight window
+    (tracker association likely mixed balls); 5 of 7 samples survived
+
+The test constructs exactly the case the fallback is for — seven ascending
+samples with the first two perturbed — and asserts
+`ls_fit_trimmed_start_points >= 1`, i.e. that trimming happened and the fit
+still succeeded. The floor makes those two assertions mutually unsatisfiable
+for any window shorter than 8 samples.
+
+Note the warning text blames "tracker association likely mixed balls", which
+sends a reader after a perception problem when the cause is a configuration
+constant. On real data this would silently discard good throws and attribute it
+to the tracker.
+
+**Introduced by** `527c004` (model consistency check / planner telemetry /
+solver subprocess backend), which added the surrounding gravity-plausibility
+check. The floor arrived with it.
+
+**Proposed fix.** Apply the floor to the number of samples ENTERING the trim,
+not to those surviving it, and let the caller decide whether a 5-point ascending
+fit is acceptable — a gravity-constrained quadratic needs 3 points, and the
+routine already validates the recovered gravity against `g_ref` within 25%, so
+the fit cannot silently pass on garbage. Failing that, make the floor
+`min(release_fit_min_fit_points, len(ts) - 2)` so a short window can still trim.
+Either way the warning should distinguish "too few samples to begin with" from
+"trim removed too many", since only the second implicates the tracker.
+
+**Why deferred.** Not my area and not on the ISRR rerun's path — this is the
+real-robot / ROS label-generation path, and the sim runs the rerun uses do not
+hit it. Confirmed pre-existing: it fails identically at `f2ca6bb`, the commit
+before the `isrr-rerun-fixed-model` branch starts, so no rerun number depends
+on it. Whoever owns `527c004` should decide whether the floor or the test
+encodes the intended contract. (Kai, 2026-08-26)
