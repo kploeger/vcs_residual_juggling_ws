@@ -253,3 +253,51 @@ hit it. Confirmed pre-existing: it fails identically at `f2ca6bb`, the commit
 before the `isrr-rerun-fixed-model` branch starts, so no rerun number depends
 on it. Whoever owns `527c004` should decide whether the floor or the test
 encodes the intended contract. (Kai, 2026-08-26)
+
+## `solver_backend: "auto"` routes in-process under ROS, contradicting its own documentation
+
+`juggling_residual_learning/juggling_residual_learning/jugglers/config.py:1028`
+and `.../jugglers/planner_bank.py:207,234`
+
+`cfg.solver_backend` defaults to `"auto"`, documented at config.py as
+subprocess under ROS and in-process for direct MuJoCo, with a measured
+rationale (IPOPT releases the GIL, rospy callback threads then deschedule it:
+5.5 ms without rospy threads, 10.0 ms with).
+
+Reported by the residual-ws session 2026-08-27: a ROS siteswap chain logged
+`solves routed: {'inprocess': 163, 'subprocess': 0}` under `auto`. Forcing
+`solver_backend: subprocess` took worst-case planning from **342 ms to 115 ms**
+— which matters because the ROS control loop is a hard 1 kHz deadline and a
+blown trajectory-start deadline aborts the attempt.
+
+**What I verified in this checkout** (I did not reproduce their run; my sweeps
+are direct MuJoCo, where `auto` correctly chooses in-process):
+
+* Two docstrings disagree. config.py:1024-1028 says auto means subprocess under
+  ROS. The `solver_backend` property at planner_bank.py:207 says *"Defaults to
+  in-process (today's behaviour)"* and unconditionally constructs an
+  `InProcessSolverBackend` when none is set.
+* The property is **lazy**, and `activate_solver_backend()` — the only thing
+  that can select subprocess — has exactly one caller (planner_bank.py:625).
+  Any solve issued before that call materialises the in-process backend and
+  caches it on `_solver_backend`.
+* `activate_solver_backend()` also contains a fallback that returns in-process
+  when any NLP is "built outside the recorded build plan", which its own
+  docstring says happens for a siteswap with holds building `cyclic_from_rest`
+  / `cyclic_stop` by calling the planner directly. It logs a warning, not an
+  error, and then proceeds — so a run that quietly lost its subprocess backend
+  looks normal.
+
+**Proposed fix.** Make the routing decision observable and unambiguous:
+report the resolved backend once at startup in the same place the run reports
+its config, rather than leaving it to a mid-log warning; and reconcile the two
+docstrings so the property does not claim in-process is "today's behaviour"
+while the config claims otherwise. If the lazy-property-before-activation
+ordering is real, activation should happen before any planner call rather than
+relying on nothing having solved yet.
+
+**Why deferred.** Not on this workspace's path — the ISRR rerun is direct
+MuJoCo throughout, where `auto` resolves correctly and the subprocess backend
+would pay IPC for nothing. Belongs with whoever owns the ROS planning path.
+Diagnostic for anyone hitting it: the run log's `solves routed:` line states
+what actually happened; do not infer it from the config. (Kai, 2026-08-27)
