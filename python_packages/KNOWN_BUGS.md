@@ -179,3 +179,26 @@ that; the second is a real fix but touches the solver backend, which is on
 the hot path for every run, and the symptom is currently benign. Worth doing
 the SIGTERM handler when the solver backend is next touched for another
 reason.
+
+## Dead optional hook: `_update_desired_ball_mocaps`
+
+`juggling_residual_learning/jugglers/launchers.py:696-700` calls
+`self._update_desired_ball_mocaps(t_launch_time)` behind a
+`hasattr(self, ...)` guard. Nothing in the workspace defines that method, so
+the guard is always False and the block never runs — the launcher never
+updates desired-ball mocaps at release, and no caller can tell.
+
+Found by `tests/test_no_calls_to_removed_methods.py` (2026-08-28), which
+scans for `self._foo()` with no definition anywhere. The test exempts
+hasattr-guarded calls, since that is the legitimate optional-hook pattern —
+so this one is exempt and will stay invisible to it.
+
+**Proposed fix:** either implement the hook, or delete the guarded block and
+the log message that goes with it. Deciding needs to know whether desired-ball
+mocap visualisation at launcher release was ever wanted; that is a
+visualisation concern, not a correctness one.
+
+**Why deferred:** harmless (it is a no-op, not a wrong result), unrelated to
+the ROS execution work in flight, and removing it would touch the launcher
+path during an active investigation of launcher-fed catches.
+
