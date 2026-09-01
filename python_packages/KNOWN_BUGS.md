@@ -301,3 +301,44 @@ MuJoCo throughout, where `auto` resolves correctly and the subprocess backend
 would pay IPC for nothing. Belongs with whoever owns the ROS planning path.
 Diagnostic for anyone hitting it: the run log's `solves routed:` line states
 what actually happened; do not infer it from the config. (Kai, 2026-08-27)
+
+---
+
+## The seed lookup's `symmetric` branch is dead code
+
+**Where:** `juggling_residual_learning/juggling_residual_learning/domain_randomization.py:253`
+(`run_seed_from_cfg`), and the copy inlined as `_run_seed_from_cfg` in
+`jugglers/throw_scheduler.py` on `main` (commit `5df8b66`).
+
+```python
+for arm in ("right", "left", "symmetric"):
+    lc = getattr(blk, arm, None)
+    seed = getattr(lc, "seed", None)
+```
+
+`symmetric` is not a data field on `ArmedLearnerCfg` — it is a **classmethod**
+constructor. `getattr(blk, "symmetric")` therefore returns a bound method, and
+`getattr(<method>, "seed", None)` is `None`, so that iteration can never
+contribute a seed. Verified by loading `bo_vanilla_squared.yaml` (which writes
+`symmetric:` in YAML) through `ArmedLearnerCfg.from_dict`: the resulting object
+exposes `right` and `left` as `BoCfg`, and `symmetric` as
+`<bound method ArmedLearnerCfg.symmetric>`.
+
+**Impact: none today, and the reason is worth stating** — `from_dict` expands a
+`symmetric:` block into populated `right` and `left` fields, and those are tried
+first, so the seed is always found before the dead branch is reached. The bug is
+that the branch *reads* as the fallback for symmetric configs while doing
+nothing, so anyone reasoning about "what happens if only symmetric is set"
+concludes it is handled.
+
+**Fix:** drop `"symmetric"` from the tuple, or, if a genuine symmetric-only cfg
+shape can exist, look it up by the field it actually lands in. Do not
+"fix" it by making `symmetric` a field — that would collide with the
+constructor of the same name.
+
+**Deferred because** it changes no behaviour, and the two copies of this
+function should be collapsed into one first (see the guard in
+`tests/test_no_global_numpy_rng.py::test_run_seed_lookup_has_a_single_definition`,
+which fails the build when the `isrr-rerun-fixed-model` branch merges). Fixing
+it in one copy and not the other is precisely the drift that guard exists to
+prevent. (Claude, 2026-09-02)
