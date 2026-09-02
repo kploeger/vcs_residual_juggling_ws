@@ -5,6 +5,63 @@ describes the problem, proposes a fix, and says why it was deferred.
 
 ---
 
+## `JRL_TAU_FF_INTERP=zoh` is a no-op for every non-ILC run
+
+**Where:** `juggling_residual_learning/juggling_residual_learning/environment/mj_env.py:221`
+(the switch) and `jugglers/throw_scheduler.py:919-926` (why it never fires).
+
+The env var is documented as a backend-fidelity switch, and its comment
+frames it as a candidate explanation for the open direct-vs-ROS gap: "the
+real plant is ros_control's trajectory controller, whose
+`torque_trajectory_segment_type` is PiecewiseConstant ... the two backends
+drive the arm with different torque profiles between knots ... the torque
+path was simply never looked at."
+
+But `tau_ff` only ever becomes non-None here:
+
+```python
+_ilc_learner = self.learners.get(throw_type) if use_learner else None
+_ffp = getattr(_ilc_learner, "feedforward_profile", None)
+_tau_ff = _ffp(trajectory.time_steps) if _ffp is not None else None
+```
+
+and `feedforward_profile` is defined on exactly one learner, `learners/ilc.py`.
+For every plan-side learner (newton, gaussian_deficit, bo, bobyqa, dfols, the
+evolutionary family, noop) `tau_ff` is None, `_tau_ff_segments` stays empty,
+and `_interpolate_feedforward_torque` returns at its first line without
+reaching the `_resolve_tau_ff_zoh()` branch at all.
+
+**Measured**, direct MuJoCo, 3-ball cascade, noop learner, 30 throws, seed 0:
+
+    default                    |e| right 0.0516  left 0.0500
+    JRL_TAU_FF_INTERP=zoh      |e| right 0.0516  left 0.0500
+
+Byte-identical to four decimals on both arms. For contrast, on the same
+command `JRL_INTERP_MODE=polynomial` moved them (0.0532 / 0.0540), so the
+env-var plumbing itself works — this switch specifically has nothing to act
+on.
+
+**Why it matters more than a dead flag.** The comment invites exactly one
+experiment: run the ablation, see no change, conclude the feedforward torque
+path is not the missing piece of the direct-vs-ROS gap. That conclusion would
+be unsupported, because the switch never engaged. Same family as the
+`--hold-2s`-on-`--chain` no-op: an option that reads as tested while doing
+nothing. It also means the docstring's claim that "the two backends drive the
+arm with different torque profiles between knots" is, for every run anyone
+has made with a plan-side learner, describing a difference that does not
+exist — both backends send no feedforward torque at all.
+
+**Proposed fix:** make the switch announce itself. Either warn once when
+`JRL_TAU_FF_INTERP` is set while no scheduled trajectory carries a `tau_ff`,
+or assert at schedule time that a run requesting the ablation actually has a
+learner producing a feedforward profile. Amend the docstring to say the
+comparison is ILC-only.
+
+**Why deferred:** it is a diagnostic-only path, no recorded number is wrong
+because of it, and the fix is a warning whose right shape (warn-once vs
+fail-loud) is a call for whoever owns the ILC work. Found while looking for a
+direct-MuJoCo lever to enlarge the release-velocity deficit, 2026-09-02.
+
 ## `release_fit_min_fit_points` is silently clamped to 6
 
 **Where:** `juggling_residual_learning/juggling_residual_learning/label_generator.py:275`
