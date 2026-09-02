@@ -336,6 +336,16 @@ shape can exist, look it up by the field it actually lands in. Do not
 "fix" it by making `symmetric` a field — that would collide with the
 constructor of the same name.
 
+**Watch the truthiness when fixing** (raised by the session on
+`ball-growth-siteswap-chains`): a bound method is **truthy**. The current code
+is safe only because it tests `seed is not None` after `getattr(lc, "seed",
+None)`, which a bound method fails. Rewriting the loop in the natural-looking
+form `if lc:` — or any guard that tests the cfg object rather than the seed —
+turns `symmetric` from an inert branch into an actively harmful one: it would
+match, look like a found arm, and mask the real fallback. So this is not a
+"delete one string" fix to do absent-mindedly while touching the function for
+another reason.
+
 **Deferred because** it changes no behaviour, and the two copies of this
 function should be collapsed into one first (see the guard in
 `tests/test_no_global_numpy_rng.py::test_run_seed_lookup_has_a_single_definition`,
