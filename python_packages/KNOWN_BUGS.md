@@ -5,6 +5,63 @@ describes the problem, proposes a fix, and says why it was deferred.
 
 ---
 
+## A duplicated workspace can carry a second copy of this package, and the container installs both
+
+**Where:** the container entrypoint (`/entrypoint.sh`), which runs
+
+```bash
+find /python_packages -type f -name setup.py | while IFS= read -r setup_path; do
+  pip install --no-cache-dir --no-deps -e "$(dirname "$setup_path")"
+done
+```
+
+`residual_estimator_ws` was duplicated from `residual_ws` at a moment when
+that workspace had a git worktree at `python_packages/_um_test`. The copy
+brought it along. It is a full checkout of `juggling_residual_learning` at an
+older commit, **with its own `setup.py` declaring the same package name**.
+
+So the entrypoint installed both, and because they share a name the one
+installed **last** won the `easy-install.pth` entry. `find` order is not
+guaranteed, so which tree the container imported was decided
+nondeterministically on every `docker start`.
+
+**Observed**, after the 2026-09-04 reboot: six seconds after `docker start`,
+
+```
+import juggling_residual_learning -> /python_packages/_um_test/juggling_residual_learning/__init__.py
+```
+
+and once the entrypoint finished, correctly again. Two distinct hazards: a
+**race** against anything launched immediately after a start, and a **latent
+coin-flip** on later starts.
+
+**Why it is nastier than it looks.** It defeats the isolation check everyone
+in this fleet has been running. `docker inspect ... | grep residual_ws`
+passes — the mount really is correct. The wrong tree arrives *inside* the
+correct mount, so the container is importing a stale copy of the right
+package from the right directory. Nothing about it looks wrong, and the
+symptom would be an experiment silently running code that is days old.
+
+**Proposed fix:** have the entrypoint refuse, loudly, when two discovered
+`setup.py` files declare the same package name — that is never intentional.
+Failing that, skip directories that are git worktrees of another repo (a
+`.git` *file* whose `gitdir:` points outside the tree being installed).
+
+**Why deferred:** the entrypoint lives in the docker image and changing it
+means a rebuild, which is a bigger change than the workspace-side fix. Moved
+the stray copy to `<workspace>/_stray_copies/_um_test` instead — out of the
+install scan, not deleted, since it is a copy of another agent's work.
+
+**Check for it once in any duplicated workspace:**
+
+```bash
+find python_packages -name setup.py        # exactly the query the entrypoint runs
+docker exec <container> python3 -c "import juggling_residual_learning as m; print(m.__file__)"
+```
+
+and run the second one **after** the entrypoint has finished, not seconds
+after `docker start`. Found 2026-09-04.
+
 ## `JRL_TAU_FF_INTERP=zoh` is a no-op for every non-ILC run
 
 **Where:** `juggling_residual_learning/juggling_residual_learning/environment/mj_env.py:221`
