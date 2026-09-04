@@ -352,3 +352,49 @@ function should be collapsed into one first (see the guard in
 which fails the build when the `isrr-rerun-fixed-model` branch merges). Fixing
 it in one copy and not the other is precisely the drift that guard exists to
 prevent. (Claude, 2026-09-02)
+
+
+---
+
+## MuJoCo and ROS launchers anchor a delayed callback to different clocks
+
+`juggling_residual_learning/environment/mj_env.py:_drop_ball` schedules the
+optional delayed callback at
+
+    self._env.current_time + callback_delay
+
+while its ROS twin, `environment/ros_env.py:~3084`, schedules the same
+callback at
+
+    absolute_time + callback_delay
+
+`absolute_time` is the PLANNED launch instant. `current_time` is the sim
+time at which the launch actually fired, and those are not equal:
+`_process_scheduled_events` (mj_env.py:450) runs AFTER `mj_step` and fires
+every event with `current_time >= trigger_time`, so the firing sample is the
+first one at or past the plan and overshoots by up to one control period.
+The error is one-sided — always late, never early — and the callback is then
+itself scheduled, so it quantises again.
+
+So the two backends compute the same quantity from different origins, and
+the gap SCALES WITH THE CONTROL PERIOD: ~1 ms at 1 kHz, 4 ms at 250 Hz.
+At any single rate it reads as noise, which is why it has not surfaced.
+
+**Proposed fix:** pass the planned `absolute_time` through `_fire()` into
+`_drop_ball` and anchor the MuJoCo callback to it, matching ROS. ROS has the
+better convention: anchoring to the plan makes the callback independent of
+scheduler jitter.
+
+**Why deferred:** not yet measured, only read from the code — the magnitude
+above is derived from the dispatch condition, not observed. It is bounded by
+one control period (<=1 ms at the 1 kHz this repo runs), it changes recorded
+numbers, and the launcher path is under active investigation for the
+cross-init and 744 work. Worth doing with a test that varies the control
+period, since a rate sweep is what distinguishes a sampling term from
+everything else; at a single rate all readings look like noise.
+
+Found 2026-09-04 by checking the two launcher twins for corrections applied
+to one and not the other, after `wam_sysid` hit that class three times. The
+cancellation fix itself (`PendingLaunches`, f9115ee) IS symmetric across the
+twins -- both issue a token, both check it before firing, both guard the
+delayed callback. This anchor difference is the one asymmetry found.
