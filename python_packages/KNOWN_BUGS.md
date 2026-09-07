@@ -145,7 +145,8 @@ upper-only — is still open with the neighbouring workspace.
 **Note — CORRECTED 2026-09-07.** `robot_controllers` (C++, generic
 package) has the same pattern at `detail/robot_model-inl.hpp:61` and
 `:153`, and the claim that previously stood here — that residual_ws has no
-caller, only the package's own test — **was wrong**. It has five:
+caller, only the package's own test — **was wrong**. It has five **on
+`master`** (`robot_controllers @ 0dbbb30`):
 
 - `detail/low_level_controllers-inl.hpp:232` —
   `PIDMassGravityController::computeDiagnosticFields` computes
@@ -154,6 +155,16 @@ caller, only the package's own test — **was wrong**. It has five:
   searched for the class name rather than the method.
 - `detail/observers-inl.hpp:96, 128, 176, 212` — four `massMatrixInverse`
   calls in the momentum-based observers.
+
+The count is branch-specific, so read it with the branch attached. On
+`tll-planner` there is a **sixth**: `ADRCController` at
+`low_level_controllers-inl.hpp:514` takes the same `massMatrix` path. That
+branch's line numbers for the observer calls are 112, 147, 219 and 276 —
+the same four call sites, shifted by comment blocks inserted above them.
+Anyone carrying "five" from here onto that branch would be one short.
+Neither count changes the repair: the fix lives at the model level in
+`RobotModel` / `FocusedRobotModel`, not at any call site, so it covers
+however many callers a branch happens to have.
 
 Measured from the C++ side over 50 random configurations:
 `max |M − Mᵀ| = 6.71`, `max |Minv − Minvᵀ| = 33.68`,
