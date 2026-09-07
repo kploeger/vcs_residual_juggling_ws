@@ -142,10 +142,40 @@ torques for a whole campaign.
 should not pay for a no-op, and the real question — which pinocchio fills
 upper-only — is still open with the neighbouring workspace.
 
-**Note:** `robot_controllers` (C++, generic package) has the same pattern
-at `detail/robot_model-inl.hpp:61` and `:153`. residual_ws has **no**
-caller of `massMatrix` / `massMatrixInverse` — the only references are the
-package's own test — so fixing it there cannot affect this workspace.
+**Note — CORRECTED 2026-09-07.** `robot_controllers` (C++, generic
+package) has the same pattern at `detail/robot_model-inl.hpp:61` and
+`:153`, and the claim that previously stood here — that residual_ws has no
+caller, only the package's own test — **was wrong**. It has five:
+
+- `detail/low_level_controllers-inl.hpp:232` —
+  `PIDMassGravityController::computeDiagnosticFields` computes
+  `modelTorqueScale * massMatrix(q) * reference.acc`. This has always been a
+  caller; it was missed because the grep that produced the original note
+  searched for the class name rather than the method.
+- `detail/observers-inl.hpp:96, 128, 176, 212` — four `massMatrixInverse`
+  calls in the momentum-based observers.
+
+Measured from the C++ side over 50 random configurations:
+`max |M − Mᵀ| = 6.71`, `max |Minv − Minvᵀ| = 33.68`,
+`max |M·Minv − I| = 250.93`. So on that binding the matrices really are
+upper-triangle-only and any of those five call sites would produce wrong
+torques with no crash and no warning.
+
+**Nothing in this workspace is actually affected, and that was checked
+rather than assumed:** `PID_MassGravity` appears in exactly one place, a
+comment in `wam_controllers/config/wam4_controllers.yaml:194` listing the
+available controller types, and is selected by no config; every
+`observer_type` in the shipped configs is `"Identity"`, which takes none of
+the `massMatrixInverse` paths. A scan of the recorded runs under `/retain`
+found no run that selected it.
+
+**So the risk is forward-looking, and it is the reason this note matters:**
+selecting `PID_MassGravity` — a documented, one-line config change —
+silently produces wrong torques. Fixed on `robot_controllers @
+tll-planner`, commit `1216a16`, with a symmetry test that fails before the
+fix (found by the `TLL_planner` session, which also found that the
+package's C++ tests had never linked at all, so "the tests pass" there was
+never a true statement).
 
 ---
 
