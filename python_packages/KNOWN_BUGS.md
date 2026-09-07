@@ -5,6 +5,58 @@ describes the problem, proposes a fix, and says why it was deferred.
 
 ---
 
+## INVARIANT (not a bug): direct MuJoCo never mutates a live `mjModel`
+
+Recorded here rather than in a commit message because it is the property
+someone would be *breaking*, and this is the file people read before changing
+model handling.
+
+**The invariant.** Every physical parameter in this codebase — tool mass and
+geometry, ball inertials, arm links, scene composition — is composed into XML
+**text** and the model is then built by
+
+```python
+# robot_description/mujoco/builder/model_builder.py:40
+return mj.MjModel.from_xml_string(self.xml_text, self.asset_files)
+```
+
+MuJoCo computes every derived quantity during compilation, so no derived
+value can be stale relative to the parameter it came from.
+
+**Why it matters.** MuJoCo caches quantities it derives once: body inertia
+from mass and geometry, subtree masses, and so on. Writing `model.body_mass[i]`
+on a **live** model leaves those caches untouched, so the setting is
+configured, logged, and inert. Measured in RL-X's mujoco backend by
+`juggling_rl_jax_adaptive`: 1 N on a ball body, ×5 mass, `qacc` unchanged at
++14.925 m/s² — implied mass still the original 0.067 — until `mj_setConst`
+was called. Their fix is `0599606`. MJX/mjx_warp is not affected; the defect
+is specific to the live-`mjModel` path.
+
+**Verified absent here**, three tools with a positive control on the same
+pattern, so the negative is known to have reached the code:
+
+```bash
+/usr/bin/grep -rnE "(model|m|mj_model)\.(body_mass|body_inertia|body_ipos|body_iquat|dof_armature|body_subtreemass|geom_size)\s*\[[^]]*\]\s*=" --include="*.py" .
+```
+
+Zero matches. The only accesses to those arrays anywhere in the tree are four
+**reads** in `juggling_residual_learning/model_consistency.py:275-279`, a
+diagnostic comparing MuJoCo's inertials against Pinocchio's.
+
+**If you add a live-model write** — domain randomisation of masses, a runtime
+tool swap, an inertia sweep — this invariant is what you are breaking, and
+`mj_setConst` after **every** writer is the fix. Two writers and one call
+half-fixes it: the embodiment module writes link masses as well as the
+environment-model module, which is the shape of the RL-X instance.
+
+**Check by effect, not by setting.** Apply a known force and read `qacc`;
+implied mass is `F / a`. And note the adjacent trap `juggling_rl_jax_adaptive`
+hit: an inert-looking result may be a *switched-off block* rather than a stale
+cache — `environment_model.type` defaults to `"none"` and `should_randomize`
+is gated on a coefficient defaulting to 0.0. Two gates, both defaulting to
+off, producing the same symptom as the defect and wanting the opposite fix.
+**Before concluding a setting is inert, prove the code path executed at all.**
+
 ## A duplicated workspace can carry a second copy of this package, and the container installs both
 
 **Where:** the container entrypoint (`/entrypoint.sh`), which runs
