@@ -180,6 +180,15 @@ available controller types, and is selected by no config; every
 the `massMatrixInverse` paths. A scan of the recorded runs under `/retain`
 found no run that selected it.
 
+**Confirmed on a LIVE stack, 2026-09-08** (previously this rested on
+reading config files, which report what the config *says* rather than what
+the controller *received*). TLL_planner's preflight, run against the
+running controller on `ball`, reports `controller_type: PID_FeedForwardID`
+and `observer_type: Identity` — so neither the `massMatrix` call site in
+`PIDMassGravityController` nor the four `massMatrixInverse` call sites in
+the momentum observers are on the executed path. That is the stronger form
+of the same negative result.
+
 **So the risk is forward-looking, and it is the reason this note matters:**
 selecting `PID_MassGravity` — a documented, one-line config change —
 silently produces wrong torques. Fixed on `robot_controllers @
