@@ -398,3 +398,49 @@ to one and not the other, after `wam_sysid` hit that class three times. The
 cancellation fix itself (`PendingLaunches`, f9115ee) IS symmetric across the
 twins -- both issue a token, both check it before firing, both guard the
 delayed callback. This anchor difference is the one asymmetry found.
+
+## `q_err` has opposite signs on the ROS and MuJoCo backends
+
+**Where.** `juggling_residual_learning/environment/ros_env.py:1330` assigns
+`self._q_err = msg.error.positions` verbatim, while
+`juggling_residual_learning/environment/mj_env.py:1023` computes
+`self._q_err = self._q_des - self.q`.
+
+**Why they differ.** `robot_controllers`' `TrajectoryController` fills
+`error.positions` with
+`difference(reference.pos, estimated.pos)`
+(`detail/trajectory_controller-inl.hpp:790, 823`). `RobotModel::difference(a,b)`
+forwards to `pinocchio::difference`, which is the tangent vector *from a to b*,
+i.e. `b - a` — so the published `error.positions` is **actual − desired**.
+`mj_env` uses **desired − actual**. The two backends therefore disagree in sign
+on `q_err`. Note `error.velocities` on that same message is filled with
+`reference.vel - estimated.vel` (desired − actual), so `error.positions` and
+`error.velocities` disagree with *each other* on a single message too.
+
+**Blast radius.** Diagnostics only, and narrower than it looks:
+- The ILC tracking tap was already independently patched around this
+  (`ros_env.py:1487-1489`, whose comment says it recomputes `q_des - q` "so the
+  sign convention matches MjArm exactly"), so no learner or torque-control path
+  is affected.
+- The tolerance checks in `trajectory_controller-inl.hpp:1027, 1058` use
+  `std::abs()` and are sign-insensitive.
+- What IS affected: the raw `.q_err` property and the `'q_err'` field recorded
+  into every attempt pickle (`ros_env.py:1444`), consumed by `plotting.py`,
+  `analyze_arm_trajectory.py` and `torque_audit.py`. Every ROS/real-robot run
+  has a flipped `q_err` relative to every direct-MuJoCo run.
+
+**Proposed fix.** Make `error.positions` `difference(estimated.pos,
+reference.pos)` so it means desired − actual and agrees with
+`error.velocities`; then `ros_env.py:1330` needs no change. Any comparison of
+old ROS recordings against new ones must account for the flip.
+
+**Why deferred.** Found 2026-09-08 ~02:30, hours before a real-robot session
+that reads these plots. Changing the sign of a published ROS topic on the
+morning of a hardware run is a worse risk than the inconsistency itself, and
+the experiment being run (catch→throw error propagation) measures touchdown
+positions, not `q_err`, so its result is unaffected. Fix after the run, and
+check whether anything downstream silently depends on the current sign.
+
+**Not introduced by the observer sign fix of 2026-09-08** (commit `289600a`);
+`git blame` puts this code at `efa4a18a`, 2026-03-22. It is a genuinely
+separate instance of the same confusion about `difference()`'s argument order.
