@@ -93,9 +93,25 @@ code and the data* that would otherwise be lost between sessions.
   null` emits the literal string "None" — `run_manifest` has no None guard.
 
 - [ ] **Raise `max_adaptation` 0.05 -> ~0.15 once a pattern holds.**
-  80% of adaptations (57 of 71) exceeded the 0.05 per-axis clamp; 29 exceeded
-  the 2-axis corner 0.0707. Measured |dpos| med 0.065, **max 0.388 m** — the
-  arm was told the ball was 39 cm away and moved 7 cm. Every one of those
+  CORRECTED 2026-09-09: my earlier "80% of adaptations were clamped" was true
+  per-AXIS but overstated the effect, and read as though the clamp were
+  crippling closed-loop catching. Measured on the norm, per throw (n=70
+  adapted throws with a non-zero request):
+
+      requested |dpos|   p10 0.041  med 0.065  p90 0.134  max 0.388 m
+      applied   |dpos|   p10 0.041  med 0.054  p90 0.071  max 0.071 m
+      retained fraction  p10 0.458  med 0.863  p90 1.000
+      68 of 70 throws moved the hand >= 0.02 m; 28 of 70 retained >=90%
+
+  So the clamp is NOT behaving like gain=0 -- the median throw keeps 86% of
+  its correction and moves the hand 5.4 cm, against a 3.75 cm ball radius and
+  a 7 cm cup radius. The adapted condition is behaviourally distinct from an
+  unadapted one on essentially every throw.
+
+  WHERE IT DOES BITE IS THE TAIL: 8 of 70 throws retained under half, and the
+  worst residual is 0.317 m. Since one bad catch ends an attempt, the tail is
+  what actually costs completions -- which is the argument for raising the
+  clamp, rather than the average being crippled. Every one of those
   predictions was measurement-backed (`MAX_BALL_STATE_AGE_FOR_CATCH_S` = 30 ms).
   `experiments/ros_uniform_5ball_closed/manifest.yaml` already carries the
   measured curve: throws before a drop 0.10 -> 15, **0.15 -> 21**, 0.20 -> 13.
