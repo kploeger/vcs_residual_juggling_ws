@@ -247,3 +247,49 @@ time from `n_time_steps`, `cycle_time`, `dwell_ratio`, `t_before_contact` and
 the whole chain. At a single tempo and dwell the honest window is 5 intervals
 against the 10 we now carry, so this is worth real solve time — see the
 planning-speed work.
+
+## ALL solves must leave the main process — 2 per attempt still do not
+
+Kai, 2026-09-09, after being informed: "We need to get ALL of the solves to out
+of the main process."
+
+MEASURED, ros_sim smoke3: 168 of 174 solves route to the pinned subprocess
+workers (cores 22/23). Six do not — two per attempt: **`cyclic_from_rest` and
+`cyclic_stop`**.
+
+WHY they stay in-process. `siteswap_juggler.py:1511` / `:1523` (and `:1556` for
+the per-duration stop variants) call `planner.build_throw_nlp(...)` /
+`planner.build_stop_nlp(...)` **directly on the planner object**, bypassing the
+`planner_bank` helpers that call `_record_nlp_build`. With no recorded build
+step, `unsupported_worker_builds` flags them and `HybridSolverBackend` keeps
+them in-process rather than giving up worker isolation for the whole run.
+
+WHY SIX OUT OF 174 MATTERS — Kai's observation, and it explains a symptom we
+chased all day. `cyclic_stop` is the STOPPING plan, and stopping is exactly what
+happens when a ball drops. So the in-process GIL hold lands precisely when the
+remaining balls' expected-state updates are due. That is the delayed tracker
+updates after a drop. The six fire at the worst possible instant.
+
+Recorded evidence that in-process solving is harmful, from `solver_backend.py`:
+94% of trajectory sends arriving AFTER their own start time (mean −11.2 ms) and
+the driver answering "Rejecting trajectory - transition time is in the past" —
+a rejected trajectory means the arm never moves and the attempt collapses with
+one arm frozen. That measurement is why `HybridSolverBackend` exists.
+
+THE PAYOFF once it lands: `TRACK_UPDATE_LEAD_S` (0.050 — how far ahead expected
+states are published to the tracker) exists to absorb exactly this jitter.
+Kai expects it can come down to ~0.010 once no solve blocks the main process.
+Measure it; do not assume it.
+
+THE TRAP in fixing it: the replayed NLP must be IDENTICAL to today's.
+`cyclic_stop` is built with a REDUCED constraint set — only `joint_limits`, not
+the full `catch_and_stop` `constraint_params` — plus its own `np.linspace` grid;
+`cyclic_from_rest` uses `first_throw`'s constraints over a custom `throw_span`.
+Routing them through the existing recorded helpers would re-derive both from cfg
+and silently build a DIFFERENT NLP — changing recorded numbers with nothing
+failing. The safe shape is to record the build with its explicit arguments
+(time-steps array, constraint_configs dict, cost-function selector, key) and
+replay those, rather than re-deriving from cfg.
+
+Assigned to the planning-speed agent, which already owns `planner_bank.py` and
+`solver_backend.py`.
