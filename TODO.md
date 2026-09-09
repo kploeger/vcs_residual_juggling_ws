@@ -209,3 +209,41 @@ MEASURED, smoke3 in ros_sim on 2026-09-09: `new_track_future=3` against
 `newTracksFromFutureStamp_`, which also logs a warning naming the lead in ms.
 Left unfixed because it is rare and the machinery is not small; the counter is there
 so it can be re-checked rather than assumed.
+
+## The pre-touchdown cone's knot window is a constant where it should be derived
+
+`jugglers/config.py`, `pre_touchdown_cone.interpolation_breakpoint_range`.
+`Trajectory.interpolate_q` CLAMPS the evaluation time into this window and builds
+one if_else branch per interval inside it, so the window must span every time the
+cone is evaluated at — too narrow is a silently wrong constraint, too wide is
+graph cost in every solve.
+
+It has to cover `t_catch - t_before_contact ± max_time_adaptation`, where
+`t_catch = (1 - dwell_ratio) * cycle_time`, over every tempo in the chain. That
+is four cfg values, and the window is one hardcoded pair. Measured widths
+(2026-09-09, tempos 0.43–0.60, `t_before_contact` {0.05, 0.10}):
+
+    dwell        adaptation   required     intervals
+    0.42         0 ms         [10, 15]      5      <- the old value, exactly
+    0.42         20 ms        [ 9, 16]      7
+    0.50         20 ms        [ 6, 14]      8
+    0.42-0.50    20 ms        [ 6, 16]     10      <- set today
+    0.42-0.50    50 ms        [ 4, 18]     14
+
+The old `[10, 15]` was "dwell 0.42, adaptation OFF" — sized as if catch-time
+adaptation did not exist, while `adapt_catch_time` is True at 20 ms. It had been
+clamping at the tempos this study runs.
+
+OPEN: `CatchAdaptationCfg.max_time_adaptation` defaults to **0.05**, which needs
+`[4, 18]`; the study narrows it to 0.02 via
+`experiments/transitions/configs/best_chain_catch_clamp.yaml:19`, which `[6, 16]`
+covers. So real runs are fine and a factory-default run is not.
+`tests/test_breakpoint_range_envelope.py::test_the_factory_adaptation_limit_does_not_exceed_the_window`
+xfails on exactly this so it stays visible.
+
+Proper fix: derive the window per tempo and per trajectory variant at NLP-build
+time from `n_time_steps`, `cycle_time`, `dwell_ratio`, `t_before_contact` and
+`max_time_adaptation`, instead of one constant sized for the worst case across
+the whole chain. At a single tempo and dwell the honest window is 5 intervals
+against the 10 we now carry, so this is worth real solve time — see the
+planning-speed work.
