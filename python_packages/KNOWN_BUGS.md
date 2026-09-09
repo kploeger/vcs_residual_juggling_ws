@@ -180,6 +180,46 @@ the hot path for every run, and the symptom is currently benign. Worth doing
 the SIGTERM handler when the solver backend is next touched for another
 reason.
 
+### Update 2026-09-09: recurred, and the second fix would NOT have helped
+
+Measured in `rwam_plan` after 42 h uptime: **160 zombies out of 170
+processes** under the container's `sleep infinity` init. So this is not
+specific to `rwam`; it is a property of every container started this way.
+
+**The diagnosis above is too narrow.** It attributes the leak to the solver
+backend's subprocess workers, and proposes a SIGTERM handler there as the
+real fix. The population says otherwise -- by name: 52 `python3`, 48
+`dp_zil_clean_ta`, 38 `z_wr_iss`, 28 `bash`, 24 `rosrun_delayed`, 22
+`pt_main_thread`, 20 `robot_state_publisher`, 17 `wam_mujoco_driver`. The ROS
+launch tree dominates, and those children are not the solver pool's to
+reap. **A SIGTERM handler in the solver backend would leave most of this
+untouched.** `--init` (or tini/dumb-init as PID 1) is the only fix that
+addresses the whole class, and it fixes it for every container rather than
+one code path.
+
+**And there is a second, worse half that this entry missed: LIVE orphans.**
+Zombies are harmless -- a PID slot each. But `rviz`, `robot_state_publisher`
+and `rosout` survive a launch teardown as **live** orphans reparented to the
+container init. Three `rviz` accumulated over 13 h in `rwam_plan`, holding X
+connections and appearing on the user's physical desktop, alongside 14
+defunct ones going back a further 7 h. Those hold GPU/CPU and are visible to
+the user; they are a real leak, not a bookkeeping artefact.
+
+The distinction matters when checking: `stat` alone or `user` alone gives the
+wrong answer, and **a kill that reports success while the count does not
+change** is the signature of signalling zombies.
+
+**How to avoid the live half:** use
+`juggling_residual_learning/scripts/ros_sim_health.sh` for teardown. Its
+`SIM_PATTERN` already covers `rviz|robot_state_publisher|rosrun_delayed|
+controller_manager/spawner`, which a hand-written `killmatch.sh roslaunch
+rosmaster wam_mujoco_driver spawner` list does not -- that omission is how
+the three `rviz` above were created. `rosout` is the one live name the
+pattern does not carry; it usually exits with its master but did not here.
+Adding it was considered and rejected: the pattern is not scoped to a
+container, and several sessions run ROS on this box, so a broader pattern
+risks reaching into another session's stack.
+
 ## Dead optional hook: `_update_desired_ball_mocaps`
 
 `juggling_residual_learning/jugglers/launchers.py:696-700` calls
