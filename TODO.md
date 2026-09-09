@@ -188,3 +188,24 @@ code and the data* that would otherwise be lost between sessions.
 ## Done
 
 _(nothing yet)_
+
+## Tracker: a NEW track created from a future-stamped update still sets its clock ahead
+
+`multi_ball_tracker_impl.hpp`, PHASE 2 of `processApplicationUpdates` — when an
+application update matches no existing track, a track is created and
+`kalman.initialize(..., update.timestamp, ...)` sets the filter's clock to that
+stamp. Publishers lead by `TRACK_UPDATE_LEAD_S` (0.050 s), so that stamp can be an
+instant that has not happened.
+
+Existing tracks no longer have this problem: a future-stamped reset waits in
+`BallTrack::pendingReset` and is applied by `processMeasurementFrame` when the frame
+clock reaches it. A brand-new track cannot use that buffer — there is no prior state
+to hold the reset away from — so the fix would be to defer the track's CREATION
+instead, or to back-propagate the state to the current frame time (exact for
+CONSTANT_POSITION / VELOCITY / ACCELERATION, awkward for CONSTANT_DRAG).
+
+MEASURED, smoke3 in ros_sim on 2026-09-09: `new_track_future=3` against
+`deferred=130` in the same run, i.e. about 2% of state resets. Counted by
+`newTracksFromFutureStamp_`, which also logs a warning naming the lead in ms.
+Left unfixed because it is rare and the machinery is not small; the counter is there
+so it can be re-checked rather than assumed.
