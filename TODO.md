@@ -18,14 +18,58 @@ code and the data* that would otherwise be lost between sessions.
 
 ### Hardware / calibration
 
-- [ ] **Recalibrate OptiTrack.** (Kai, 2026-09-09)
-  Of 26 coasting episodes in `data/real/real_robot/siteswap_sequence/std__cascade5_s0`,
-  **17 had no marker within 0.40 m of an airborne ball** — the cameras lose it
-  mid-flight. All 26 coasts ran to the full 50-frame ceiling
-  (`max_frames_without_update`, 0.21 s at 240 Hz) and the track was then
-  re-created with a new id, up to 7 times per ball per attempt. This is the
-  root of the evaluation and closed-loop-catch failures; no software change
-  substitutes for seeing the ball.
+- [ ] **Recalibrate OptiTrack.** DOWNGRADED from "root cause" 2026-09-09 —
+  see the correction below; still worth doing, no longer the top item.
+  Testing each of the 26 coasts by whether the raw marker COUNT actually
+  dropped: **19 markers still present (association failure), 7 genuinely lost
+  (mocap)**. My earlier "17 of 26 had no marker within 0.40 m" measured
+  distance from a *diverging* coasting estimate, so it partly measured the
+  drift it was trying to explain. All 26 coasts still ran to the full 50-frame
+  ceiling (0.21 s at 240 Hz).
+
+- [ ] **APPLICATION UPDATES ARE STAMPED AT PUBLISH TIME, NOT AT THE INSTANT
+  THEY DESCRIBE.** (Kai, 2026-09-09 — his diagnosis, confirmed in code.)
+  `ball_tracker.py:563` sets `header.stamp = rospy.Time.now()` when the buffer
+  is flushed. The content was computed earlier — a pattern query in
+  `_update_all_ball_tracks`, or a scheduled callback such as
+  `handle_ball_track_update_catch` firing at `t_catch` — so every bit of
+  scheduler jitter, GIL wait and queueing between compute and publish is
+  absorbed silently into the stamp. The tracker then places the track where
+  the ball WAS while believing it is current.
+
+  The tracker already has the machinery and cannot use it:
+  `multi_ball_tracker_impl.hpp:1174` time-aligns for MATCHING, but only
+  `if (update.timestamp > predictedKalman.getLastTimestamp())` — i.e. only
+  when the update is NEWER. A delayed update is older, so no alignment
+  happens and a stale expected position is compared against a current track,
+  inflating the distance by |v|·dt (3 m/s x 20 ms = 6 cm, x 50 ms = 15 cm)
+  against a 0.30 m gate. On a state reset (~line 1610) the position is
+  written verbatim with `setLastTimestamp(update.timestamp)` and never
+  propagated forward.
+
+  FIX: stamp with the time the content describes, or propagate the content to
+  publish time. Note `ApplicationUpdate` has NO per-update timestamp — only
+  the array header — so a batch computed at different instants shares one
+  stamp. Fixing this properly means adding a per-update stamp to the message.
+
+- [ ] **An application update resets `framesSinceUpdate` to 0 with no
+  measurement behind it.** `multi_ball_tracker_impl.hpp:1645-1647` sets
+  `framesSinceUpdate = 0` and `lastUpdateTime = update.timestamp`
+  unconditionally for any matched update, including match-only updates that
+  perform no state reset. So our own expected-state publishing makes a
+  coasting track look freshly measured. This defeats
+  `MAX_BALL_STATE_AGE_FOR_CATCH_S` (the 30 ms catch gate) and means every
+  coasting/staleness number measured from `frames_since_update` — including
+  the ones in this file — is a LOWER BOUND.
+
+- [ ] **Stop publishing an in-air expected state for a ball that is on the
+  floor.** (Kai, 2026-09-09) `env_glue.py:959` already skips `ball.dropped`,
+  but `dropped` only becomes true once the floor detector fires. A badly
+  thrown ball needs ~0.6-1.0 s to reach the floor, the detector needs its
+  confirmations, and a ball landing OUTSIDE `drop_detection_box` is never
+  marked dropped at all. For that whole window we keep asserting an in-air
+  position, which resets tracks to somewhere the ball is not. Gate on the
+  ball's own tracked height as well as on the detector.
 
 - [ ] **Test `dwell_ratio: 0.5` on the real robot.** (Kai, 2026-09-09)
   The chain stack silently runs **0.42**, set by
@@ -83,6 +127,11 @@ code and the data* that would otherwise be lost between sessions.
   failure previously with `catch_and_stop@0.600`.)
 
 ### Instrumentation
+
+- [ ] **`expected_states` is not recorded** (`None` in every attempt), so the
+  publish-vs-describe delay above cannot be measured from saved data at all —
+  only read off the code. Record the expected states we publish, with both
+  the time they describe and the time they were published.
 
 - [ ] **Persist planner iteration counts, and archive the console log.**
   `nominal_solve_iterations`, `replan_iterations` and
