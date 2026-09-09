@@ -248,7 +248,7 @@ the whole chain. At a single tempo and dwell the honest window is 5 intervals
 against the 10 we now carry, so this is worth real solve time — see the
 planning-speed work.
 
-## ALL solves must leave the main process — 2 per attempt still do not
+## [x] ALL solves must leave the main process — DONE 2026-09-09
 
 Kai, 2026-09-09, after being informed: "We need to get ALL of the solves to out
 of the main process."
@@ -291,5 +291,17 @@ failing. The safe shape is to record the build with its explicit arguments
 (time-steps array, constraint_configs dict, cost-function selector, key) and
 replay those, rather than re-deriving from cfg.
 
-Assigned to the planning-speed agent, which already owns `planner_bank.py` and
-`solver_backend.py`.
+RESOLVED in `72ea834`, 24 minutes after this was written: `_build_explicit_nlp`
+records the build, and both `siteswap_juggler.py` call sites go through it, so
+`unsupported_worker_builds()` is now empty and no direct
+`planner.build_throw_nlp` / `build_stop_nlp` calls remain.
+`tests/test_all_nlps_are_worker_replayable.py` pins it.
+
+WHAT REMAINS IS NOT WHAT THIS ITEM DESCRIBED, and the difference matters.
+Measured with a per-process, per-key tally: the juggler still solves each NLP
+key exactly ONCE, at startup — 6 keys on smoke3, 42 on cascade5 (one per tempo
+variant per arm). It scales with the NUMBER OF NLPs rather than with throws,
+and none run during juggling. So it is initialisation priming, not the
+stop-plan-during-a-drop this item hypothesised. The hypothesis that
+`cyclic_stop` holds the GIL exactly when a ball drops is NOT supported by the
+data.
