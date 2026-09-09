@@ -1,6 +1,7 @@
 *
 !.gitignore
 !README.md
+!TODO.md
 !residual_ws.repos
 !build_all_images.sh
 !setup_workspace.sh

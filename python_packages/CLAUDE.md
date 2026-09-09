@@ -47,6 +47,11 @@ Two top-level directories for executable code:
 ## Agent Hints
 - For generic Python packages, warn if we introduce breaking changes. For application specific code (e.g. juggling), don't worry about backward compatibility and keep it clean instead.
 - Compose code such that it can be easily reused in new projects.
+- Cross-session TODOs live in `<workspace>/TODO.md` — things found in the code
+  or the data that would otherwise be lost between sessions, each with the
+  evidence it came from (a measured number, a run directory, a `file:line`).
+  Distinct from `KNOWN_BUGS.md`, which records bugs we decided not to fix yet;
+  TODO.md is work we intend to do. Read it when picking up work.
 - Deferred bugs go in `/python_packages/KNOWN_BUGS.md`. When we notice a bug but decide not to fix it right now (wrong scope, different branch, low priority, coincidentally harmless, etc.), add an entry with a file:line citation, a one-paragraph description, the proposed fix, and a "why deferred" note. Check this file opportunistically when touching related code.
 
 ## Juggler config (YAML + CLI shortcuts)
