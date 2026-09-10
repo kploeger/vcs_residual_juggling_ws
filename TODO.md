@@ -395,6 +395,6 @@ size; ~150 plans under-samples it.
 
 **Still queued behind the sim:** `scripts/collision_744_test.sh` (5 -> 744,
 collisions on, validates the collision detector on a known pair), and the
-six `experiments/app_id_association` arms with collisions OFF and 20
-attempts (only 2 of 6 have ever run, both on a scenario that never reached
+seven `experiments/app_id_association` arms with collisions OFF and 20
+attempts (only 2 of 7 have ever run, both on a scenario that never reached
 5 balls).
