@@ -352,3 +352,49 @@ and none run during juggling. So it is initialisation priming, not the
 stop-plan-during-a-drop this item hypothesised. The hypothesis that
 `cyclic_stop` holds the GIL exactly when a ball drops is NOT supported by the
 data.
+
+## 2026-09-10 — chain regression: the failing beat, and gain 0.8
+
+**The chain's dominant failure is one beat, not tracking.** Every drop across
+every configuration today followed `ssbank_*_i5_p5_o4_t50` (the 4-throw of
+504 catching a 5), first right hand, later left. Ground truth
+(`_probe/gtdrop`, `experiments/analysis/plot_gt_vs_tracker.py`) shows
+tracking ~1 mm accurate through the whole attempt and touchdown prediction
+median 6 mm / p90 14 mm over 74 catches — the hand knows where the ball is
+and still misses. The ball that failed sat at x=0.643 vs nominal 0.493:
+exactly the 0.150 m catch clamp. Balls arriving 0.27 m long are unreachable
+however good the prediction. Evidence: `_probe/gtdrop/attempt1.png`,
+`_probe/gtdrop/fail_closeup.mp4`, `/tmp/predcheck.py` output in session.
+
+**Splice replanning after a 0 beat is suspect (Kai's read of the video).**
+The beat that starts from a 0 carries `px` in its key
+(`ssbank_right_i4_px_o5_t50`) and took 6 spliced replans; its tail is the
+arm state the failing catch inherits. Replan off moved the failure from
+throw 62 to 74 but did not remove it. The 0 beat itself is correctly
+excluded (`throw_kind is ThrowKind.CATCH_AND_THROW`, throw_scheduler.py
+~L982); the beat AFTER it is not. Unresolved: whether the splice offset is
+computed against the wrong nominal for a `px` beat, or
+`_catch_offsets_for_key` is wrong for a beat with no incoming throw.
+
+**Gain 0.8 works; 1.0 and 0.0 do not.** Same chain, seed 0, 88 throws:
+  gain 1.0 + replan        0/8   (throw 61)
+  gain 1.0, no replan      0/8   (throw 73)
+  gain 0.0, no replan      0/30  (best 83, no convergence; resumed to 60)
+  gain 0.8, no replan      3/10  shape `...SSS....` — succeeds at 4-6, then
+                           regresses; late failures on the same
+                           `i5_p5_o4` beat, now left hand.
+Config: `experiments/real_robot/siteswap_sequence/configs/_gain080.yaml`.
+The regression after three successes is unexplained — candidate: the
+beat-keyed `ssbeat_b41_left` learners at alpha 0.8 random-walking on one
+sample per attempt (`_ab_beat_alpha.yaml` exists and has never been run).
+
+**planning_lead must be derived from hundreds of plans.** 0.070 was set
+from a max of 37.9 ms over 149 plans; a 30-attempt run produced 58.0 ms.
+Now 0.090. The max of a heavy-tailed solve distribution grows with sample
+size; ~150 plans under-samples it.
+
+**Still queued behind the sim:** `scripts/collision_744_test.sh` (5 -> 744,
+collisions on, validates the collision detector on a known pair), and the
+six `experiments/app_id_association` arms with collisions OFF and 20
+attempts (only 2 of 6 have ever run, both on a scenario that never reached
+5 balls).
