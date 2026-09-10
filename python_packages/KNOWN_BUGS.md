@@ -448,3 +448,28 @@ to one and not the other, after `wam_sysid` hit that class three times. The
 cancellation fix itself (`PendingLaunches`, f9115ee) IS symmetric across the
 twins -- both issue a token, both check it before firing, both guard the
 delayed callback. This anchor difference is the one asymmetry found.
+
+## optitrack_ball_tracker: three gtest failures predating the velocity merge (2026-09-10)
+
+`test_multi_ball_tracker_unit`: `MultiBallTrackerTest.BallPositionTracking`,
+`MultiBallTrackerTest.ApplicationIDDynamicsModelUpdate`.
+`test_kalman_filter_unit`: `KalmanFilterTest.ConstantPositionPrediction`.
+
+`test/unit/test_multi_ball_tracker_unit.cpp:48` expects z = 0.0999 and gets
+-0.9752, a 1.075 m discrepancy. That is 0.5*g*t^2 for t ~= 0.47 s, i.e. the
+filter integrated GRAVITY where the test expected none — so these look like
+tests written against CONSTANT_VELOCITY dynamics now running under a
+constant-acceleration default, not a tracking regression.
+
+**Why deferred:** established as pre-existing, not caused by the merge of
+`velocity-direction-association` into `update-timestamp-retrodiction`
+(49f4510). Verified by checking out the pre-merge parent 6924437, rebuilding,
+and running the same binaries: the identical three tests fail there, and the
+per-binary failure counts match exactly. Recorded rather than fixed so the
+merge is not credited with breaking them, and so the next person does not
+re-derive this.
+
+**Proposed fix:** decide whether each test intends CONSTANT_VELOCITY (set the
+dynamics model explicitly in the fixture) or CONSTANT_ACCELERATION (update the
+expected values to include gravity). Do not simply widen the tolerance — the
+0.5 tolerance is already wide and the error is 1.08.
