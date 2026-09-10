@@ -183,6 +183,53 @@ code and the data* that would otherwise be lost between sessions.
   in heading by >90 deg). Implemented but NOT validated to help; the gate
   geometry A/B found no gap clearing 2 SE.
 
+### Planning
+
+- **A capped solve returns an INFEASIBLE trajectory, not a rough one.**
+  (2026-09-10, agent) Everywhere this codebase reasons about
+  `ipopt.max_iter` treats hitting the cap as "good enough, just not
+  polished". It is not. Measured offline, 3-ball cascade
+  `catch_and_throw`, 25 solves per correction size, worst constraint
+  violation of the RETURNED solution (`g` against its own `lbg`/`ubg`,
+  not IPOPT's self-report):
+
+    | \|dx_catch\| | converged | hit the cap |
+    |---|---|---|
+    | 0.02 m | 1.1e-07 | 1.05e-05 |
+    | 0.06 m | 5.9e-08 | 4.51e-05 |
+    | 0.12 m | 5.1e-08 | **8.17e+00** |
+
+  Converged solves are feasible to eight decimals; a capped one at a large
+  correction is out by 8.17 (cone rows carry a x100 preconditioning factor,
+  so ~0.08 raw). This is the mechanism behind the run-level correlation
+  already on record — a capped solve preceded a drop within 4 throws
+  65-71% of the time against 25-32% for a converged one — and behind
+  `max_iter` 20 -> 10 taking cascade5 from 8/8 attempts to 2/8.
+  Recorded at `juggling_residual_learning/jugglers/config.py`
+  `_online_solver_options()`. Consequence: buy solve time with better warm
+  starts or cheaper iterations, never by capping sooner; and never splice a
+  capped solve into a moving arm.
+
+- **`ipopt.acceptable_dual_inf_tol` is the sole binding acceptable
+  criterion — awaiting Kai's decision.** (2026-09-10, agent) Loosening
+  `acceptable_constr_viol_tol` (1e-5 -> 1e-4, 1e-3) or
+  `acceptable_compl_inf_tol` (1e-2 -> 1e-1) changed nothing at all;
+  `acceptable_dual_inf_tol` 1e-2 -> 1e-1 cut capping from 3/25 to 1/25 at
+  |dx_catch| 0.06 with the max constraint violation bit-identical, because
+  it relaxes OPTIMALITY rather than feasibility. Deliberately NOT in the
+  tree: it changes the optimiser's path and so can move recorded numbers.
+  `mu_oracle` loqo/probing are catastrophic (25/25 capped) — do not retry.
+
+- **AOT codegen is opt-in and unused by default.** (2026-09-10, agent)
+  `TP_NLP_AOT=1` compiles the generated CasADi C once per NLP into a
+  hash-keyed object cache (`trajectory_planning/nlp.py`,
+  `_aot_compiled_solver`), making function evaluation ~10x cheaper: full
+  solve p50 7.16 -> 3.83 ms, replan 5.60 -> 3.35 ms, iteration counts
+  unchanged. First cascade5 run pays ~10 min of compiling at -O1, every run
+  after that nothing (warm build 7.5 s against ~6 s interpreted). Worth
+  turning on for hardware runs if someone confirms the cache directory
+  survives between them.
+
 ---
 
 ## Done
