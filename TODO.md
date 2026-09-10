@@ -398,3 +398,15 @@ collisions on, validates the collision detector on a known pair), and the
 seven `experiments/app_id_association` arms with collisions OFF and 20
 attempts (only 2 of 7 have ever run, both on a scenario that never reached
 5 balls).
+
+**`ends_arm_for_attempt` keys off the throw TYPE prefix `catch_and_stop`;
+on the cascade path a mid-pattern held 2 would get the same label.**
+`cascade_juggler.py` `_schedule_cascade_throw`: the ending stop is
+`f'{THROW_TYPE_CATCH_AND_STOP}_{arm}'` and a non-stop no-release beat is
+`f'{cyclic_kind.label}_{arm}'` -- for a held 2 the kind is CATCH_AND_STOP,
+label "catch_and_stop", same string. Harmless today: uniform cascades have
+no 2s, and the siteswap path schedules pattern beats under bank keys
+(`ssbank_*`, `ssbeat_*`, `toss_no_ball_*`), never `catch_and_stop_*`
+mid-pattern (every log today). The clean fix is an explicit `is_stop`
+argument on `_schedule_throw` rather than a name test. Evidence: 530a32e,
+logs in `_probe/gtdrop/run.log` lines 6761-6798.
