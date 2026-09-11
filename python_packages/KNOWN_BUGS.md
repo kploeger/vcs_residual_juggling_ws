@@ -485,52 +485,25 @@ check whether anything downstream silently depends on the current sign.
 `git blame` puts this code at `efa4a18a`, 2026-03-22. It is a genuinely
 separate instance of the same confusion about `difference()`'s argument order.
 
-## Two optitrack-ball-tracker unit tests are stale: they assume the old CONSTANT_VELOCITY default
+## optitrack-ball-tracker tests: three `TODO(KNOWN_BUGS)` comments point at a file that does not exist
 
-**Where.** `catkin_ws/src/optitrack-ball-tracker/test/unit/test_multi_ball_tracker_unit.cpp`:
-`MultiBallTrackerTest.BallPositionTracking` (:196) and
-`MultiBallTrackerTest.ApplicationIDDynamicsModelUpdate` (:735). Both FAIL on the
-tracker's `tll-planner` branch as of `25b3a01`. Recorded here because this is the
-workspace's only KNOWN_BUGS file: the test fixture's `TODO(KNOWN_BUGS)` comments
-(added in `c99a369`) point at `/catkin_ws/KNOWN_BUGS.md`, which was never created.
+**Where.** `catkin_ws/src/optitrack-ball-tracker/test/unit/test_multi_ball_tracker_unit.cpp`
+:88, :105 and :353 (tracker `tll-planner` @ `0770d25`). Added in `c99a369`, all three
+say "See /catkin_ws/KNOWN_BUGS.md", which was never created; this file is the
+workspace's only KNOWN_BUGS.
 
-**Cause.** Since `11d88f0` (2026-03-05, "height-based dynamics model selection for
-MultiBallTracker initialization"), a new track above `initializationHeightThreshold_`
-starts with the CONSTANT_ACCELERATION model and known gravity. The positional
-constructor these tests use leaves that threshold at 0.0, so every test marker
-(z >= 0.8) is above it. Both tests still assume the pre-March CONSTANT_VELOCITY
-default:
+**What they hide.** Real test gaps, not just a dead link. :88 and :105 mark
+assertions on the tracker's dynamics model that were dropped when
+`MultiBallTracker::getDynamicsModel` was removed, so those tests no longer check the
+model they configure. :353 disables a test because `{get,set}DynamicsModel` were
+removed -- it is the 1 DISABLED test `test_multi_ball_tracker_unit` reports.
 
-- `ApplicationIDDynamicsModelUpdate` fails at :751, its FIRST assertion ("tracks
-  start with CONSTANT_VELOCITY"), before `processApplicationUpdates` is ever called.
-  The actual value is enum 2 = CONSTANT_ACCELERATION (`dynamics_models.hpp:18`:
-  POSITION 0, VELOCITY 1, ACCELERATION 2, DRAG 3).
-- `BallPositionTracking` expects z-velocity +0.1 from two frames of slight upward
-  motion and gets -0.975 -- within 1% of the -0.981 that gravity alone produces over
-  the 0.1 s step. It measures the model, not the motion.
+**Proposed fix.** The model is per track now (`track->kalman.getDynamicsModel()`,
+the idiom the fixed tests in `0770d25` use): restore the two assertions against a
+created track, then either port the disabled test to per-track models or delete it.
+Point the comments here, or drop them once the gaps are closed.
 
-**Not a regression -- verified from history, not by bisect.** Both tests were last
-edited before `11d88f0` (BallPositionTracking 2025-10-31 in `15c0639`;
-ApplicationIDDynamicsModelUpdate 2026-02-02 in `f72e240`), and `11d88f0` is an
-ancestor of every tracker commit merged or rebased on 2026-09-09..11 (`838da2a`,
-`164aa2c`, `6924437`, and the four rebased velocity-term commits). They have been
-red for about six months. The first suspect, the deferred state reset in `164aa2c`,
-is ruled out: the :751 failure happens before any application update runs.
-
-**Related rot in the same file.** `ApplicationIDDynamicsModelUpdate` passes its
-constructor arguments in an old order -- `maxMahalanobisDistance_` (3.0) lands in
-the `processNoise` slot. `BallCrossoverScenario` passes `10.0` as
-`maxFramesWithoutUpdate` under a comment saying it raises the Mahalanobis threshold.
-
-**Proposed fix.** Make each test STATE the model it assumes instead of inheriting
-the default: pass `initializationModelAboveThreshold = CONSTANT_VELOCITY`
-(positional argument 12) where the test is about constant-velocity tracking, and
-correct the argument order in `ApplicationIDDynamicsModelUpdate`. That test's real
-subject -- that an application update can CHANGE the model -- does not need the
-initial model to be any particular value, so its precondition can assert "not the
-target model" rather than a specific default.
-
-**Why deferred.** Verifying needs a C++ test build. On 2026-09-11 the host was
-running another session's timed ROS queue (a 1 kHz loop that reads CPU contention
-as ball drops) and `ball` had a robot-side roslaunch up. Small fix; the build is
-the constraint.
+**Why deferred.** Found while fixing the four stale or mis-constructed tests in
+`0770d25` (which used to be this entry). Those failed or passed with nonsense
+arguments; these three are missing coverage, lower value, and need a decision on
+the disabled test's intent.
