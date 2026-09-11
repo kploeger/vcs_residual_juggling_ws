@@ -232,6 +232,44 @@ code and the data* that would otherwise be lost between sessions.
 
 ---
 
+### 2026-09-11 — AOT compile, plant DR, second robot_description checkout
+
+- **AOT cold compile is minutes, not seconds, and is now parallel.** The
+  3->5 chain builds 90 NLPs per solver phase that hash onto ~43 distinct C
+  sources of ~5 MB each; gcc -O1 takes ~40 s per object, so the first run
+  after `c64b157` (AOT default) sat 478 s in build with 10 NLPs done and was
+  killed by its own 480 s timeout (`_probe/gt_` run.log, 2026-09-11). Fixed by
+  `aot_compile='deferred'` + `aot_finish_deferred()` (trajectory_planning
+  0021dfb, juggling 30db96b): a warm build now logs
+  `AOT: 90 cache hit(s), 0 compiled, 0 failed in 1.2 s (20 parallel jobs)`.
+  Cache is `/retain/tp_nlp_aot` (43 objects, 83 MB). STILL OPEN: a cold
+  cache after any NLP-structure change (cone knots, constraint tables) costs
+  one parallel pass of ~2-3 min in the first run that sees it -- a sweep over
+  constraint configs pays it once per point. Consider pre-warming in the
+  sweep harness, or `-O0` for exploratory sweeps (5.7 s/object, 2.8x eval).
+- **Planning lead can come down after AOT.** `_probe/gt_default3` (3/3,
+  n=270 solves): planning p50 11.2 ms, p90 17.8, max 28.1 -- vs max 58 ms
+  measured before AOT, which is what set `planning_lead: 0.090`. 0.060 would
+  keep a 32 ms margin over the observed max; re-derive from the queue9 runs
+  (held2, five048, send_advance_005) before changing it.
+- **Two checkouts of `robot_description` in this workspace.**
+  `python_packages/juggling_residual_learning/robot_description` and
+  `catkin_ws/src/juggling_wam/juggling_wam_description/robot_description`
+  are separate submodule checkouts of the same remote; the ROS renderer
+  imports the catkin one, the planner-side builder the other. Today's
+  DynamicsPerturbation landed in the python_packages copy and the ROS
+  renderer failed with ImportError until the catkin copy was pulled. Both
+  are at `9c47011` now. `juggling_wam` master had also been pointing the
+  submodule at the `ball-dynamics-overrides` branch (e11e508) rather than
+  master; merged into master today (9c47011). Keep them in lockstep, or add
+  a check that both pointers agree.
+- **Plant DR pipeline exists, results pending.** `utils/plant_randomisation.py`
+  (seeded draw -> roslaunch line -> `plant_draw.json`). queue9's
+  `plant_dr_mass_tilt` (tool mass+tilt only, hand-typed launch args) and
+  queue10's `plant_dr_full` (all four knobs via the helper, seed 0) are the
+  first runs; compare against `bisect_default_confirm` 7/8. Ranges
+  (12% / 2 deg / 10% / 30%) are assumptions, not measurements.
+
 ## Done
 
 _(nothing yet)_
