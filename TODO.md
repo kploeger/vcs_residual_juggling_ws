@@ -414,6 +414,28 @@ Done: optitrack-ball-tracker 777e1aa. Runs launched BEFORE that commit's
 sim relaunch (queue22's 504 probes and `bisect_fix_default`) ran on penalty
 0.20; `long_reps` onward relaunch and pick up the new default.
 
+### 2026-09-11 — cup velocity at the catch: constant / box A/B queued
+
+The catch_and_throw cup velocity at the catch is EMERGENT (catch_state pins
+joint position only): -1.2..-1.4 m/s in z on the standard chain, reached by
+climbing 10-16 cm first (`_probe/bisect_fix_default` att 1-2, throws 26-34;
+the normal throws' peak is the release follow-through, the post-0 throw
+climbs to the same 0.68 m without one). Joint 4 sits at 1.77-1.78 of its
+1.8 rad limit on every normal follow-through, so a lower GLOBAL q_max would
+clip every throw; a post-0-only cap is possible as a prev_throw=0 override
+(q_max is a reparameterizable param) -- not built, pending the A/B below.
+
+Kai's alternatives, both implemented (juggle_planning d469709 + box commit,
+trajectory_planning CartVelocityBoxConstraint):
+- constant cup z-velocity at every catch: `_catch_dz_05.yaml` (-0.5),
+  `_catch_dz_10.yaml` (-1.0) -- queue25: default chain x2, held 0s/2s at -0.5
+- box: at least 0.5 m/s down, at most half the ball's z speed:
+  `_catch_dz_box.yaml` -- queue26: default chain + held.
+Baseline to beat: `bisect_fix_default` 7/8 (throw 89, planning max 33.7 ms),
+held `held_fix_stopvel_ready` 7/8 (fraction 0.10 on catch_and_stop only).
+Read out with `scratchpad/twitch2.py`-style hand-z stats: climb before the
+catch, vz at catch, replan acceptance, plus success rate.
+
 ## Done
 
 _(nothing yet)_
