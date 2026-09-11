@@ -503,9 +503,18 @@ The overnight 2026-09-09 DR (tool mass/tilt only) was 7/8, so the armature
 / link-mass mismatch is what breaks it -- exactly the model error the
 residual is supposed to absorb, so this is the important negative result of
 the day. Same-code nominal reference: `bisect_transient_kd0` 8/8.
-Next (queued 2026-09-11 evening, queue34): axis bisect at seed 0 --
-armature only, link masses only, tool mass+tilt only, and the full draw at
-half range -- to see which axis and what magnitude the chain tolerates.
+Axis bisect at seed 0 (queue34, 2026-09-11 evening), 8 attempts each:
+armature only 6/8 `✗✗✓✓✓✓✓✓` (drops at 50, 69), link masses only 7/8
+`✗✓✓✓✓✓✓✓` (50), tool mass+tilt only 7/8 `✗✓✓✓✓✓✓✓`, full draw at HALF
+range 6/8 `✓✓✗✓✓✓✗✓` (36, 48) -- against the full draw's 0/8 (35-38,
+44-49). Every axis alone is close to nominal (8/8); the combination at
+half range still passes; the full-range combination fails every attempt in
+the same two places. So it is the combined magnitude, not one axis. Next:
+locate the boundary (full draw at 0.75 range; a second seed at full range)
+and look at what the 504 stops (35-38) do under the combined mismatch --
+`catch_fallback_reason=no_usable_prediction` there means the ball the stop
+was waiting for was never predicted, i.e. the preceding throw was already
+off. Not run tonight: the box is handed to TLL_planner's tracker build.
 
 ### 2026-09-11 evening — ROBOT READINESS (three reviews; reports in .claude/reviews/robot-readiness-*.md and full-2026-09-11-evening.md)
 
@@ -514,7 +523,9 @@ wrong on the real robot?" Status per item:
 
 DONE tonight
 - Held-2 touchdown-velocity constraint + 10 ms send advance -> chain stack
-  defaults (applied after the DR bisect finished; see commit).
+  defaults (juggling, 2026-09-11 20:28, after the DR bisect finished;
+  overlays removed). NOTE for the queue scripts: `_held_stop_catch_vel_ready.yaml`
+  no longer exists -- held runs need only `--hold-0s --hold-2s` now.
 - Hold/rest poses pre-warmed at construction (juggling 461e887): an
   unreachable lifted pose is an init error, not a mid-cycle exception.
 - Tracker master fast-forwarded to 777e1aa (2026-09-11 19:55, agreed with
