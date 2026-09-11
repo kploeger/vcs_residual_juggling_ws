@@ -387,11 +387,15 @@ thrown").** New reparameterizable `axial_slack` on both constraints
 misses once because the parameter vector grew (every c&t / c&stop NLP
 recompiles on the next launch, deferred + parallel, memory-guarded).
 
-**Status.** Probe queued (queue22): `_probe/bisect_fix504_thrown`,
-`_probe/bisect_fix504_held` (3x12,423x4,44,504x8), then a fresh full-chain
-`bisect_fix_default` baseline BEFORE long_reps / DR, since the change alters
-every throw after a 0. Verify with `scratchpad/twitch2.py` (hand-z swing in
-the first 150 ms of throw 32, peak |ddq_des|, replan_rejected).
+**Verified for the tossed 0** on `_probe/bisect_fix_default` (full chain,
+7/8, deepest throw 89, planning max 33.7 ms): throw 32's first 150 ms now
+peak at |ddq_des| 70-72 rad/s^2 (was 220), the dip and the j4 reversal are
+gone (plot `scratchpad/twitch_fix.png`), and the catch-adaptation replan of
+that throw is ACCEPTED in attempts 1 and 2 (was guard_fallback in both old
+runs). The 504-only probes queued in queue22 died on chain syntax (the last
+segment must be cyclic, `504*@0.50`); rerun as queue23 after queue22,
+including the HELD-0 case (`_probe/bisect_fix504_held`) which is not yet
+verified on data.
 
 ### 2026-09-11 — app-id association: posterior source wins, velocity gating is neutral
 
