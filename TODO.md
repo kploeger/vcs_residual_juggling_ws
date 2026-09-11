@@ -415,42 +415,30 @@ Done: optitrack-ball-tracker 777e1aa. Runs launched BEFORE that commit's
 sim relaunch (queue22's 504 probes and `bisect_fix_default`) ran on penalty
 0.20; `long_reps` onward relaunch and pick up the new default.
 
-### 2026-09-11 — cup velocity at the catch: constant / box A/B queued
+### 2026-09-11 — the catch AFTER A 0: raised rest and a touchdown-velocity box, queued
 
-The catch_and_throw cup velocity at the catch is EMERGENT (catch_state pins
-joint position only): -1.2..-1.4 m/s in z on the standard chain, reached by
-climbing 10-16 cm first (`_probe/bisect_fix_default` att 1-2, throws 26-34;
-the normal throws' peak is the release follow-through, the post-0 throw
-climbs to the same 0.68 m without one). Joint 4 sits at 1.77-1.78 of its
-1.8 rad limit on every normal follow-through, so a lower GLOBAL q_max would
-clip every throw; a post-0-only cap is possible as a prev_throw=0 override
-(q_max is a reparameterizable param) -- not built, pending the A/B below.
+Scope (Kai, 17:11): the catch out of a held (or tossed) 0 only -- not every
+catch, not the held 2s. That catch_and_throw starts from rest and climbs
+to 0.68 m before descending to the catch at -1.35 m/s (emergent; the
+catch_state pins joint position only). Two knobs, both scoped to that
+throw, both defaults off:
+- `siteswap.hold_rest_z_offset` (`_rest_up_03.yaml`, 3 cm): the 0 beat
+  rests higher so the descent needs less climb. Ready pose already sits
+  2.5 cm above the catch.
+- `catch_hand_velocity` BOX with `only_after_zero`
+  (`_post0_catch_dz_box.yaml`): cup at least 0.5 m/s down, at most half
+  the ball's z speed -- a feasibility window, not a target, so jerk and
+  acceleration can drop. Inert bounds on every other throw.
+Queue30 (after the DR pair): rest_up_03, held_rest_up_03, post0_box,
+held_post0_box, rest_up_03_post0_box, held_rest_up_03_post0_box, then the
+D-term ablation. Baselines: `bisect_fix_default` 7/8, `bisect_fix504_held`
+8/8 / `held_fix_stopvel_ready` 7/8. Plot throw 32 with
+`scratchpad/twitch2.py` against the default-parking run and send it.
+Joint 4 sits at 1.77-1.78 of its 1.8 rad limit on every normal
+follow-through, so a lower GLOBAL q_max would clip every throw; a post-0
+cap is possible as a prev_throw=0 override (q_max is reparameterizable)
+if the climb survives these two.
 
-Kai's alternatives, both implemented (juggle_planning d469709 + box commit,
-trajectory_planning CartVelocityBoxConstraint):
-- constant cup z-velocity at every catch: `_catch_dz_05.yaml` (-0.5),
-  `_catch_dz_10.yaml` (-1.0) -- queue25: default chain x2, held 0s/2s at -0.5
-- box: at least 0.5 m/s down, at most half the ball's z speed:
-  `_catch_dz_box.yaml` -- queue26: default chain + held.
-Baseline to beat: `bisect_fix_default` 7/8 (throw 89, planning max 33.7 ms),
-held `held_fix_stopvel_ready` 7/8 (fraction 0.10 on catch_and_stop only).
-Read out with `scratchpad/twitch2.py`-style hand-z stats: climb before the
-catch, vz at catch, replan acceptance, plus success rate.
-
-### 2026-09-11 — doubled early repetitions (Kai's "converge before the next trick" hypothesis): 6/8
-
-`_probe/bisect_long_reps` (3x24,423x8,44,504x8,44,4x24,534x8,552x8,5*@0.48;
-160 throws; post-0 fix in, tracker penalty 0.20): `✓✗✗✓✓✓✓✓`, every
-successful attempt ran the full 160 throws. Baseline `bisect_fix_default`
-(88 throws): `✓✓✗✓✓✓✓✓`. Attempt 2 was a real drop (floor-drop before throw
-61, in the 4x24 block); attempt 3 was NOT a juggling failure: "trajectory
-scheduling deadline missed" at 16:23:25 with planning times spiking to
-65-70 ms (normal worst 25-45) while another session launched and tore down
-a second MuJoCo sim on this host (11312, ~16:18-16:25) and my own niced
-pytest runs overlapped. Treat 6/8 as 7/8-equivalent at best and rerun
-before drawing the repetition conclusion; the per-attempt shape does not
-show the doubled chain learning FASTER than the 88-throw one (both are
-clean from attempt 4).
 ### IMPORTANT (Kai, 2026-09-11) — ablate learning with the transient learners' unintended D-term OFF
 
 **The bug.** `NewtonCfg.delay_strategy` defaults to "smith_pd"
