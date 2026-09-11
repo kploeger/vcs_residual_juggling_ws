@@ -282,6 +282,18 @@ code and the data* that would otherwise be lost between sessions.
   0.22 / 0.62 / 0.74 ms, 2 late-send warnings. Planning itself was fine
   (p50 9.9, max 27.9 ms) -- the 5 ms is eaten by callback jitter (~2 ms,
   "callback fired +2.12ms vs target" is routine). Untested middle: 10 ms.
+- **Held 0s/2s, status 2026-09-11 15:00.** (a) `catch_hand_velocity`
+  (juggle_planning) works: cup moving -0.2..-0.5 m/s at every held-2 catch,
+  no 18/21/24 bounce in 8 attempts (`bisect_held_fix_stopvel`). (b) That run
+  was still 3/8: with park-at-NEXT-catch the 5 thrown right after a rest
+  (`i4_px_o5`) leaves with a random +-0.4..0.5 m/s z error (5/8 attempts),
+  not seen with 'ready' parking (7/8). A/B queued: constraint + ready.
+  (c) NEW, general: the min-speed candidate gate rejected balls at their
+  APEX (z~1.62, |v|<0.05) 1-4 times per run -> nominal catch -> rim; fixed
+  (APEX_HEIGHT_ABOVE_CATCH). (d) The AOT compile OOM-killed the desktop at
+  13:59 (49 MB C x 20 jobs); memory guards + windowed constraint are in.
+  (e) Open-loop re-use of a previous plan is now blended from the arm's
+  state (a 0.116 rad/s mismatch crashed a run).
 - **Held-2 bounce, status 2026-09-11 14:00.** `hold_rest_pose: catch`
   (`_probe/bisect_held_fix_park_catch`) 4/8, cup still +0.6..1.0 m/s up at
   touchdown -- parking alone does not change the stop trajectory's shape.
