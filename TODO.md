@@ -514,7 +514,14 @@ locate the boundary (full draw at 0.75 range; a second seed at full range)
 and look at what the 504 stops (35-38) do under the combined mismatch --
 `catch_fallback_reason=no_usable_prediction` there means the ball the stop
 was waiting for was never predicted, i.e. the preceding throw was already
-off. Not run tonight: the box is handed to TLL_planner's tracker build.
+off. Boundary runs (queue35, 21:23-21:54): full draw at 0.75 range, seed 0:
+7/8 `✓✓✓✓✓✗✓✓` (drop at 70); full draw at FULL range, seed 1: 8/8, throw
+89, planning max 27.9. So the seed-0 full-range 0/8 is that DRAW, not the
+range: seed 0 stacks +24 % armature on left j4 and right j2 with +8-10 %
+on the distal link masses, seed 1 puts its +24 % on j1 with j2/j3 at 0.72
+and passes every attempt. Next: what seed 0's draw does to the 504 stops
+(throws 35-38, `no_usable_prediction`) -- probably the preceding throw
+already off -- and which single joint's armature the chain cannot absorb.
 
 ### 2026-09-11 evening — ROBOT READINESS (three reviews; reports in .claude/reviews/robot-readiness-*.md and full-2026-09-11-evening.md)
 
