@@ -269,7 +269,13 @@ code and the data* that would otherwise be lost between sessions.
   queue10's `plant_dr_full` (all four knobs via the helper, seed 0) are the
   first runs; compare against `bisect_default_confirm` 7/8. Ranges
   (12% / 2 deg / 10% / 30%) are assumptions, not measurements.
-- **`ros_message_send_advance` 5 ms is not viable; keep 20 ms.**
+- **`ros_message_send_advance`: 10 ms works, 5 ms does not.** 10 ms
+  (`_probe/bisect_send_advance_010`, AOT on): **8/8**, zero late sends,
+  smallest send margin 5.3 ms, planning p50 8.9 / max 28.9 ms (n=720). One
+  session of 8; the 20 ms baseline is 7/8. Worth making the default in
+  `ros_catch_replan.yaml` once a second session agrees -- it buys 10 ms of
+  replan horizon per throw.
+- **`ros_message_send_advance` 5 ms is not viable.**
   `_probe/bisect_send_advance_005` (AOT on, chain 3->5): 2/5 attempts, then
   the run ABORTED in attempt 6 with `SendDeadlineMissed` (a trajectory
   reached the wire 0.37 ms past its own start); smallest send margins seen
