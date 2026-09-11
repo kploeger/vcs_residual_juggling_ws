@@ -436,6 +436,20 @@ held `held_fix_stopvel_ready` 7/8 (fraction 0.10 on catch_and_stop only).
 Read out with `scratchpad/twitch2.py`-style hand-z stats: climb before the
 catch, vz at catch, replan acceptance, plus success rate.
 
+### 2026-09-11 — doubled early repetitions (Kai's "converge before the next trick" hypothesis): 6/8
+
+`_probe/bisect_long_reps` (3x24,423x8,44,504x8,44,4x24,534x8,552x8,5*@0.48;
+160 throws; post-0 fix in, tracker penalty 0.20): `✓✗✗✓✓✓✓✓`, every
+successful attempt ran the full 160 throws. Baseline `bisect_fix_default`
+(88 throws): `✓✓✗✓✓✓✓✓`. Attempt 2 was a real drop (floor-drop before throw
+61, in the 4x24 block); attempt 3 was NOT a juggling failure: "trajectory
+scheduling deadline missed" at 16:23:25 with planning times spiking to
+65-70 ms (normal worst 25-45) while another session launched and tore down
+a second MuJoCo sim on this host (11312, ~16:18-16:25) and my own niced
+pytest runs overlapped. Treat 6/8 as 7/8-equivalent at best and rerun
+before drawing the repetition conclusion; the per-attempt shape does not
+show the doubled chain learning FASTER than the 88-throw one (both are
+clean from attempt 4).
 ## Done
 
 _(nothing yet)_
