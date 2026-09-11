@@ -282,6 +282,24 @@ code and the data* that would otherwise be lost between sessions.
   0.22 / 0.62 / 0.74 ms, 2 late-send warnings. Planning itself was fine
   (p50 9.9, max 27.9 ms) -- the 5 ms is eaten by callback jitter (~2 ms,
   "callback fired +2.12ms vs target" is routine). Untested middle: 10 ms.
+- **Held-2 catches bounce the ball out: the cup RISES into the ball.** In
+  every attempt of `_probe/bisect_held_dt050`, the hand velocity at the
+  `catch_and_stop` catch instant is (+0.45, ., +0.7..+1.2) m/s, against
+  (+0.2, ., -0.2..-0.6) for a normal `catch_and_throw` catch: closing speed
+  ~5.2 vs ~3.9 m/s. Attempt 4 throw 19: the incoming 4 reached the left cup
+  at t-0.26 s and left it again at once (+x, toward the centre, up 15 cm,
+  floor at (0.75, 0.13)); the track was measurement-backed to 5 mm the whole
+  way, so this is a real ball, and the "throw 21 evaluation failed" drops
+  (3/8 at 0.05, 2/8 at 0.03, 1/8 with the slot fix) are this. Cause: the
+  stop NLP constrains only the joint POSITION at the catch and then
+  decelerates to `hold_rest_pose = ready`, which is ~7 cm higher and
+  forward of the catch, so the optimizer drives the cup up through the
+  catch. `catch_and_throw` has `min_tool_normal_acc` and a dip before the
+  throw; `build_catch_and_stop_nlp` does not accept that constraint at all
+  (juggle_planning planner.py `possible_constraints`). Tests queued:
+  `hold_rest_pose: catch` (`_held_park_catch.yaml`, with the slot fix). If
+  that is not enough, add `min_tool_normal_acc` support to the stop NLP or a
+  touchdown-velocity constraint.
 - **Held 0s/2s after the fix: 7/8 at the stack's own 0.02 clamp**
   (`_probe/bisect_held_fix_dt020`; from-rest slot 0.500 s confirmed). The
   one failure is attempt 8 at throws 18/24, the 423 from-rest oddity below.
