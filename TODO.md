@@ -489,6 +489,24 @@ sim. DR pair requeued as queue32 after the post-0 experiments (queue30).
 The nominal-plant "back" launch in that queue is healthy, so nothing else
 was affected. The veto probe ran: 0 vetoes.
 
+### 2026-09-11 — FULL plant DR seed 0 breaks the chain: 0/8 (link masses + armature are the new part)
+
+`_probe/bisect_plant_dr_full` (launch fixed, plant reports the draw: link
+masses x0.95..1.10, armature x0.88..1.24 per joint, plus tool mass/tilt):
+`✗✗✗✗✗✗✗✗`, deepest throw 51, planning max 34.3. Drops cluster in two
+places: the 504 block (attempts 4, 5, 8 end at throws 35-38 on a
+`catch_and_stop` with `catch_fallback_reason=no_usable_prediction`) and the
+4x12@0.50 block (attempts 6, 7 end at throws 44-49; one catch miss of
+0.41 m at throw 45). The learners are NOT the problem: transient and cyclic
+velocity errors reach 0.02-0.05 m/s by attempt 4 as on the nominal plant.
+The overnight 2026-09-09 DR (tool mass/tilt only) was 7/8, so the armature
+/ link-mass mismatch is what breaks it -- exactly the model error the
+residual is supposed to absorb, so this is the important negative result of
+the day. Same-code nominal reference: `bisect_transient_kd0` 8/8.
+Next (queued 2026-09-11 evening, queue34): axis bisect at seed 0 --
+armature only, link masses only, tool mass+tilt only, and the full draw at
+half range -- to see which axis and what magnitude the chain tolerates.
+
 ## Done
 
 _(nothing yet)_
