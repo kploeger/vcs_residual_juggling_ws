@@ -282,6 +282,9 @@ code and the data* that would otherwise be lost between sessions.
   0.22 / 0.62 / 0.74 ms, 2 late-send warnings. Planning itself was fine
   (p50 9.9, max 27.9 ms) -- the 5 ms is eaten by callback jitter (~2 ms,
   "callback fired +2.12ms vs target" is routine). Untested middle: 10 ms.
+- **Held 0s/2s after the fix: 7/8 at the stack's own 0.02 clamp**
+  (`_probe/bisect_held_fix_dt020`; from-rest slot 0.500 s confirmed). The
+  one failure is attempt 8 at throws 18/24, the 423 from-rest oddity below.
 - **Held 0s/2s: the REAL bug was the from-rest throw's slot (fixed).** With
   the clamp at 0.03 (`_probe/bisect_held_dt030`, 0/8) the throw-34 failure
   disappeared (the `px` learner converges by attempt 3) and the chain died at
