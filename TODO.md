@@ -450,6 +450,11 @@ chain as is (kd 0.2). Queued FIRST (queue33, Kai 17:39: "the next important thin
 `_probe/bisect_transient_kd0` vs `_probe/bisect_transient_kd02_baseline`
 (same code, same session, back to back; raised park is default in both),
 plus the held chain with kd 0 and its kd 0.2 baseline.
+**Default chain result (18:12):** kd 0 `✓✓✓✓✓✓✓✓` (throw 89, planning
+max 34.7) vs kd 0.2 `✓✓✓✓✓✓✓✓` (throw 89, 24.7). Transient-beat mean |dv|
+per attempt, kd0 / kd0.2: 0.119/0.126, 0.046/0.052, 0.025/0.040,
+0.019/0.023, then 0.02-0.04 both; cyclic beats identical (0.03-0.04). The
+D-term does nothing measurable on the transients. Held pair pending.
 Read out: success rate and per-attempt shape, first successful attempt,
 transient-beat velocity errors over attempts (the D-term acts on the
 transients only), and whether the cyclic beats inherit better inits. Every
