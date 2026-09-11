@@ -269,6 +269,31 @@ code and the data* that would otherwise be lost between sessions.
   queue10's `plant_dr_full` (all four knobs via the helper, seed 0) are the
   first runs; compare against `bisect_default_confirm` 7/8. Ranges
   (12% / 2 deg / 10% / 30%) are assumptions, not measurements.
+- **`ros_message_send_advance` 5 ms is not viable; keep 20 ms.**
+  `_probe/bisect_send_advance_005` (AOT on, chain 3->5): 2/5 attempts, then
+  the run ABORTED in attempt 6 with `SendDeadlineMissed` (a trajectory
+  reached the wire 0.37 ms past its own start); smallest send margins seen
+  0.22 / 0.62 / 0.74 ms, 2 late-send warnings. Planning itself was fine
+  (p50 9.9, max 27.9 ms) -- the 5 ms is eaten by callback jitter (~2 ms,
+  "callback fired +2.12ms vs target" is routine). Untested middle: 10 ms.
+- **Held 0s/2s fail on EARLY balls because the catch-time clamp is 0.02 s.**
+  `_probe/gt_held2` attempt 2, throw 34 (`ssbank_right_i5_p5_o4_t50`):
+  predicted landing -0.0755 s, `catch_applied_dt` -0.020 (the clamp), hand
+  dipped 56 ms after the ball, ball hit the rim (GT x 0.5 -> 0.1 m, floor at
+  y=-1.05). The no-hold run's same throw: -0.052 s predicted, 32 ms residual,
+  caught. The 0.02 was set (best_chain_catch_clamp.yaml) to stop LATE
+  adaptations eating the carry on 645's beat 70; the late side has since got
+  its own `max_time_adaptation_late: 0.005`, so the early side is clamped for
+  a reason that no longer applies. Test queued: `_held_dt080.yaml`
+  (`max_time_adaptation: 0.08`, held 0s/2s, 8 attempts) + a 4-attempt held
+  control. Root cause upstream of that: 5s thrown right after a rest beat
+  (`i4_px_o5`) leave 0.25 m/s slow in z on early attempts in BOTH modes.
+- **Do not render or run test suites during a timed ROS run.** gt_held2
+  attempt 1 dropped at throw 10 after a 0.147 rad j4 tracking spike at the
+  throw-7 release that coincides with an unniced x264 render on all cores;
+  the overnight held run never failed before throw 18. Renders now go
+  through `nice -n 19 taskset -c 20-23`; queue9 puts the full suites in the
+  gap between runs.
 
 ## Done
 
