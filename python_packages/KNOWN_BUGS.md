@@ -484,26 +484,3 @@ check whether anything downstream silently depends on the current sign.
 **Not introduced by the observer sign fix of 2026-09-08** (commit `289600a`);
 `git blame` puts this code at `efa4a18a`, 2026-03-22. It is a genuinely
 separate instance of the same confusion about `difference()`'s argument order.
-
-## optitrack-ball-tracker tests: three `TODO(KNOWN_BUGS)` comments point at a file that does not exist
-
-**Where.** `catkin_ws/src/optitrack-ball-tracker/test/unit/test_multi_ball_tracker_unit.cpp`
-:88, :105 and :353 (tracker `tll-planner` @ `0770d25`). Added in `c99a369`, all three
-say "See /catkin_ws/KNOWN_BUGS.md", which was never created; this file is the
-workspace's only KNOWN_BUGS.
-
-**What they hide.** Real test gaps, not just a dead link. :88 and :105 mark
-assertions on the tracker's dynamics model that were dropped when
-`MultiBallTracker::getDynamicsModel` was removed, so those tests no longer check the
-model they configure. :353 disables a test because `{get,set}DynamicsModel` were
-removed -- it is the 1 DISABLED test `test_multi_ball_tracker_unit` reports.
-
-**Proposed fix.** The model is per track now (`track->kalman.getDynamicsModel()`,
-the idiom the fixed tests in `0770d25` use): restore the two assertions against a
-created track, then either port the disabled test to per-track models or delete it.
-Point the comments here, or drop them once the gaps are closed.
-
-**Why deferred.** Found while fixing the four stale or mis-constructed tests in
-`0770d25` (which used to be this entry). Those failed or passed with nonsense
-arguments; these three are missing coverage, lower value, and need a decision on
-the disabled test's intent.
