@@ -401,9 +401,14 @@ pattern_vel0 6.8 / pattern_vel010 9.5 / pattern_vel010_pen0 9.3 vs
 posterior_vel0 1.27 / posterior_vel010 1.34 / posterior_vel010_pen0 1.46 /
 position_only 1.53 / vel_dir_010 1.33. Switch counts 160-206 (pattern) vs
 20-32 (posterior). Conclusion: seed the association from the tracker
-POSTERIOR, not the pattern's desired state; velocity terms (0.10 gate or
-direction) change nothing measurable on top of it. Make `posterior` + no
-velocity gating the tracker default (Kai's call; not yet changed).
+POSTERIOR, not the pattern's desired state (the juggler already defaults to
+it); the four {switch penalty 0.20/0} x {velocity direction 0.10/0} cells
+(1.27 / 1.53 / 1.34 / 1.46) are within a quarter point. Kai's decision
+(2026-09-11): ship velocity direction 0.10 with the switch penalty OFF --
+the heading term is the principled discriminator, the penalty is memory.
+Done: optitrack-ball-tracker 777e1aa. Runs launched BEFORE that commit's
+sim relaunch (queue22's 504 probes and `bisect_fix_default`) ran on penalty
+0.20; `long_reps` onward relaunch and pick up the new default.
 
 ## Done
 
