@@ -353,7 +353,12 @@ stop-plan-during-a-drop this item hypothesised. The hypothesis that
 `cyclic_stop` holds the GIL exactly when a ball drops is NOT supported by the
 data.
 
-## 2026-09-10 — chain regression: the failing beat, and gain 0.8
+## 2026-09-10 — chain regression: RESOLVED 2026-09-11 (pre-touchdown cone), plus gain 0.8
+
+**Resolved:** the regression was the pre-touchdown cone trimmed to [0.1]. One
+point at [0.05] gives 7/8 (`.SSSSSSS`) on the shipped config; [0.05, 0.1]
+gave 2/8; [0.1] gave 0/8. Committed as the default. The items below stand as
+the evidence trail and for the other findings (gain, alpha, arm-done gate).
 
 **The chain's dominant failure is one beat, not tracking.** Every drop across
 every configuration today followed `ssbank_*_i5_p5_o4_t50` (the 4-throw of
