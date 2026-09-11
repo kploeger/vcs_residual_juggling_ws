@@ -282,6 +282,14 @@ code and the data* that would otherwise be lost between sessions.
   0.22 / 0.62 / 0.74 ms, 2 late-send warnings. Planning itself was fine
   (p50 9.9, max 27.9 ms) -- the 5 ms is eaten by callback jitter (~2 ms,
   "callback fired +2.12ms vs target" is routine). Untested middle: 10 ms.
+- **Held-2 bounce, status 2026-09-11 14:00.** `hold_rest_pose: catch`
+  (`_probe/bisect_held_fix_park_catch`) 4/8, cup still +0.6..1.0 m/s up at
+  touchdown -- parking alone does not change the stop trajectory's shape.
+  Added `catch_hand_velocity` to the stop NLP (juggle_planning): cup z
+  velocity at touchdown = 10 % of the ball's (~-0.45 m/s). Runs queued:
+  `held_fix_park_next` (park at the NEXT nominal catch, Kai's ask) and
+  `held_fix_stopvel` (that + the velocity constraint). Session variance is
+  large: identical held configs went 7/8 and 3/8 an hour apart.
 - **Held-2 catches bounce the ball out: the cup RISES into the ball.** In
   every attempt of `_probe/bisect_held_dt050`, the hand velocity at the
   `catch_and_stop` catch instant is (+0.45, ., +0.7..+1.2) m/s, against
