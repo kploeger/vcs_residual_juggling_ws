@@ -585,6 +585,16 @@ AUDIT FINDINGS NOT ON THE ROBOT PATH (do later)
   the planner ignores the key (an unscoped use would silently be all-catch).
 - Stray 26 MB worktree `_worktrees/_um_test` double-counts workspace greps.
 
+### 2026-09-11 21:23 — the shipped default stack, confirmed as ONE stack (robot config for 2026-09-12)
+
+`_probe/bisect_final_default` (default chain): 6/8 `✗✗✓✓✓✓✓✓` (drops at 18,
+50 in attempts 1-2, then clean to 89; 0 late sends; planning max 57.7 with
+the rest at 31-34). `_probe/bisect_final_held` (--hold-0s --hold-2s, no
+overlay): 8/8, throw 89, planning max 26.6. Stack: kd 0, park +3 cm on 0
+beats, post-0 inert, planning lead 60 ms, send advance 10 ms, held-2
+touchdown constraint, tracker posterior + velocity 0.10 + penalty 0, AOT.
+Within the day's spread for the same chain (7/8-8/8 with attempt-1 drops).
+
 ## Done
 
 _(nothing yet)_
