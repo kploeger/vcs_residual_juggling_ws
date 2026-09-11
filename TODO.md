@@ -415,29 +415,20 @@ Done: optitrack-ball-tracker 777e1aa. Runs launched BEFORE that commit's
 sim relaunch (queue22's 504 probes and `bisect_fix_default`) ran on penalty
 0.20; `long_reps` onward relaunch and pick up the new default.
 
-### 2026-09-11 — the catch AFTER A 0: raised rest and a touchdown-velocity box, queued
+### 2026-09-11 — the catch AFTER A 0: raised park is now the chain DEFAULT; box still to test
 
-Scope (Kai, 17:11): the catch out of a held (or tossed) 0 only -- not every
-catch, not the held 2s. That catch_and_throw starts from rest and climbs
-to 0.68 m before descending to the catch at -1.35 m/s (emergent; the
-catch_state pins joint position only). Two knobs, both scoped to that
-throw, both defaults off:
-- `siteswap.hold_rest_z_offset` (`_rest_up_03.yaml`, 3 cm): the 0 beat
-  rests higher so the descent needs less climb. Ready pose already sits
-  2.5 cm above the catch.
-- `catch_hand_velocity` BOX with `only_after_zero`
-  (`_post0_catch_dz_box.yaml`): cup at least 0.5 m/s down, at most half
-  the ball's z speed -- a feasibility window, not a target, so jerk and
-  acceleration can drop. Inert bounds on every other throw.
-Queue30 (after the DR pair): rest_up_03, held_rest_up_03, post0_box,
-held_post0_box, rest_up_03_post0_box, held_rest_up_03_post0_box, then the
-D-term ablation. Baselines: `bisect_fix_default` 7/8, `bisect_fix504_held`
-8/8 / `held_fix_stopvel_ready` 7/8. Plot throw 32 with
-`scratchpad/twitch2.py` against the default-parking run and send it.
+Scope (Kai, 17:11): the catch out of a 0 only. `siteswap.hold_rest_z_offset`
+lifts the 0-beat rests (not a held 2); after the held-0s 504 video with 3 cm
+(`_probe/gt_held504_restup`: 3/3, 88 throws each, joint plot clean) Kai:
+"Video looks good. Let's keep it like that." -> 0.03 in
+`configs/settings_20260909.yaml` (the chain stack), overlay removed. Default
+parking twin `_probe/gt_held504_default` recorded for the side-by-side.
+Still queued (queue33, after the D-term ablation): the post-0 touchdown-
+velocity BOX (`_post0_catch_dz_box.yaml`, `only_after_zero`): cup at least
+0.5 m/s down, at most half the ball's z speed, inert on every other throw.
 Joint 4 sits at 1.77-1.78 of its 1.8 rad limit on every normal
-follow-through, so a lower GLOBAL q_max would clip every throw; a post-0
-cap is possible as a prev_throw=0 override (q_max is reparameterizable)
-if the climb survives these two.
+follow-through, so a lower GLOBAL q_max would clip every throw; a post-0 cap
+is possible as a prev_throw=0 override if the climb still matters.
 
 ### IMPORTANT (Kai, 2026-09-11) — ablate learning with the transient learners' unintended D-term OFF
 
@@ -455,9 +446,10 @@ recorded runs as they are.
 
 **The ablation (Kai: "We need to ablate learning over turning this off").**
 Overlay `_transient_kd0.yaml` (individual block kd 0.0, nothing else) vs the
-chain as is (kd 0.2). Queued as queue28 after the catch-velocity / rest-offset
-A/Bs: `_probe/bisect_transient_kd0`, `_probe/bisect_transient_kd02_baseline`
-(same code, same session, back to back), plus the held chain with kd 0.
+chain as is (kd 0.2). Queued FIRST (queue33, Kai 17:39: "the next important thing"):
+`_probe/bisect_transient_kd0` vs `_probe/bisect_transient_kd02_baseline`
+(same code, same session, back to back; raised park is default in both),
+plus the held chain with kd 0 and its kd 0.2 baseline.
 Read out: success rate and per-attempt shape, first successful attempt,
 transient-beat velocity errors over attempts (the D-term acts on the
 transients only), and whether the cyclic beats inherit better inits. Every
