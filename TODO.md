@@ -440,3 +440,15 @@ attempt-result funnel. Remaining, with the review's recommendation:
   banking, replan grid, cache seeding, worker spec and plan dispatch in one
   mixin. Proposed split in the report (build / warm-start+cache / dispatch).
   Large; weigh against the thesis timeline.
+
+**Build-time safety fallbacks: ~1,200 per run, silently replacing tempo-variant
+warm starts with the nominal reference (2026-09-11).** On the 7/8 default run,
+1,212 of 1,223 "Safety fallback triggered" lines fire BEFORE attempt 1, on the
+per-tempo keys (`catch_and_throw@0.480/0.492/0.504/0.529/0.554`, ~120 each,
+plus `catch_and_throw_replan@8` x132). Violation is always `q`: max_abs 0.95
+against a 0.7 threshold (the chain's `best_chain_envelope` value). Without
+strict_fallback the plan is "quietly substituted with the nominal reference"
+(planner_bank.py `SafetyFallbackError` docstring), so those tempo variants
+run on the reference, not the solved warm start -- and 1,200 lines of noise
+hide any real veto. Decide: exempt the build phase from the q envelope, size
+it per tempo, or raise 0.7. Evidence: `_probe/bisect_default_confirm/run.log`.
