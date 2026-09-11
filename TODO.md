@@ -282,6 +282,16 @@ code and the data* that would otherwise be lost between sessions.
   0.22 / 0.62 / 0.74 ms, 2 late-send warnings. Planning itself was fine
   (p50 9.9, max 27.9 ms) -- the 5 ms is eaten by callback jitter (~2 ms,
   "callback fired +2.12ms vs target" is routine). Untested middle: 10 ms.
+- **Held 0s/2s A/B result 2026-09-11 15:00: velocity constraint + READY
+  parking = 7/8** (`_probe/bisect_held_fix_stopvel_ready`: only failure at
+  throws 76-85 in the 5-ball tail of attempt 4; px throws -0.2 -> 0 by
+  attempt 3, no wild variance). Same constraint + park-at-next-catch: 3/8.
+  Held mode is therefore fixed by: from-rest slot (e6db696) +
+  catch_hand_velocity on catch_and_stop (juggle_planning b42c600, overlay
+  `_held_stop_catch_vel_ready.yaml`) + ready parking (the default).
+  DECISION FOR KAI: make catch_hand_velocity a catch_and_stop default in
+  config.py (it is only an overlay today); `next_catch` parking stays
+  available but should not be the default.
 - **Held 0s/2s, status 2026-09-11 15:00.** (a) `catch_hand_velocity`
   (juggle_planning) works: cup moving -0.2..-0.5 m/s at every held-2 catch,
   no 18/21/24 bounce in 8 attempts (`bisect_held_fix_stopvel`). (b) That run
