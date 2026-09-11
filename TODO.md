@@ -465,6 +465,18 @@ run today shares kd 0.2, so today's A/Bs stay internally consistent; do not
 change the default until the ablation is in. If kd 0 wins, the fix is either
 hold_on_pending on the individual block too or kd -> 0 whenever nothing can
 be pending; then re-baseline.
+### 2026-09-11 — first full-DR pair produced nothing: unquoted mj_plant_args (fixed), requeued
+
+`_probe/bisect_plant_dr_full/run.log`: "Failed to initialize time" after
+25 min -- the DR sim never launched because the plant args were several
+unquoted tokens on the shell line and roslaunch bailed with "no such
+option: --armature-scale-left" (/tmp/launch_dr_full.log). Fixed in
+plant_randomisation.py (shlex.quote) with a shell-split test; queue10.sh now
+aborts on an unhealthy launch instead of running the juggler against a dead
+sim. DR pair requeued as queue32 after the post-0 experiments (queue30).
+The nominal-plant "back" launch in that queue is healthy, so nothing else
+was affected. The veto probe ran: 0 vetoes.
+
 ## Done
 
 _(nothing yet)_
