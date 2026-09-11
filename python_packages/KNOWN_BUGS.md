@@ -473,3 +473,27 @@ re-derive this.
 dynamics model explicitly in the fixture) or CONSTANT_ACCELERATION (update the
 expected values to include gravity). Do not simply widen the tolerance — the
 0.5 tolerance is already wide and the error is 1.08.
+
+## trajectory_planning: `test_kinematics.py::TestKinematics::test_ikin` fails on a 1e-6 tolerance (2026-09-11)
+
+**Where:** `python_packages/trajectory_planning/tests/test_kinematics.py` (`test_ikin`),
+against `trajectory_planning/kinematics.py::ikin`.
+
+**Symptom.** `np.allclose(x_, x)` with the default `atol=1e-8` compares the
+IK result to the requested tool position and fails by ~1e-6 m:
+`Expected [0, -1.14e-07, 1.946], got [9.3e-07, -1.7e-09, 1.94599995]`.
+Seen in the full suite on 2026-09-11 (1 failed, 154 passed); the kinematics
+module and the test are unchanged since `3f9239d`, and the last edit to
+`ikin` is `5d748fa` ("joint limit fading"), so it predates the AOT work that
+was running the suite. The rest of the package is green.
+
+**Proposed fix.** Decide whether 1e-6 m is the intended IK accuracy (then
+the assertion needs `atol=1e-5`) or whether the joint-limit fading in
+`5d748fa` loosened convergence (then `ikin`'s stopping criterion is the
+bug). The planner's own IK step (`ikin_step_size`) runs through the same
+function and its tracking is fine at the mm level, so this is a test
+tolerance question first.
+
+**Why deferred.** Not in the path of the current chain work; `ikin` is shared
+generic code (`trajectory_planning`), so the decision belongs with whoever
+touched the limit fading.
