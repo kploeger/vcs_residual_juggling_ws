@@ -517,11 +517,11 @@ DONE tonight
   defaults (applied after the DR bisect finished; see commit).
 - Hold/rest poses pre-warmed at construction (juggling 461e887): an
   unreachable lifted pose is an init error, not a mid-cycle exception.
-- Tracker master 9 commits behind update-timestamp-retrodiction (the branch
-  every consumer reads: measurement_backed, velocity term, penalty 0). A
-  robot PC on master would crash at the first ball state. Merge requested
-  from TLL_planner (4 rebased commits on tll-planner); fast-forward master
-  tonight if no answer.
+- Tracker master fast-forwarded to 777e1aa (2026-09-11 19:55, agreed with
+  TLL_planner: their rebased commits are already in it; their two new ones
+  -- a yaml comment fix and velocity-term tests -- follow after a build).
+  A robot PC on master now has measurement_backed, the velocity term and
+  penalty 0; preflight.sh checks the live message anyway.
 
 KAI'S CALL
 - Joint-4 envelope from the OPENING segment (`config.py:2119-2126`): the
