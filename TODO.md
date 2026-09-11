@@ -392,10 +392,11 @@ recompiles on the next launch, deferred + parallel, memory-guarded).
 peak at |ddq_des| 70-72 rad/s^2 (was 220), the dip and the j4 reversal are
 gone (plot `scratchpad/twitch_fix.png`), and the catch-adaptation replan of
 that throw is ACCEPTED in attempts 1 and 2 (was guard_fallback in both old
-runs). The 504-only probes queued in queue22 died on chain syntax (the last
-segment must be cyclic, `504*@0.50`); rerun as queue23 after queue22,
-including the HELD-0 case (`_probe/bisect_fix504_held`) which is not yet
-verified on data.
+runs). **Verified for the held 0 too** (`_probe/bisect_fix504_held`, chain
+3x12,423x4,44,504*: 8/8; thrown-0 twin `bisect_fix504_thrown` 7/8, attempt
+1 dropped): throw 32 peak |ddq_des| 61-64 (held) / 73 (thrown) against 242
+before, no dip, no j4 reversal, replans accepted in every attempt
+(`scratchpad/twitch_504.png`). Closed.
 
 ### 2026-09-11 — app-id association: posterior source wins, velocity gating is neutral
 
