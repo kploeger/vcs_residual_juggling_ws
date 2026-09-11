@@ -362,6 +362,49 @@ code and the data* that would otherwise be lost between sessions.
   through `nice -n 19 taskset -c 20-23`; queue9 puts the full suites in the
   gap between runs.
 
+### 2026-09-11 — the "twitch" around the 0 of the 504: FIXED (post-takeoff constraints on a phantom ball)
+
+**Root cause.** The catch_and_throw after a 0 starts from rest, but
+`post_takeoff_cone` (k=[2]) and `post_takeoff_min_separation` (k=[2..6],
+0.02 m) assume k=0 is a release and predict the "ball" ballistically from the
+START state (`juggle_planning/constraints/cone_constraints.py`). After a 0 that
+ball is a phantom sitting in the cup that free-falls; the cone's sign
+inequality and the separation then force the cup UNDER it. Measured on throw
+32 (`ssbank_right_i4_px_o5_t50`) in `_probe/gt_held_fix/run/attempts/002` and
+`_probe/gt_default3/run/attempts/001`: hand z 0.54 -> 0.47 -> 0.55 m in the
+first 120 ms, j4 dq_des -5 -> +4 rad/s, ddq_des +-240 -- identical in the HELD
+(rest_no_ball) and TOSSED (toss_no_ball) runs, so it is not a hold artefact.
+Side effect: the catch-adaptation replans for that throw tripped the safety
+guard (ddq 534 / 871 > 450, `replan_rejected_reason: guard_fallback`) in both
+runs, so the post-0 throw -- the one Kai found "too early to compensate for"
+-- also ran WITHOUT catch adaptation.
+
+**Fix (Kai: "get rid of those constraints for starting from 0s, both held and
+thrown").** New reparameterizable `axial_slack` on both constraints
+(juggle_planning 6fb7279) + `POST_TAKEOFF_INERT` context override keyed
+`prev_throw=0` on both arms' catch_and_throw and catch_and_stop tables
+(juggling c1fe6ef). Per-solve parameter vector, no NLP rebuild; the AOT cache
+misses once because the parameter vector grew (every c&t / c&stop NLP
+recompiles on the next launch, deferred + parallel, memory-guarded).
+
+**Status.** Probe queued (queue22): `_probe/bisect_fix504_thrown`,
+`_probe/bisect_fix504_held` (3x12,423x4,44,504x8), then a fresh full-chain
+`bisect_fix_default` baseline BEFORE long_reps / DR, since the change alters
+every throw after a 0. Verify with `scratchpad/twitch2.py` (hand-z swing in
+the first 150 ms of throw 32, peak |ddq_des|, replan_rejected).
+
+### 2026-09-11 — app-id association: posterior source wins, velocity gating is neutral
+
+`experiments/app_id_association/run.py`, open-loop chain, 8 attempts, scored
+by `association_truth` (wrong-ball % mean, lower is better):
+pattern_vel0 6.8 / pattern_vel010 9.5 / pattern_vel010_pen0 9.3 vs
+posterior_vel0 1.27 / posterior_vel010 1.34 / posterior_vel010_pen0 1.46 /
+position_only 1.53 / vel_dir_010 1.33. Switch counts 160-206 (pattern) vs
+20-32 (posterior). Conclusion: seed the association from the tracker
+POSTERIOR, not the pattern's desired state; velocity terms (0.10 gate or
+direction) change nothing measurable on top of it. Make `posterior` + no
+velocity gating the tracker default (Kai's call; not yet changed).
+
 ## Done
 
 _(nothing yet)_
