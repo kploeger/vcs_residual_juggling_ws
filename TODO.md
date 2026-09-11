@@ -507,6 +507,73 @@ Next (queued 2026-09-11 evening, queue34): axis bisect at seed 0 --
 armature only, link masses only, tool mass+tilt only, and the full draw at
 half range -- to see which axis and what magnitude the chain tolerates.
 
+### 2026-09-11 evening — ROBOT READINESS (three reviews; reports in .claude/reviews/robot-readiness-*.md and full-2026-09-11-evening.md)
+
+Kai: "we will try held 2s on the real robot ... anything that could still go
+wrong on the real robot?" Status per item:
+
+DONE tonight
+- Held-2 touchdown-velocity constraint + 10 ms send advance -> chain stack
+  defaults (applied after the DR bisect finished; see commit).
+- Hold/rest poses pre-warmed at construction (juggling 461e887): an
+  unreachable lifted pose is an init error, not a mid-cycle exception.
+- Tracker master 9 commits behind update-timestamp-retrodiction (the branch
+  every consumer reads: measurement_backed, velocity term, penalty 0). A
+  robot PC on master would crash at the first ball state. Merge requested
+  from TLL_planner (4 rebased commits on tll-planner); fast-forward master
+  tonight if no answer.
+
+KAI'S CALL
+- Joint-4 envelope from the OPENING segment (`config.py:2119-2126`): the
+  cascade5 chain keeps q_max 1.8 for its 5-ball tail although the 5-ball
+  factory bumps it to 1.9; joint 4 sits at 1.77-1.78 on every follow-through
+  (measured today). Chain runs 7/8-8/8 as is. Change = size from the peak
+  ball count. Not touched (finalisation rule).
+- `JRL_ROS_STRICT`: default kills the whole run on one missed send deadline
+  (sim policy, Kai 2026-08-28); the code says =0 ("abort the attempt, keep
+  the run") is what a supervised real-robot session wants. Nothing under
+  experiments/real_robot sets it. Decide per session; if =0, put it in
+  preflight/run_next, not in a shell history.
+- Floor-drop check (`drop_detection.py:500-554`) is the ONLY drop check in
+  the shipped "replace" mode and now needs a raw measurement within
+  max_track_age: a dropped ball hidden by the base/floor ends no attempt
+  (manual abort). Options: `mode: supplement`, or surface the skipped-
+  candidate counter above DEBUG. Sim has no occlusion.
+- Seven axes changed since the last recorded hardware run (kd 0, park
+  +3 cm, planning lead 60 ms, pre-touchdown cone [0.05], post-0 inert,
+  min-sep every other knot, send advance 10 ms): each justified in sim,
+  none validated on hardware -> first session is a shakedown.
+
+PREFLIGHT (add to preflight.sh / run_next, see below)
+- AOT: gcc/g++ present in the running container, `/retain/tp_nlp_aot`
+  writable, startup log shows `AOT: N compiled, 0 failed` BEFORE attempt 1.
+  planning_lead 0.060 is sized for compiled solves (worst 45 ms);
+  interpreted worst is 58-73 ms -> negative margin -> SendDeadlineMissed.
+  A cold compile is ~43 x 40 s gcc at cores-4 jobs with the driver live.
+- Tracker checkout on ball = the branch above.
+
+AUDIT FINDINGS NOT ON THE ROBOT PATH (do later)
+- Three DR samplers: `environment/domain_randomization.py` (direct MuJoCo,
+  JRL_DR_*), `utils/plant_randomisation.py` (ROS, the one to use), and an
+  inline heredoc in `scripts/overnight_robustness.sh:70-93` that sets the
+  controller URDF to the SAME drawn mass/length as the plant -- no mismatch
+  on those axes, only tilt (+ cup radius, which Kai holds fixed). Any
+  `_night/dr*` number is mislabelled. Port the script onto
+  plant_randomisation; document the direct-MuJoCo one as legacy.
+- `env_knobs.KNOBS` misses 21 of ~34 env reads (5 on the hardware send
+  path: JRL_SEND_ABORT_MARGIN_S, JRL_CMD_QUEUE_SIZE, JRL_STATE_TOPIC_SUFFIX,
+  ...; all JRL_DR_*; TP_NLP_AOT_MAX_*). `TP_NLP_AOT_DIR` is never read and
+  `TP_NLP_AOT=0` cannot disable AOT (cfg bool wins). Needs a discovery test.
+- `app_id_association/run.py` duplicates launch()/write_arm_config() from
+  the sibling harness it imports from (~40 lines, drifted).
+- Morning audit #2 still open: hand-typed cup geometry in two scripts;
+  `plant_randomisation.nominal_from_cfg()` is the drop-in.
+- Test suite inherits the AOT compile (6 juggler-building test files write
+  to the live /retain cache; gcc on the box during timed runs). Measure.
+- `catch_hand_velocity.only_after_zero` is honoured by SiteswapJuggler only;
+  the planner ignores the key (an unscoped use would silently be all-catch).
+- Stray 26 MB worktree `_worktrees/_um_test` double-counts workspace greps.
+
 ## Done
 
 _(nothing yet)_
