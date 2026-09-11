@@ -460,10 +460,11 @@ held kd 0.2 baseline running at the time of writing (report when in).
 Kai: "make sure the k_d term is zero by default for everything we may ever
 do in the future" -> newton_raphson.py defaults kd to 0 in every strategy;
 explicit kd still honoured (test_newton_kd_default_off.py).
-Config wart left as is: `settings_20260909.yaml` sets the individual block
-to delay_strategy "pd" but `learner_newton.yaml` later replaces the whole
-block, so transients actually run "smith_pd" (recorded configs confirm).
-With kd 0 both are the plain Newton step; the line is only misleading.
+Config wart fixed (juggling 9d0b22b): the dead `individual: pd` block is
+gone from `settings_20260909.yaml`; a transient learner never has a pending
+ask (it is not queried before its previous candidate reports back), so
+Smith cannot fire for it whatever the strategy says. Resolved stack
+unchanged in effect.
 Read out: success rate and per-attempt shape, first successful attempt,
 transient-beat velocity errors over attempts (the D-term acts on the
 transients only), and whether the cyclic beats inherit better inits. Every
