@@ -450,20 +450,32 @@ pytest runs overlapped. Treat 6/8 as 7/8-equivalent at best and rerun
 before drawing the repetition conclusion; the per-attempt shape does not
 show the doubled chain learning FASTER than the 88-throw one (both are
 clean from attempt 4).
-### 2026-09-11 — transient Newton learners carry an unintended D-term (kd 0.2) — fix AFTER the queued A/Bs
+### IMPORTANT (Kai, 2026-09-11) — ablate learning with the transient learners' unintended D-term OFF
 
-Reported by isrr_rerun (Kai: "we may need to fix it"). `NewtonCfg.delay_strategy`
-defaults to "smith_pd" (learners/newton_raphson.py:18) and an unset kd resolves
-to 0.2 there (:184); hold_on_pending is injected only on the cyclic block, so
-the individual / transient learners run smith_pd with a live D-term (the Smith
-part is inert, nothing is ever pending for them). Confirmed on THIS chain:
-`_probe/bisect_fix_default/run/config.json` individual blocks have
-hold_on_pending false, delay_strategy smith_pd, kd null (lines 965-1011).
-Every run today, and every queued A/B (catch velocity, box, rest offset),
-shares it, so the comparisons stay internally consistent -- do NOT change it
-mid-queue. Intent per Kai: plain Newton for transients (no D, no Smith). Fix
-candidates: default the individual block to hold_on_pending too, or resolve
-kd to 0 whenever nothing can be pending. Needs a fresh baseline after.
+**The bug.** `NewtonCfg.delay_strategy` defaults to "smith_pd"
+(learners/newton_raphson.py:18) and an unset kd resolves to 0.2 there (:184).
+hold_on_pending is injected only on the cyclic block, so the individual /
+transient learners run smith_pd with a LIVE D-term (the Smith part is inert:
+nothing is ever pending for a transient): every transient step adds
+-0.2 * J_inv @ (ema_err_n - ema_err_{n-1}) once two tells are in. Reported by
+isrr_rerun; confirmed on THIS chain (`_probe/bisect_fix_default/run/config.json`
+individual blocks: hold_on_pending false, smith_pd, kd null, lines 965-1011)
+and in the recorded ISRR / real-robot existence-proof configs. Kai's intent:
+plain Newton for transients (no D, no Smith). The ISRR paper keeps the
+recorded runs as they are.
+
+**The ablation (Kai: "We need to ablate learning over turning this off").**
+Overlay `_transient_kd0.yaml` (individual block kd 0.0, nothing else) vs the
+chain as is (kd 0.2). Queued as queue28 after the catch-velocity / rest-offset
+A/Bs: `_probe/bisect_transient_kd0`, `_probe/bisect_transient_kd02_baseline`
+(same code, same session, back to back), plus the held chain with kd 0.
+Read out: success rate and per-attempt shape, first successful attempt,
+transient-beat velocity errors over attempts (the D-term acts on the
+transients only), and whether the cyclic beats inherit better inits. Every
+run today shares kd 0.2, so today's A/Bs stay internally consistent; do not
+change the default until the ablation is in. If kd 0 wins, the fix is either
+hold_on_pending on the individual block too or kd -> 0 whenever nothing can
+be pending; then re-baseline.
 ## Done
 
 _(nothing yet)_
