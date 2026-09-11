@@ -423,9 +423,14 @@ lifts the 0-beat rests (not a held 2); after the held-0s 504 video with 3 cm
 "Video looks good. Let's keep it like that." -> 0.03 in
 `configs/settings_20260909.yaml` (the chain stack), overlay removed. Default
 parking twin `_probe/gt_held504_default` recorded for the side-by-side.
-Still queued (queue33, after the D-term ablation): the post-0 touchdown-
-velocity BOX (`_post0_catch_dz_box.yaml`, `only_after_zero`): cup at least
-0.5 m/s down, at most half the ball's z speed, inert on every other throw.
+Post-0 touchdown-velocity BOX (`_post0_catch_dz_box.yaml`, `only_after_zero`;
+cup at least 0.5 m/s down, at most half the ball's z speed): RESULT 19:02,
+`_probe/bisect_post0_box` 7/8 (attempt 1 drop, throw 89, planning max 45.3
+vs 25-35) against the matched `bisect_transient_kd0` 8/8. The window never
+binds: throw 32 arrives at -1.40..-1.44 m/s both ways, climb 8-9 cm both,
+peak |ddq| 67-72 both. Inert here -> stays OFF; keep the overlay as the
+tested implementation. With the raised park the post-0 climb is 8-9 cm
+(was 10-11 cm; normal follow-through 15-16 cm).
 Joint 4 sits at 1.77-1.78 of its 1.8 rad limit on every normal
 follow-through, so a lower GLOBAL q_max would clip every throw; a post-0 cap
 is possible as a prev_throw=0 override if the climb still matters.
