@@ -430,7 +430,7 @@ Joint 4 sits at 1.77-1.78 of its 1.8 rad limit on every normal
 follow-through, so a lower GLOBAL q_max would clip every throw; a post-0 cap
 is possible as a prev_throw=0 override if the climb still matters.
 
-### IMPORTANT (Kai, 2026-09-11) — ablate learning with the transient learners' unintended D-term OFF
+### DONE 2026-09-11 — transient learners' unintended D-term: ablated (no difference), kd now 0 by default everywhere (juggling 9c942e9)
 
 **The bug.** `NewtonCfg.delay_strategy` defaults to "smith_pd"
 (learners/newton_raphson.py:18) and an unset kd resolves to 0.2 there (:184).
@@ -454,7 +454,16 @@ plus the held chain with kd 0 and its kd 0.2 baseline.
 max 34.7) vs kd 0.2 `✓✓✓✓✓✓✓✓` (throw 89, 24.7). Transient-beat mean |dv|
 per attempt, kd0 / kd0.2: 0.119/0.126, 0.046/0.052, 0.025/0.040,
 0.019/0.023, then 0.02-0.04 both; cyclic beats identical (0.03-0.04). The
-D-term does nothing measurable on the transients. Held pair pending.
+D-term does nothing measurable on the transients. Held chain kd 0: 8/8
+(throw 89, planning max 26.8), transient 0.141 -> 0.023 by attempt 4;
+held kd 0.2 baseline running at the time of writing (report when in).
+Kai: "make sure the k_d term is zero by default for everything we may ever
+do in the future" -> newton_raphson.py defaults kd to 0 in every strategy;
+explicit kd still honoured (test_newton_kd_default_off.py).
+Config wart left as is: `settings_20260909.yaml` sets the individual block
+to delay_strategy "pd" but `learner_newton.yaml` later replaces the whole
+block, so transients actually run "smith_pd" (recorded configs confirm).
+With kd 0 both are the plain Newton step; the line is only misleading.
 Read out: success rate and per-attempt shape, first successful attempt,
 transient-beat velocity errors over attempts (the D-term acts on the
 transients only), and whether the cyclic beats inherit better inits. Every
