@@ -282,6 +282,16 @@ code and the data* that would otherwise be lost between sessions.
   0.22 / 0.62 / 0.74 ms, 2 late-send warnings. Planning itself was fine
   (p50 9.9, max 27.9 ms) -- the 5 ms is eaten by callback jitter (~2 ms,
   "callback fired +2.12ms vs target" is routine). Untested middle: 10 ms.
+- **Held 0s/2s: the REAL bug was the from-rest throw's slot (fixed).** With
+  the clamp at 0.03 (`_probe/bisect_held_dt030`, 0/8) the throw-34 failure
+  disappeared (the `px` learner converges by attempt 3) and the chain died at
+  throw 70 in 5/8: throws out of a held 2 in 552@0.50 ran 0.600 s (padded to
+  the base cycle), the right arm slipped 100 ms per hold, the incoming 5 was
+  rejected by `max_catch_prediction_dt` (0.10) as "right place, wrong beat",
+  nominal catch, miss. Fixed in siteswap_juggler `_from_rest_slot_duration`
+  (2026-09-11). Also seen: throws 18/21 (`i2_p2_o4`, from rest in 423)
+  failed in attempts 7-8 with the learner offsets unchanged from the passing
+  attempts 2-6 -- ball landed 23 cm forward; unexplained, 2/8.
 - **Held 0s/2s fail on EARLY balls because the catch-time clamp is 0.02 s.**
   `_probe/gt_held2` attempt 2, throw 34 (`ssbank_right_i5_p5_o4_t50`):
   predicted landing -0.0755 s, `catch_applied_dt` -0.020 (the clamp), hand
