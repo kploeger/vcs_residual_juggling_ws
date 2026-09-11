@@ -415,3 +415,28 @@ no 2s, and the siteswap path schedules pattern beats under bank keys
 mid-pattern (every log today). The clean fix is an explicit `is_stop`
 argument on `_schedule_throw` rather than a name test. Evidence: 530a32e,
 logs in `_probe/gtdrop/run.log` lines 6761-6798.
+
+## 2026-09-11 — full-tree review, items not fixed today (report: .claude/reviews/full-2026-09-11.md)
+
+Fixed the same day: the 16-file cfg stack (now `experiments/_shared/chain_cfg_stack.sh`),
+the env-only donor knobs (now JugglerCfg fields), ball_collisions.py wired into the
+attempt-result funnel. Remaining, with the review's recommendation:
+
+- **Tool geometry hand-typed in `scripts/catchup_queue.sh` and
+  `scripts/overnight_robustness.sh`** instead of derived via
+  `tool_args_from_arm_cfg`/`build_launch_command` from `_zoo_tool()`. Same
+  failure class as the fixed `ros_sim_health.sh --force` plant swap.
+  `overnight_robustness.sh` perturbs those constants for DR, so the fix is to
+  derive the nominal args and apply the perturbation as launch-arg overrides.
+- **Dead since the 2026-08-27 review:** `jugglers/siteswap_warm_starts.py`,
+  `experiments/analysis/replication.py`. Delete or state the intended caller —
+  Kai's call.
+- **`juggling_rl/robot_description` ~3 months stale** vs
+  `juggling_residual_learning/robot_description` (independent checkouts, not a
+  submodule). Kai's call whether juggling_rl should track it.
+- **Fountain jugglers still hand-copy the cyclic throw loop** (3rd consecutive
+  review). Large; the `is_stop` change today had to touch all three siblings.
+- **`PlannerBankMixin` +827/−31 lines in two weeks**: NLP build, warm-start
+  banking, replan grid, cache seeding, worker spec and plan dispatch in one
+  mixin. Proposed split in the report (build / warm-start+cache / dispatch).
+  Large; weigh against the thesis timeline.
