@@ -450,6 +450,20 @@ pytest runs overlapped. Treat 6/8 as 7/8-equivalent at best and rerun
 before drawing the repetition conclusion; the per-attempt shape does not
 show the doubled chain learning FASTER than the 88-throw one (both are
 clean from attempt 4).
+### 2026-09-11 — transient Newton learners carry an unintended D-term (kd 0.2) — fix AFTER the queued A/Bs
+
+Reported by isrr_rerun (Kai: "we may need to fix it"). `NewtonCfg.delay_strategy`
+defaults to "smith_pd" (learners/newton_raphson.py:18) and an unset kd resolves
+to 0.2 there (:184); hold_on_pending is injected only on the cyclic block, so
+the individual / transient learners run smith_pd with a live D-term (the Smith
+part is inert, nothing is ever pending for them). Confirmed on THIS chain:
+`_probe/bisect_fix_default/run/config.json` individual blocks have
+hold_on_pending false, delay_strategy smith_pd, kd null (lines 965-1011).
+Every run today, and every queued A/B (catch velocity, box, rest offset),
+shares it, so the comparisons stay internally consistent -- do NOT change it
+mid-queue. Intent per Kai: plain Newton for transients (no D, no Smith). Fix
+candidates: default the individual block to hold_on_pending too, or resolve
+kd to 0 whenever nothing can be pending. Needs a fresh baseline after.
 ## Done
 
 _(nothing yet)_
