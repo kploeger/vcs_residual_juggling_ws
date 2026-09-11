@@ -484,3 +484,53 @@ check whether anything downstream silently depends on the current sign.
 **Not introduced by the observer sign fix of 2026-09-08** (commit `289600a`);
 `git blame` puts this code at `efa4a18a`, 2026-03-22. It is a genuinely
 separate instance of the same confusion about `difference()`'s argument order.
+
+## Two optitrack-ball-tracker unit tests are stale: they assume the old CONSTANT_VELOCITY default
+
+**Where.** `catkin_ws/src/optitrack-ball-tracker/test/unit/test_multi_ball_tracker_unit.cpp`:
+`MultiBallTrackerTest.BallPositionTracking` (:196) and
+`MultiBallTrackerTest.ApplicationIDDynamicsModelUpdate` (:735). Both FAIL on the
+tracker's `tll-planner` branch as of `25b3a01`. Recorded here because this is the
+workspace's only KNOWN_BUGS file: the test fixture's `TODO(KNOWN_BUGS)` comments
+(added in `c99a369`) point at `/catkin_ws/KNOWN_BUGS.md`, which was never created.
+
+**Cause.** Since `11d88f0` (2026-03-05, "height-based dynamics model selection for
+MultiBallTracker initialization"), a new track above `initializationHeightThreshold_`
+starts with the CONSTANT_ACCELERATION model and known gravity. The positional
+constructor these tests use leaves that threshold at 0.0, so every test marker
+(z >= 0.8) is above it. Both tests still assume the pre-March CONSTANT_VELOCITY
+default:
+
+- `ApplicationIDDynamicsModelUpdate` fails at :751, its FIRST assertion ("tracks
+  start with CONSTANT_VELOCITY"), before `processApplicationUpdates` is ever called.
+  The actual value is enum 2 = CONSTANT_ACCELERATION (`dynamics_models.hpp:18`:
+  POSITION 0, VELOCITY 1, ACCELERATION 2, DRAG 3).
+- `BallPositionTracking` expects z-velocity +0.1 from two frames of slight upward
+  motion and gets -0.975 -- within 1% of the -0.981 that gravity alone produces over
+  the 0.1 s step. It measures the model, not the motion.
+
+**Not a regression -- verified from history, not by bisect.** Both tests were last
+edited before `11d88f0` (BallPositionTracking 2025-10-31 in `15c0639`;
+ApplicationIDDynamicsModelUpdate 2026-02-02 in `f72e240`), and `11d88f0` is an
+ancestor of every tracker commit merged or rebased on 2026-09-09..11 (`838da2a`,
+`164aa2c`, `6924437`, and the four rebased velocity-term commits). They have been
+red for about six months. The first suspect, the deferred state reset in `164aa2c`,
+is ruled out: the :751 failure happens before any application update runs.
+
+**Related rot in the same file.** `ApplicationIDDynamicsModelUpdate` passes its
+constructor arguments in an old order -- `maxMahalanobisDistance_` (3.0) lands in
+the `processNoise` slot. `BallCrossoverScenario` passes `10.0` as
+`maxFramesWithoutUpdate` under a comment saying it raises the Mahalanobis threshold.
+
+**Proposed fix.** Make each test STATE the model it assumes instead of inheriting
+the default: pass `initializationModelAboveThreshold = CONSTANT_VELOCITY`
+(positional argument 12) where the test is about constant-velocity tracking, and
+correct the argument order in `ApplicationIDDynamicsModelUpdate`. That test's real
+subject -- that an application update can CHANGE the model -- does not need the
+initial model to be any particular value, so its precondition can assert "not the
+target model" rather than a specific default.
+
+**Why deferred.** Verifying needs a C++ test build. On 2026-09-11 the host was
+running another session's timed ROS queue (a 1 kHz loop that reads CPU contention
+as ball drops) and `ball` had a robot-side roslaunch up. Small fix; the build is
+the constraint.
