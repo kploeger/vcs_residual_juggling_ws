@@ -105,6 +105,20 @@ code and the data* that would otherwise be lost between sessions.
   opening 3-ball keys and one hold-rest solve reach 15-18 iterations against the
   cap of 20.
 
+- [ ] **Lab PC (Ball) is a hybrid i9-13900K and was built RelWithDebInfo (2026-09-12).**
+  Same commit/config as Thales: Ball 0/8, 0/6, 2/8 vs Thales 7-8/8. Recordings:
+  joint-state stream stalls up to 20 ms on Ball (Thales <= 12.4), tracking error
+  2-3 rad/s vs 0.4, one trajectory 129 ms late (SEND DEADLINE MISSED abort). rviz
+  on/off and send advance 10 -> 20 made no difference. Fixes applied: `dr`
+  (docker_ws in ~/.zshrc, both machines) pins the container to the performance
+  cores 0-15 on hybrid CPUs; preflight.sh refuses an unpinned container (exit 9,
+  juggling 392e47c); Ball's catkin rebuilt clean as Release (all 15 packages).
+  Validation run in the pinned Release container: _probe/ball_dryrun/relpin.
+  SEPARATE (Kai): attempt 1's first trajectory per arm on Ball tracks with ~3
+  rad/s error with an IDENTICAL profile across runs (deterministic, not
+  scheduling); attempt 2+ fine. Not seen on Thales. Suspect uninitialised
+  controller state on the first transition; re-check after the Release rebuild.
+
 ### Closed-loop catching
 
 - [ ] **Enable `replan_at_fraction: vacant_mid` on the siteswap hardware stack.**
