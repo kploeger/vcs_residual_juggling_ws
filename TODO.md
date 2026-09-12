@@ -851,3 +851,9 @@ and -0.14 on all 20 keys, -0.12 already needs 28 iterations (online cap
 20), so settings_20260909.yaml clips -x at 0.10 via the new signed
 per-axis `catch_adaptation.max_adaptation_lo` (juggling, 2026-09-12); +x
 and y stay at 0.15. Seeds and adaptations read the same bounds.
+VERIFIED 2026-09-12 16:30, full default stack, held 0s/2s chain: direct
+MuJoCo 8/8 (three runs across the changes) and ROS sim 8/8
+(_probe/seedfix_ros), seeding 1536 cached / 0 discarded, 0 runtime vetoes,
+1 capped solve of 720, 0 deadline misses, planning p95 16 ms. One new bug
+on the way: the tracker plot's plt.show() blocked between attempts now
+that the container has a display (fixed, juggling fbb9014).
