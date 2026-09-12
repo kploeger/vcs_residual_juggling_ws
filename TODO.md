@@ -125,6 +125,22 @@ code and the data* that would otherwise be lost between sessions.
 
 ### Closed-loop catching
 
+- **The 5-ball drop-in catch (the `ix` slot, throw 80 of the 96-throw chain)
+  bounces and the throw off it comes out short.** Lab PC, pinned Release,
+  rviz on, lead 0.040 / window 0.015 / replan 0.025
+  (`_probe/ball_dryrun/rvizon2`, 2026-09-12 20:10): 4/8, shape `..SSS.S.`,
+  0 open-loop re-uses, 0 deadline misses. Attempt 1 is learner cold start
+  (left 4s of the 44 segment, throws 47/49). Attempts 2, 6, 8 all lose the
+  ball launched into the right cup at throw 80: it arrives at ~7 m/s, the
+  ball-cup separation during the dwell peaks at 5.4-5.6 cm (3.1-4.0 cm in
+  the four clean attempts), and the throw leaves at 3.9 / 4.25 m/s up
+  instead of 4.83-4.93 (attempt 6 also +0.29 m/s in x), so it never reaches
+  the left cup at throw 85. Not a ball-ball collision: min ball-ball
+  distance around throw 80 in attempt 2 is 0.103 m. Catch adaptation and
+  the replan both applied on throw 80. Same mechanism class as the held-2
+  bounce below; the launcher height is fixed by scenario, so the lever is
+  the cup's motion through the drop-in catch, not the arrival speed.
+
 - [ ] **Enable `replan_at_fraction: vacant_mid` on the siteswap hardware stack.**
   Currently `None`, so the catch target is committed once at
   `planned_t = +0.467 s` (61 of 71 catches) plus ~0.089 s planning lead —
