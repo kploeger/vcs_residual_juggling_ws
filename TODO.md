@@ -822,3 +822,9 @@ strict_fallback the plan is "quietly substituted with the nominal reference"
 run on the reference, not the solved warm start -- and 1,200 lines of noise
 hide any real veto. Decide: exempt the build phase from the q envelope, size
 it per tempo, or raise 0.7. Evidence: `_probe/bisect_default_confirm/run.log`.
+UPDATE 2026-09-12: the NOISE is gone (juggling: seeding-time rejections are
+counted and reported as ONE warning line by key; runtime banners unchanged)
+after Kai hit the banners on the first dry run in the recreated container.
+Yesterday's 8/8 runs had 1,211-1,212 of them before attempt 1, also on
+`catch_and_throw_replan@8` with ddq 540-610 > 450. The envelope DECISION is
+still open; the seeded tempo variants still run on the reference.
