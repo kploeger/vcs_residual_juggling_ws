@@ -79,6 +79,26 @@ code and the data* that would otherwise be lost between sessions.
   0.50 and is NOT in the hardware stack — its own comment says 0.42 -> 0.50
   makes the two gaps equal (0.215 s each).
 
+- [ ] **Chain geometry/dwell decisions of 2026-09-12 (lab-PC dry run).** Ball-ball
+  contacts in the 5-ball segment on Ball (4 of 7 attempts touching, closest 0.075 m)
+  with the shipped 5s throw_offset 0.12 (645 sweep value); the ISRR 5-ball run threw
+  at 0.20. ROS-sim, held chain, 8 attempts each:
+      0.42 / offset 0.12   8/8 x4 (Thales)     contacts 0 (Thales), Ball 3/7
+      0.50 / offset 0.12   6/8 (Thales)        drops at throws 29, 43 (504 + 4-fountain)
+      0.42 / offset 0.18   8/8 (Thales)        0 contacts, 0 vetoes, 688 throws
+      0.50 / offset 0.18   2/8 (Ball)          drops 3, 45, 45, 48, 26, 26; 0 in-flight contacts
+  ball_clearance.py: consecutive 5s 0.107 m -> 0.164 m with 0.18; chain limiter is
+  then 37x39 (4-fountain) and 23x24 (504->4) at 0.10 m. Kai chose dwell 0.50 +
+  0.18 as the shipped default (settings_20260909.yaml) after watching the Ball run;
+  cascade5 rung now 96 throws (20 of 5-ball). Planning on Ball (i9-13900K) equals
+  Thales: p50 10 / p95 16 / max 24 ms, 0 late sends; scheduling unchanged.
+  OPEN: the once-per-run diverged first catch_and_throw@0.600 solve after the
+  from-rest throws (throw 3-6, 20 iterations, q 5-9 rad, vetoed -> zero-residual
+  fallback) dropped the ball on Ball (cascade5 attempt 2); on Thales it mostly
+  survives. Likely a poor warm start for the first catch after throw_0 (different
+  incoming ball velocity than any seed). Evidence: _probe/ball_dryrun/cascade5.log,
+  _probe/bisect_final_held/run.log (throw 6).
+
 ### Closed-loop catching
 
 - [ ] **Enable `replan_at_fraction: vacant_mid` on the siteswap hardware stack.**
