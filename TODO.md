@@ -113,7 +113,11 @@ code and the data* that would otherwise be lost between sessions.
   (docker_ws in ~/.zshrc, both machines) pins the container to the performance
   cores 0-15 on hybrid CPUs; preflight.sh refuses an unpinned container (exit 9,
   juggling 392e47c); Ball's catkin rebuilt clean as Release (all 15 packages).
-  Validation run in the pinned Release container: _probe/ball_dryrun/relpin.
+  Validation run in the pinned Release container (_probe/ball_dryrun/relpin):
+  6/8 at dwell 0.5 (both drops the bounced post-rest catch at throw 41, arm
+  tracking 0.7 rad/s, i.e. the box is fixed); planning fell to p50 5.7 / p95 9.0
+  / max 12.8 ms and replans to 3.3 / 5.7 / 9.1 ms, 968/996 applied. Timing then
+  set to planning_lead 0.040 and replan_solve_budget 0.025 (juggling, same day).
   SEPARATE (Kai): attempt 1's first trajectory per arm on Ball tracks with ~3
   rad/s error with an IDENTICAL profile across runs (deterministic, not
   scheduling); attempt 2+ fine. Not seen on Thales. Suspect uninitialised
