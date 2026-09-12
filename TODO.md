@@ -92,12 +92,18 @@ code and the data* that would otherwise be lost between sessions.
   0.18 as the shipped default (settings_20260909.yaml) after watching the Ball run;
   cascade5 rung now 96 throws (20 of 5-ball). Planning on Ball (i9-13900K) equals
   Thales: p50 10 / p95 16 / max 24 ms, 0 late sends; scheduling unchanged.
-  OPEN: the once-per-run diverged first catch_and_throw@0.600 solve after the
-  from-rest throws (throw 3-6, 20 iterations, q 5-9 rad, vetoed -> zero-residual
-  fallback) dropped the ball on Ball (cascade5 attempt 2); on Thales it mostly
-  survives. Likely a poor warm start for the first catch after throw_0 (different
-  incoming ball velocity than any seed). Evidence: _probe/ball_dryrun/cascade5.log,
-  _probe/bisect_final_held/run.log (throw 6).
+  RESOLVED 19:00 (juggling 5977e65): the diverged first solves (throw 3-6 at
+  0.42, the 504's 4-after-5 at throw 28 at 0.50) and the pattern-breaking
+  fallbacks had ONE cause -- _create_warm_starts returned early ("uniform
+  pattern") whenever the CYCLIC segment had one value, which every chain ending
+  in 5* does, skipping per-slot warm starts, per-beat references, stop references
+  and the tempo-variant walk for all 76 transition beats. With the fix: dwell 0.5
+  + 0.18 + 96 throws went 2/8 -> 7/8 (drop at throw 32, a missed 504 catch, no
+  veto), 0 capped solves in 658, throw 28 iterations 20 -> 11 max. Planning times
+  unchanged (p50 10 / p95 15 ms). Still open: throws from rest have NO safety
+  reference (construction warns "guard inactive" for cyclic_from_rest); the
+  opening 3-ball keys and one hold-rest solve reach 15-18 iterations against the
+  cap of 20.
 
 ### Closed-loop catching
 
