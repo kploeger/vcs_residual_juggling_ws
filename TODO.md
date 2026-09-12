@@ -839,3 +839,11 @@ the cache on a veto), and the remaining 11 acc/jerk-only vetoes are cleared
 by Kai's raise to ddq 1000 / dddq 64000 (settings_20260909.yaml). Build now
 reports "1467 cached, 69 discarded" and no fallback warning. Note the
 warm-start/replan-reference solves were never part of it (0 fallbacks).
+Then (juggling 8aaf2c6) seeding moved into the DEFAULT solver phase
+(max_iter 1000; "the 20 is just for online solves"): 1508 cached, 28
+discarded, 59 s. The 28 all sit at dx_x <= -0.13 m, where the full budget
+finds a different posture (q 1.0-1.6 rad off the reference, 9 never
+converge). Runs never go there: over 1,784 adapted catches in three chain
+runs, 99% are within |dx_x| 0.07 and 1 catch is below -0.10. Kai's option
+of a +-0.10 clamp+seed box would remove the corner; not taken (0.15 is the
+measured-best clamp and the corner costs nothing at runtime).
