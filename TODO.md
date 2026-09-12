@@ -828,3 +828,14 @@ after Kai hit the banners on the first dry run in the recreated container.
 Yesterday's 8/8 runs had 1,211-1,212 of them before attempt 1, also on
 `catch_and_throw_replan@8` with ddq 540-610 > 450. The envelope DECISION is
 still open; the seeded tempo variants still run on the reference.
+RESOLVED 2026-09-12 (juggling 2 commits + juggle_planning c6955d0): the
+rejections were not an envelope problem. Probe over the full stack, 1536
+seeds: 359 hit ipopt.max_iter=20 (reported as "converged"); of the vetoes
+on converged seeds, 124/163 had the catch raised >= 5 cm -- a height the
+catch_plane adaptation can never reach (max |dz| 0.000 over 608 catches).
+Sampling box z is now 0 in catch_plane mode, max_iter seeds are retried
+once, vetoed solves are never cached (they were: last_solution went into
+the cache on a veto), and the remaining 11 acc/jerk-only vetoes are cleared
+by Kai's raise to ddq 1000 / dddq 64000 (settings_20260909.yaml). Build now
+reports "1467 cached, 69 discarded" and no fallback warning. Note the
+warm-start/replan-reference solves were never part of it (0 fallbacks).
