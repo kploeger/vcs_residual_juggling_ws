@@ -844,6 +844,10 @@ Then (juggling 8aaf2c6) seeding moved into the DEFAULT solver phase
 discarded, 59 s. The 28 all sit at dx_x <= -0.13 m, where the full budget
 finds a different posture (q 1.0-1.6 rad off the reference, 9 never
 converge). Runs never go there: over 1,784 adapted catches in three chain
-runs, 99% are within |dx_x| 0.07 and 1 catch is below -0.10. Kai's option
-of a +-0.10 clamp+seed box would remove the corner; not taken (0.15 is the
-measured-best clamp and the corner costs nothing at runtime).
+runs, 99% are within |dx_x| 0.07 and 1 catch is below -0.10. Kai then
+asked for the corner to be removed for online AND seeding: swept per key
+(_probe/seedprobe/xsweep.json), the posture switch sits between dx_x -0.12
+and -0.14 on all 20 keys, -0.12 already needs 28 iterations (online cap
+20), so settings_20260909.yaml clips -x at 0.10 via the new signed
+per-axis `catch_adaptation.max_adaptation_lo` (juggling, 2026-09-12); +x
+and y stay at 0.15. Seeds and adaptations read the same bounds.
