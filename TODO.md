@@ -125,8 +125,8 @@ code and the data* that would otherwise be lost between sessions.
 
 ### Closed-loop catching
 
-- **The 5-ball drop-in catch (the `ix` slot, throw 80 of the 96-throw chain)
-  bounces and the throw off it comes out short.** Lab PC, pinned Release,
+- **FIXED 2026-09-12 21:00 (juggling: seating bound 10.0 at knots 12-25 for every catch-and-throw, settings_20260909.yaml; lab PC 7/8, was 4/8).** Was: the 5-ball drop-in catch (the `ix` slot, throw 80 of the 96-throw chain)
+  bounces and the throw off it comes out short. Lab PC, pinned Release,
   rviz on, lead 0.040 / window 0.015 / replan 0.025
   (`_probe/ball_dryrun/rvizon2`, 2026-09-12 20:10): 4/8, shape `..SSS.S.`,
   0 open-loop re-uses, 0 deadline misses. Attempt 1 is learner cold start
