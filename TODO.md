@@ -18,6 +18,48 @@ code and the data* that would otherwise be lost between sessions.
 
 ### Hardware / calibration
 
+- [ ] **AUTOMATE JOINT-ENCODER OFFSET ESTIMATION AND COMPENSATION IN THE
+  APPLICATION STACK.** (Kai, 2026-09-13 12:09 -- queued BEHIND the
+  learner/planner fixes in flight: per-pattern learner keys, Newton bounds,
+  warm-start seeding from recorded start/end states, from-rest NLP variant.)
+  Kai: "It looks like we have a problem of joint encoders drifting." The
+  offsets must NOT be written into the wam yamls; the application adds them
+  to every position command it emits, so the driver-side calibration stays
+  untouched and the correction is visible in our own logs.
+
+  Procedure Kai wants:
+  1. **Sweep** the joint encoders before every ~third attempt, starting with
+     the first (a calibration motion through each joint's index pulse, the
+     same thing the driver does once at startup).
+  2. **Recalibrate on every attempt** once the balls are seated in the cups
+     and the arms are still: the tracked ball position against the
+     forward-kinematics cup position gives the offset, and the correction is
+     folded into the position commands of that attempt.
+
+  Evidence (subagent report 2026-09-13 morning, data
+  `_probe/robot_20260912/std__newton__{smoke3,cascade5}_s0`): the ball-in-cup
+  error lies along the cup axis, right arm -15..-24 mm, left arm DRIFTING
+  +1 -> +46 mm within one run -- an offset that changes during a run is not a
+  calibration constant. Driver side: motor encoders are re-slaved to the
+  index-referenced joint encoders once at startup
+  (`double_encoder_wam-inl.hpp`), positions are the fusion
+  `fused_pos_motor_vel` (tau 1 s), and the per-joint offsets are additive
+  from the wam73/wam29 yamls. A check script and re-tuned yamls exist only
+  UNCOMMITTED on Ball; the recorded npz drops the per-encoder streams, so an
+  offline re-check of the drift is impossible from today's data -- record
+  both encoder streams first.
+
+  Open design points, to settle when this is picked up: (a) the Cartesian
+  ball error is 3 numbers per arm against 7 joint offsets, so the
+  per-attempt step can only correct a chosen subset (the joints that move the
+  cup along its axis at the rest pose: 2 and 4, maybe 1) and needs the sweep
+  for the rest; (b) the correction is a command-side offset, so the safety
+  guard, the continuity check at the controller and the learners must see
+  the SAME corrected commands, or the learner absorbs the offset as a
+  release-velocity residual again; (c) where in the attempt lifecycle the
+  seated-ball snapshot is taken (after the launcher drops the balls, before
+  the first throw's planning window).
+
 - [ ] **Recalibrate OptiTrack.** DOWNGRADED from "root cause" 2026-09-09 —
   see the correction below; still worth doing, no longer the top item.
   Testing each of the 26 coasts by whether the raw marker COUNT actually
