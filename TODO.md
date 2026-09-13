@@ -287,7 +287,35 @@ code and the data* that would otherwise be lost between sessions.
 
 ### Planning
 
-- [ ] **FROM-REST SEED POINTS ARE MOSTLY DEGENERATE -- the from-rest beats
+- [x] **RESOLVED 2026-09-13 13:10 (juggling 915e629, juggle_planning
+  886b72e): the degenerate "rest" seed targets were FAKE from-rest beats.**
+  Probe `_probe/capped/degen_probe.py` (log `degen.log`): every degenerate
+  rest-class target was a beat that THROWS FROM A HOLD -- the 423's and
+  552's throws after a held 2 and the 5-cascade's first left beat after the
+  552's held 2 -- which runs on first_throw at runtime but which the
+  per-beat walk planned as a catch-and-throw from the rest pose and stored
+  (warm start, safety reference, seed target). Degenerate because the
+  post-takeoff cone at knot 6 acts on a ball still in the cup: multipliers
+  2.2e7-6.4e7 on `post_takeoff_cone_6_squared`, everything else 1e4-1e5.
+  The one REAL from-rest catch-and-throw (504's 5 after the held 0, left
+  beat 29, POST_TAKEOFF_INERT applied) is healthy at every edge of the seed
+  box: 11-20 iterations cold, 5-18 seeded from its nominal, no degenerate
+  solve. Fix: the walk checks ThrowKind.catches_ball and only advances the
+  carried state for non-catching beats; with the rest pool clean the cache's
+  class separation is STRICT (Kai: no flowing solution in a from-rest pool).
+  Follow-ups still open: (a) `right catch_and_throw@0.575 slot0` (a FLOWING
+  bridging beat) had 57/64 Sobol seeds degenerate -- same probe, that
+  target; (b) the real from-rest beat lost 8/16 seeds to COMBINED
+  perturbations (single-axis edges are all healthy) -- acceptable, 8 remain;
+  (c) the generic per-duration warm start
+  (`_create_tempo_variant_warm_starts`, solved from the catch pose at zero
+  velocity) is never used online now (0 of 864 seeds in `wsmetric6b`) and
+  only feeds the guard's fallback reference and the per-beat copies -- Kai:
+  "We only want custom warm starts everywhere"; remove once the per-beat
+  references no longer copy from it.
+  Original entry kept below for the numbers.
+
+- [ ] (superseded, see above) **FROM-REST SEED POINTS ARE MOSTLY DEGENERATE -- the from-rest beats
   still have no seeds of their own.** (2026-09-13 afternoon, agent; build
   log `_probe/narrow/runs/wsmetric6/run.log`.) Per-slot seeding of the
   rest-class targets (16 Sobol points each around the beat's real
