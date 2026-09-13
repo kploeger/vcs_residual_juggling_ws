@@ -49,6 +49,24 @@ code and the data* that would otherwise be lost between sessions.
   offline re-check of the drift is impossible from today's data -- record
   both encoder streams first.
 
+  Kai's decisions 13:40-13:50: the drift is most likely JOINT 4 (elbow):
+  the cup error is along the cup axis and yesterday's videos show the right
+  elbow's start pose drifting attempt to attempt. The joint encoders are
+  RELATIVE optical discs; absolute position exists only at the index pulse,
+  which lies OUTSIDE the juggling range -- so between crossings the reading
+  is dead reckoning and a lost count persists until that joint passes its
+  index again. Plan: (1) SWEEP before EVERY attempt: carry joints 1-4 past
+  their index positions and back, verify per joint that the index latched
+  (driver investigation running: which puck flag, where the index positions
+  are, whether the present indexing motion reaches them, runtime re-slave);
+  (2) ALIGNMENT CHECK right before starting, after the sweep: with the balls
+  seated and both arms still, tracker ball position minus FK cup position
+  per arm; < 10 mm start, 10-20 mm start with a warning, > 20 mm refuse and
+  offer a resweep (autoapprove: resweep at most twice, then abort with the
+  numbers). Log before/after-sweep errors every attempt: that is the drift
+  trace per joint and the proof that a sweep re-indexed (error must shrink).
+  The check has no driver dependency and can be built and sim-tested first.
+
   Open design points, to settle when this is picked up: (a) the Cartesian
   ball error is 3 numbers per arm against 7 joint offsets, so the
   per-attempt step can only correct a chosen subset (the joints that move the
