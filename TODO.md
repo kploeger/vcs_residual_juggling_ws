@@ -245,6 +245,29 @@ code and the data* that would otherwise be lost between sessions.
 
 ### Planning
 
+- **Why is a solution planned FROM REST a bad IPOPT warm start for the
+  from-rest problem?** (2026-09-13). About 1% of online catch-and-throw
+  solves hit ipopt.max_iter 20 on the robot (5/455) and in sim (8/773), and
+  they are the beats thrown after a rest: the 504's 5s after a held 0
+  (`ssbank_*_i4_px_o5_t50`) and the bridge's first 4 (`ssbeat_b38`). Every
+  cached seed for the 0.50 s key was made mid-flow (dq_start 8-11 rad/s)
+  or around the key's first operating point (another throw value, targets
+  19 scaled units away). Replayed offline (`_probe/capped/replay.py`) from
+  the mid-flow seed they converge in 11-16 iterations; with the cache
+  metric extended by the start state AND seeds made at the rest posture
+  (juggling 02be0e4, now behind `from_rest_warm_starts`, default off) the
+  same beats END IN Restoration_Failed after 36-52 iterations
+  (`_probe/capped/replay_60.json`) and the run capped 24/588 against 2/588.
+  So the rest-posture solution is a WORSE seed than a flowing one 5 units
+  further away in the targets. Suspected: the from-rest problem is
+  bound-active at the start (zero velocity, maximal initial acceleration)
+  and the rest seed's multipliers pin IPOPT to the wrong active set.
+  Shipped meanwhile: online cap 30 (settings_20260909.yaml); the left
+  from-rest 5 still capped 2/532 at 30 in sim (`_probe/narrow/runs/final30`),
+  executed safely both times. To investigate: dump the from-rest NLP's
+  active constraints at the seed vs the converged online solution, and try
+  a seed with multipliers dropped (primal only).
+
 - **A capped solve returns an INFEASIBLE trajectory, not a rough one.**
   (2026-09-10, agent) Everywhere this codebase reasons about
   `ipopt.max_iter` treats hitting the cap as "good enough, just not
