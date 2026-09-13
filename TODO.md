@@ -287,6 +287,35 @@ code and the data* that would otherwise be lost between sessions.
 
 ### Planning
 
+- [ ] **FROM-REST SEED POINTS ARE MOSTLY DEGENERATE -- the from-rest beats
+  still have no seeds of their own.** (2026-09-13 afternoon, agent; build
+  log `_probe/narrow/runs/wsmetric6/run.log`.) Per-slot seeding of the
+  rest-class targets (16 Sobol points each around the beat's real
+  operating point, start state fixed at the rest pose):
+  `right catch_and_throw@0.500 slot1/slot2` 0 cached / 16 degenerate,
+  `left catch_and_throw@0.500 slot0` 0 / 16, `left @0.600 slot1/2` 3+2 /
+  13+14, `right @0.600 slot2` 4 / 28, `right @0.575 slot0` 8 / 56, `left
+  @0.480 slot0` 13 / 51 (that one is flowing). Degenerate = max |lam_g| >
+  5e6 while IPOPT reports converged (gate `solution_cache_max_multiplier`).
+  The beat's OWN nominal solve from rest is healthy (10 iterations, 1e4
+  multipliers, morning finding), so it is the perturbation that breaks it:
+  catch position +-10/15 cm, catch time -20..+5 ms, throw velocity +-0.15
+  from a zero-velocity start. Consequence: a from-rest query has only
+  (a) its own nominal entry and (b) rest entries of OTHER beats/tempos and
+  (c) flowing seeds at the right targets; (c) converges in 11-16, (b)
+  hits the cap. That is why the start-state metric is applied to flowing
+  starts only (juggle_planning 9c60c4f) -- with it on for rest starts,
+  3/3 from-rest solves capped in one attempt.
+  To do: replay one degenerate rest seed (`_probe/capped/fromrest_probe*.py`
+  pattern), print the multipliers per constraint segment, find which
+  constraint pair goes dependent when the start is at rest (suspects:
+  `min_tool_normal_acc` at knots 12-25 against `catch_state`/the
+  pre-touchdown cone when the catch moves early, and `joint_limits` on
+  joint 4 at the rest pose), then either reparameterise the seed box for
+  rest targets (no early catch, smaller position box) or fix the
+  constraint. Until then the cap on from-rest beats is held at 0 by the
+  flowing seeds, not by rest seeds.
+
 - **FIXED 2026-09-13 12:00 -- the capped online solves were the beats thrown
   after a rest, and they had no usable seed.** (juggle_planning e99f404,
   3c32aa6; juggling f776a22.) Chain of causes, each found only after the
