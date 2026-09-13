@@ -303,9 +303,10 @@ code and the data* that would otherwise be lost between sessions.
   solve. Fix: the walk checks ThrowKind.catches_ball and only advances the
   carried state for non-catching beats; with the rest pool clean the cache's
   class separation is STRICT (Kai: no flowing solution in a from-rest pool).
-  Follow-ups still open: (a) `right catch_and_throw@0.575 slot0` (a FLOWING
-  bridging beat) had 57/64 Sobol seeds degenerate -- same probe, that
-  target; (b) the real from-rest beat lost 8/16 seeds to COMBINED
+  Follow-ups still open: (a) RESOLVED by the same fix: `right
+  catch_and_throw@0.575 slot0` (57/64 degenerate) was not a flowing beat
+  but the 423's last right throw after its held 2, another from-hold beat;
+  in the strictpool6 build the key seeds 64/64 clean; (b) the real from-rest beat lost 8/16 seeds to COMBINED
   perturbations (single-axis edges are all healthy) -- acceptable, 8 remain;
   (c) the generic per-duration warm start
   (`_create_tempo_variant_warm_starts`, solved from the catch pose at zero
