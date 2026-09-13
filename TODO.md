@@ -67,6 +67,35 @@ code and the data* that would otherwise be lost between sessions.
   trace per joint and the proof that a sweep re-indexed (error must shrink).
   The check has no driver dependency and can be built and sim-tested first.
 
+  DONE 14:10 (juggling 5d0c1a8, 1d4e97b): two-stage sweep (j1-j3 together
+  from [0,-1.913,0] to [-0.262,-1.588,-0.262], j4 alone 2.6 -> 3.05, each
+  from/to home), before EVERY attempt (learn_40, every_attempt), honest
+  arrival wait + per-phase timing; demo on Ball ros_sim with rviz, Kai
+  confirmed j3 now moves the right way. Driver facts (subagent, 13:50):
+  index latch = puck ECMIN/ECMAX (libbarrett foundIndexPulse), readable
+  and resettable at runtime (DoubleEncoderWam::resetEncoderCorrections
+  exists, never called), checked once at startup, not published; the
+  puck re-references the joint encoder against JOFST on every crossing,
+  and the 1 s fusion filter follows within ~5 s, so NO runtime re-slave is
+  needed (a definePosition mid-session would step the fused position).
+  The old sweep missed j3 (direction) and j4 (index 2.9687 above home 2.9,
+  sweep went down) against Kai's nominal index positions [-0.1745,
+  -1.8255, -0.1745, 2.9687] -- unverified against the pucks' JOFST
+  (`/wam_utils/joint_encoder_offset --read` at the robot; a Jan-22 note
+  says JOFST did not survive a power cycle once).
+  STILL TO DO: (1) alignment gate (tracker vs FK, thresholds 10/20 mm) at
+  attempt start; (2) driver: 1 Hz ECMIN/ECMAX status publisher + Trigger
+  service for the latch reset (~60-80 lines, wam_driver_node.cpp) so a
+  sweep can be verified per joint and fail closed; (3) launch flags
+  `hw_interface_offer_joints_joint_enc:=true
+  hw_interface_offer_joints_motor_enc:=true` so the npz carries both raw
+  streams (ros_env already records them; drift = motor - joint); (4)
+  driver bug: joint-encoder velocity never computed (double_encoder_wam-inl
+  .hpp:120-122 feeds the filter the wrong variable), dq_from_joint_enc is
+  always 0; (5) has_arrived reads the controller's desired, so it is true
+  as soon as a goto trajectory is accepted -- callers that need the arm
+  still must also wait for trajectory_complete (the sweep does now).
+
   Open design points, to settle when this is picked up: (a) the Cartesian
   ball error is 3 numbers per arm against 7 joint offsets, so the
   per-attempt step can only correct a chosen subset (the joints that move the
