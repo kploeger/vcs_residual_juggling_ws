@@ -245,28 +245,37 @@ code and the data* that would otherwise be lost between sessions.
 
 ### Planning
 
-- **Why is a solution planned FROM REST a bad IPOPT warm start for the
-  from-rest problem?** (2026-09-13). About 1% of online catch-and-throw
-  solves hit ipopt.max_iter 20 on the robot (5/455) and in sim (8/773), and
-  they are the beats thrown after a rest: the 504's 5s after a held 0
-  (`ssbank_*_i4_px_o5_t50`) and the bridge's first 4 (`ssbeat_b38`). Every
-  cached seed for the 0.50 s key was made mid-flow (dq_start 8-11 rad/s)
-  or around the key's first operating point (another throw value, targets
-  19 scaled units away). Replayed offline (`_probe/capped/replay.py`) from
-  the mid-flow seed they converge in 11-16 iterations; with the cache
-  metric extended by the start state AND seeds made at the rest posture
-  (juggling 02be0e4, now behind `from_rest_warm_starts`, default off) the
-  same beats END IN Restoration_Failed after 36-52 iterations
-  (`_probe/capped/replay_60.json`) and the run capped 24/588 against 2/588.
-  So the rest-posture solution is a WORSE seed than a flowing one 5 units
-  further away in the targets. Suspected: the from-rest problem is
-  bound-active at the start (zero velocity, maximal initial acceleration)
-  and the rest seed's multipliers pin IPOPT to the wrong active set.
-  Shipped meanwhile: online cap 30 (settings_20260909.yaml); the left
-  from-rest 5 still capped 2/532 at 30 in sim (`_probe/narrow/runs/final30`),
-  executed safely both times. To investigate: dump the from-rest NLP's
-  active constraints at the seed vs the converged online solution, and try
-  a seed with multipliers dropped (primal only).
+- **FIXED 2026-09-13 12:00 -- the capped online solves were the beats thrown
+  after a rest, and they had no usable seed.** (juggle_planning e99f404,
+  3c32aa6; juggling f776a22.) Chain of causes, each found only after the
+  previous fix: (1) every tempo key's 64 Sobol seeds are solved from the
+  reference pose at rest around a placeholder operating point (the key's
+  first call), so a from-rest 5 borrowed a mid-flow seed and capped ~1%;
+  (2) the construction-time per-beat solutions were wiped by the seed
+  payload load (now merged); (3) the per-beat walk chained through rests,
+  so no warm start was ever planned from the rest pose (now it is);
+  (4) seeds solved from rest around the real from-rest targets are mostly
+  DEGENERATE -- multipliers 1e7-5e8 where healthy solutions sit at
+  1e4-1e6 -- and IPOPT calls them converged, so any solve seeded from one
+  ends in Restoration_Failed (now gated: solution_cache_max_multiplier
+  5e6, 410/1856 seeds discarded); (5) cache entries carry a start class
+  (rest/flow) and a query prefers its own class within the adaptation
+  box (8 scaled units), falling back to the whole cache beyond it -- the
+  bridge's first 4 after the held 0 is degenerate from rest EVERYWHERE
+  (64/64 seeds), so it keeps borrowing a flowing seed.
+  Validation (`_probe/narrow/runs/classfix2`, direct MuJoCo, 551 online
+  plans): the from-rest beats now solve in p50 6-7 / max 10 iterations
+  (were p50 8 / max 20); 2 capped solves remain, both attempt-1 cold
+  passes of `ssbank_right_i4_p5_o4_t50` where the learner's first step
+  commanded a -0.27 m/s y offset, outside the +-0.15 seed box (Newton does
+  not clip to LearnerCfg.bounds). Cap stays at 20 (Kai: no band-aids).
+- **Open: why is the bridge's first 4 (`ssbeat_b38`, a 4 thrown right
+  after a held 0 at 0.50) degenerate from rest at every seeded operating
+  point?** Multipliers 1e7+ on `js_eq_t0.5_position`, i.e. the release
+  equality; the from-rest 5s at the same tempo are healthy (2e4). Suspect
+  the 44#2 bridge geometry (thrown 8 cm OUTWARD, best_chain_geometry.yaml)
+  from a rest pose 3 cm above the catch. Evidence: classfix run seeding log
+  (`_probe/narrow/runs/classfix/run.log`, "[rest1]: 0 cached, 64 degenerate").
 
 - **A capped solve returns an INFEASIBLE trajectory, not a rough one.**
   (2026-09-10, agent) Everywhere this codebase reasons about
