@@ -269,13 +269,13 @@ code and the data* that would otherwise be lost between sessions.
   passes of `ssbank_right_i4_p5_o4_t50` where the learner's first step
   commanded a -0.27 m/s y offset, outside the +-0.15 seed box (Newton does
   not clip to LearnerCfg.bounds). Cap stays at 20 (Kai: no band-aids).
-- **Open: why is the bridge's first 4 (`ssbeat_b38`, a 4 thrown right
-  after a held 0 at 0.50) degenerate from rest at every seeded operating
-  point?** Multipliers 1e7+ on `js_eq_t0.5_position`, i.e. the release
-  equality; the from-rest 5s at the same tempo are healthy (2e4). Suspect
-  the 44#2 bridge geometry (thrown 8 cm OUTWARD, best_chain_geometry.yaml)
-  from a rest pose 3 cm above the catch. Evidence: classfix run seeding log
-  (`_probe/narrow/runs/classfix/run.log`, "[rest1]: 0 cached, 64 degenerate").
+- RESOLVED with the above (juggling d2d0008): the bridge's first 4 is NOT
+  degenerate at its nominal (10 iterations, multipliers 1e4 from rest); only
+  the Sobol-perturbed rest points around it are, and the gate discards them.
+  Seeding now covers every real per-beat operating point instead of the
+  key's placeholder nominal (the reference pose with the 3-cascade's
+  targets). Final validation `_probe/narrow/runs/slotseed`: 6/6, 0 capped in
+  588 online plans, max 18 iterations, first solve of each key p50 8 (was 10).
 
 - **A capped solve returns an INFEASIBLE trajectory, not a rough one.**
   (2026-09-10, agent) Everywhere this codebase reasons about
