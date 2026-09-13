@@ -65,6 +65,18 @@ code and the data* that would otherwise be lost between sessions.
   - Velocity is already motor-based in every strategy we use; safety limits
     consume the fused state (`node:476-478`), so they follow the new frame.
 
+  **IMPLEMENTED 2026-09-13 16:45** (wam_core 82cca5b, juggling_wam ebcafb5,
+  juggling_residual_learning 7963957; wam_driver rebuilt on Thales and Ball,
+  `roslaunch --dump-params` on Ball shows zerocal_hang on both arms, right
+  fusion `fused,fused,fused,motor_pos_motor_vel`). NOT yet run on the hardware.
+  Verify at the first launch: driver log "motor encoder init mode
+  \"zerocal_hang\"; joint encoders latched", libbarrett zero-compensation per
+  puck, puck versions >= 118, hand check auto-compensating with a plausible
+  (tens of mm) error and the correction stable across attempts. Kai's local
+  `joint_encoder_offsets` edits on Ball (wam29 [0.0224,-0.0009,0.0228,0.0371],
+  wam73 changed too) are uncommitted, preserved by autostash; they still
+  shift the joint-encoder stream and hence the fused J1-J3 frame.
+
   **REVISED DESIGN (Kai, 16:19).** Keep the manual index sweep (joint
   encoders stay referenced via the pucks' index/JOFST), zero the MOTORS from
   the hang-down pose via zerocal, keep the two encoder sets independently
