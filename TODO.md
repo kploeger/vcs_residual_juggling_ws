@@ -18,6 +18,119 @@ code and the data* that would otherwise be lost between sessions.
 
 ### Hardware / calibration
 
+- [ ] **RUN ON MOTOR ENCODERS ONLY: hang-down zero-calibration + OptiTrack
+  correction in the application.** (Kai, 2026-09-13 16:00: "the right arm's
+  joint 4 encoder is broken ... once the offsets were all correct the smoke3
+  worked flawlessly. Let's investigate the option of controlling just on motor
+  positions ... fusion strategy to motor only ... skip the init from joint
+  encoders and assume the arm is hanging down straight.") Design mapped out
+  16:10; nothing implemented yet.
+
+  **How the driver works today (evidence: wam_driver, libbarrett headers in rwam).**
+  - Fusion: `hw_interface_joint_state_fusion_strategy` selects one of five
+    strategies (`joint_state_fusion_strategies.hpp:37-151`).
+    `motor_pos_motor_vel` (`:56-68`) has NO joint-encoder term. The real robot
+    runs `fused_pos_motor_vel` (juggling `double_wam.launch:27`, forwarded to
+    BOTH arms at `:227,238`): pos = motor - LP_1s(motor - joint_enc), so the
+    broken right J4 joint encoder leaks into the fused J4 through a 1 s filter.
+  - Zeroing: `barrett_zero_motors_from_joint_enc` (default true, wam_bringup
+    `double_wam.launch:37,88,126`; juggling launch does not override) makes the
+    driver call `initializeJointEncoders(false, ignoreZeroCalibration=true)`
+    (`wam_driver_node.cpp:364-376`): block until all four index pulses were
+    crossed by hand, then `definePosition(joint_enc + joint_encoder_offsets)`
+    (`double_encoder_wam-inl.hpp:300-306`). libbarrett's zerocal is discarded.
+  - With the flag false the driver STILL calls `initializeJointEncoders(false,
+    false)` whenever the pucks report joint encoders (`node:374-376`;
+    `hasDoubleEncoders()` comes from the puck ROLE bit, not config): it blocks
+    on the index pulses and uses the joint encoder to round the motor position
+    to whole revolutions (`inl:308-327`). A broken J4 encoder can round to the
+    WRONG revolution: a silent 19.8 deg J4 offset. So "flag false" alone is not
+    a motor-only mode; a driver change is needed.
+  - libbarrett zero-compensation (`low_level_wam-inl.h:141-193`): if the safety
+    puck says the WAM is already zeroed (`wamIsZeroed()`), nothing is
+    redefined and the puck P counters carry over (driver restart without power
+    cycle). Otherwise per motor: `MECH` (absolute-within-revolution magnetic
+    motor angle) vs `zeroangle`, error wrapped to +-pi, then
+    `definePosition(home - m2jp * error)`. Revolution ambiguity is resolved by
+    assuming the arm is within HALF A MOTOR REVOLUTION of `home` per motor.
+  - Our zerocal (`config/barrett/calibration_data/wam73_4dof/zerocal.conf`,
+    `wam29_4dof/zerocal.conf`, Kai's April 2026 calibration): `home` ~
+    (0, -pi/2, 0, 0) for both arms, i.e. the arm hanging straight down with the
+    elbow straight in the tilted mount. That IS the hang-down pose.
+  - Tolerances (j2mp in `robots/wam73_4dof.conf`, `wam29_4dof.conf`): one
+    motor revolution in joint space = J1 8.5 deg, J2/J3 differential
+    (6.3, 10.6) deg, J4 19.8 (wam73) / 20.0 (wam29) deg. The arm must be within
+    HALF of that per motor at zeroing: J1 +-4.2 deg (tightest), J2 +-6.3, J3
+    +-10.6, J4 +-9.9 deg.
+  - Velocity is already motor-based in every strategy we use; safety limits
+    consume the fused state (`node:476-478`), so they follow the new frame.
+
+  **Design.**
+  1. Driver: new init mode param (e.g. `barrett_joint_encoder_init:
+     index_sweep_and_slave | zerocal_only`). `zerocal_only` skips
+     `initializeJointEncoders` entirely (no index wait, no revolution rounding),
+     keeps libbarrett's zero-compensation from the hang-down pose, keeps
+     publishing the raw `_from_joint_enc` stream (diagnostic only). Log loudly
+     which zeroing branch libbarrett took ("zeroed with zero-compensation" per
+     puck vs "already zeroed, trusting puck counters"). Both arms go motor-only
+     (one operator flow, no sweeps); the left arm's joint-encoder stream then
+     doubles as a live cable-tension monitor (JE minus motor over a session).
+  2. Launch plumbing: juggling `double_wam.launch` gets per-arm pass-throughs
+     for the fusion strategy and the init mode; `ros_launch_helper.
+     build_launch_command` sets `motor_pos_motor_vel` + `zerocal_only` from a
+     cfg switch (`RosLaunchCfg` or `JointEncoderInitCfg.mode`). Under that
+     switch `initialize_joint_encoders` and the per-attempt sweep are skipped
+     (`config.py:541-548`, `env_glue.py`), and `joint_encoder_offsets` yaml is
+     irrelevant (only used by the JE-referenced definePosition).
+  3. Application-side calibration = the existing hand check
+     (`pre_attempt_check.py`, `RosArm.set_encoder_offset_correction`). Under
+     motor-only it becomes the load-bearing correction and changes from a menu
+     option to the default flow: check -> if error < sanity bound (~80 mm)
+     compensate automatically (least-norm J+ e, accumulate), goto the corrected
+     start pose, re-check -> proceed only when < warn_mm; refuse after two
+     rounds. Add a revolution diagnostic: fit k * (2pi/N_j) on each joint to the
+     tool error; a wrong revolution has a distinct signature (J4: 0.345 rad ~
+     15-17 cm at the cup, J1: 0.148 rad ~ 9 cm) and the message should say
+     "J4 is one motor revolution off, hang the arm and re-zero" instead of
+     compensating it away.
+  4. Every attempt re-runs the check (already so). Record the correction
+     history in `result['pre_attempt_check']` and log "correction stable /
+     drifted by x mrad since attempt n". Motor encoders do not drift, so drift
+     here = cable-tension change under load, which is the one assumption to
+     watch. One-pose least-norm is fine for POSITION at the working pose; the
+     null-space part only tilts the cup by mrad.
+
+  **Operator flow.** Power-cycle the WAMs when switching from JE mode (the
+  puck counters keep the old JE-referenced frame otherwise) and after any
+  E-stop/power loss. Let the arms hang freely (elbow straight, J4 ~ 0), check
+  J1 by eye (+-4 deg is the tightest tolerance), launch, confirm at libbarrett's
+  "move to home, press Enter" prompt, shift-activate, goto juggling home.
+  Then balls in, hand check, auto-compensate, go.
+
+  **Risks / unverified.** (a) `MECH` on the P4 pucks under the legacy shim
+  (`LIBBARRETT_INFO.md:205-235` says MT/IMOTOR read 0); zero-comp also needs
+  VERS >= 118 and the MagEncOnSerial role bit, else libbarrett silently uses
+  error 0 -> check the log for "zero-compensation" on all 8 pucks on the first
+  try. Kai's April zerocal suggests it works. (b) Does the free-hanging arm
+  settle within 4 deg on J1 in the tilted mount? If not, re-zerocal against a
+  hard stop (Barrett's wam3 note: home off the joint stop needs no zerocal).
+  (c) Cable stretch under gravity torque is pose-dependent and no longer
+  tracked; magnitude unknown, measured by the per-attempt check. (d) A driver
+  restart without power cycle keeps the puck frame: fine once motor-only, wrong
+  right after switching modes.
+
+  **Verification.** (1) Bench, no balls: power cycle, hang, launch, all 8
+  pucks report zero-compensation, shift-activate, goto juggling home, both arms
+  symmetric by eye; balls in, hand check error expected tens of mm, not
+  hundreds. (2) Restart the driver without power cycle: positions identical.
+  (3) smoke3 on the real robot with the correction history logged per attempt.
+  (4) Record the raw JE + motor streams (hardware launch already offers them,
+  `ros_launch_helper.py:114-115`, recorded in `ros_env.py:1423-1436`): right J4
+  JE minus motor = the broken-encoder evidence; left arm JE minus motor = the
+  cable-tension drift over a session. Today's real runs recorded no attempt
+  data (data/real/.../std__newton__smoke3_s0*: interrupted/quit), so there is
+  no trace yet.
+
 - [ ] **AUTOMATE JOINT-ENCODER OFFSET ESTIMATION AND COMPENSATION IN THE
   APPLICATION STACK.** (Kai, 2026-09-13 12:09 -- queued BEHIND the
   learner/planner fixes in flight: per-pattern learner keys, Newton bounds,
