@@ -65,59 +65,77 @@ code and the data* that would otherwise be lost between sessions.
   - Velocity is already motor-based in every strategy we use; safety limits
     consume the fused state (`node:476-478`), so they follow the new frame.
 
-  **Design.**
-  1. Driver: new init mode param (e.g. `barrett_joint_encoder_init:
-     index_sweep_and_slave | zerocal_only`). `zerocal_only` skips
-     `initializeJointEncoders` entirely (no index wait, no revolution rounding),
-     keeps libbarrett's zero-compensation from the hang-down pose, keeps
-     publishing the raw `_from_joint_enc` stream (diagnostic only). Log loudly
-     which zeroing branch libbarrett took ("zeroed with zero-compensation" per
-     puck vs "already zeroed, trusting puck counters"). Both arms go motor-only
-     (one operator flow, no sweeps); the left arm's joint-encoder stream then
-     doubles as a live cable-tension monitor (JE minus motor over a session).
-  2. Launch plumbing: juggling `double_wam.launch` gets per-arm pass-throughs
-     for the fusion strategy and the init mode; `ros_launch_helper.
-     build_launch_command` sets `motor_pos_motor_vel` + `zerocal_only` from a
-     cfg switch (`RosLaunchCfg` or `JointEncoderInitCfg.mode`). Under that
-     switch `initialize_joint_encoders` and the per-attempt sweep are skipped
-     (`config.py:541-548`, `env_glue.py`), and `joint_encoder_offsets` yaml is
-     irrelevant (only used by the JE-referenced definePosition).
-  3. Application-side calibration = the existing hand check
-     (`pre_attempt_check.py`, `RosArm.set_encoder_offset_correction`). Under
-     motor-only it becomes the load-bearing correction and changes from a menu
-     option to the default flow: check -> if error < sanity bound (~80 mm)
-     compensate automatically (least-norm J+ e, accumulate), goto the corrected
-     start pose, re-check -> proceed only when < warn_mm; refuse after two
-     rounds. Add a revolution diagnostic: fit k * (2pi/N_j) on each joint to the
-     tool error; a wrong revolution has a distinct signature (J4: 0.345 rad ~
-     15-17 cm at the cup, J1: 0.148 rad ~ 9 cm) and the message should say
-     "J4 is one motor revolution off, hang the arm and re-zero" instead of
-     compensating it away.
-  4. Every attempt re-runs the check (already so). Record the correction
-     history in `result['pre_attempt_check']` and log "correction stable /
-     drifted by x mrad since attempt n". Motor encoders do not drift, so drift
-     here = cable-tension change under load, which is the one assumption to
-     watch. One-pose least-norm is fine for POSITION at the working pose; the
-     null-space part only tilts the cup by mrad.
+  **REVISED DESIGN (Kai, 16:19).** Keep the manual index sweep (joint
+  encoders stay referenced via the pucks' index/JOFST), zero the MOTORS from
+  the hang-down pose via zerocal, keep the two encoder sets independently
+  referenced, and choose the fusion PER DOF: `fused_pos_motor_vel` on J1-J3,
+  `motor_pos_motor_vel` on the right J4; the left arm keeps fused on all four.
+  Kai's daily note: fusion/init selectable per dof ("maybe still shared for
+  the coupled joints"; fusion runs in joint space after m2jp, so per-joint
+  selection is clean even for the J2/J3 differential).
+  1. Driver, motor init: param `barrett_motor_encoder_init: zerocal_hang |
+     joint_enc` (default zerocal_hang; joint_enc = today's re-slave, kept as an
+     option). zerocal_hang: prompt on (libbarrett zero-compensates from MECH at
+     WAM construction, `low_level_wam-inl.h:141-193`), then
+     `initializeJointEncoders` in a new LATCH-ONLY mode: wait for the index
+     pulses, do NOT `definePosition` (skip both branches at
+     `double_encoder_wam-inl.hpp:300-327`, the second of which rounds the
+     revolution from the possibly-broken JE). ORDER MATTERS: libbarrett zeroes
+     the motors when the WAM object is built (before shift-activate), the
+     index sweep happens after shift-activate (`wam_driver_node.cpp:371-375,
+     742`). So the flow is hang -> Enter -> shift-activate -> sweep by hand,
+     not sweep -> hang. Sweep-first would need the driver to replicate the
+     zero-comp itself (read `Puck::MECH`, zeroangle from config, public
+     `definePosition`), ~40 lines; that variant also gives re-zero on demand
+     after a driver restart (libbarrett skips zeroing when the safety puck
+     still says zeroed, `:144`). Offered as option, not the default.
+  2. Driver, fusion per DOF: `hw_interface_joint_state_fusion_strategy`
+     accepts a single name (today) or a list of DOF names; factory
+     (`joint_state_fusion_strategies.hpp:37-51`) builds a composite that
+     dispatches per joint. Time constants stay per joint
+     (`encoder_pos_fusion_filter_time_constants`). wam29 yaml: [fused, fused,
+     fused, motor_pos_motor_vel]; wam73 yaml: all fused.
+  3. Driver, filter init (Kai: "initialize the difference between joint and
+     motor enc in the low pass filter by the first measurement, not zero,
+     otherwise it could become dangerous"): `ExponentialAverageFilter` already
+     seeds `lastOutput_` with the first input (`util/signal_processing.hpp:64-
+     69`), BUT the first `operate()` runs before the joint encoders are
+     latched, so it seeds with the un-referenced JE value and nothing ever
+     calls `reset()` (`:83`; no callers in the inl). With today's re-slave the
+     difference is ~0 after definePosition so it never showed; under
+     zerocal_hang the pre-latch difference is arbitrary and the fused position
+     would walk over ~1 s (tau) after latching. Fix: add `reset()` to the
+     strategy interface and call it when `jointEncodersInitialized()` turns
+     all-true (end of initializeJointEncoders), and again whenever a joint
+     re-latches; until latched, fused = motor (or refuse to publish).
+  4. Launch plumbing: juggling `double_wam.launch` passes per-arm init mode +
+     fusion list; `ros_launch_helper.build_launch_command` sets them from cfg
+     (default: zerocal_hang, right J4 motor-only). `joint_encoder_offsets`
+     (wam73 [0,0,0.03,0.05]) still applies to the JE stream (`inl:117`), hence
+     to the fused J1-J3 frame; the right J4 frame is zerocal. Frame mismatch
+     between joints shows up in the hand check and is corrected there.
+  5. Application: unchanged mechanics. Per-attempt index sweep stays (J1-J3
+     both arms, left J4); hand check + `set_encoder_offset_correction` stay
+     the per-attempt tool-level correction, made the default flow (auto-
+     compensate under a sanity bound, goto corrected start, re-check) with the
+     motor-revolution diagnostic (J4 one rev = 0.345 rad ~ 15 cm at the cup,
+     J1 0.148 rad ~ 9 cm: report "re-zero", do not compensate). Record the
+     correction history per attempt; drift on the right J4 = cable-tension
+     change, the one assumption to watch.
 
-  **Operator flow.** Power-cycle the WAMs when switching from JE mode (the
-  puck counters keep the old JE-referenced frame otherwise) and after any
-  E-stop/power loss. Let the arms hang freely (elbow straight, J4 ~ 0), check
-  J1 by eye (+-4 deg is the tightest tolerance), launch, confirm at libbarrett's
-  "move to home, press Enter" prompt, shift-activate, goto juggling home.
-  Then balls in, hand check, auto-compensate, go.
+  **Operator flow.** Power on with the arms hanging (elbow straight, J4 ~ 0;
+  J1 within +-4 deg is the tightest tolerance); launch; confirm at the
+  libbarrett prompt; shift-activate; sweep J1-J4 through the index pulses by
+  hand; goto juggling home; balls in; hand check auto-compensates; go.
+  Power-cycle after switching modes and after any E-stop (stale puck frame).
 
-  **Risks / unverified.** (a) `MECH` on the P4 pucks under the legacy shim
-  (`LIBBARRETT_INFO.md:205-235` says MT/IMOTOR read 0); zero-comp also needs
-  VERS >= 118 and the MagEncOnSerial role bit, else libbarrett silently uses
-  error 0 -> check the log for "zero-compensation" on all 8 pucks on the first
-  try. Kai's April zerocal suggests it works. (b) Does the free-hanging arm
-  settle within 4 deg on J1 in the tilted mount? If not, re-zerocal against a
-  hard stop (Barrett's wam3 note: home off the joint stop needs no zerocal).
-  (c) Cable stretch under gravity torque is pose-dependent and no longer
-  tracked; magnitude unknown, measured by the per-attempt check. (d) A driver
-  restart without power cycle keeps the puck frame: fine once motor-only, wrong
-  right after switching modes.
+  **Risks / unverified.** (a) MECH zero-comp needs puck VERS >= 118 (driver
+  warns "Old motor puck version ... will not snap into home position",
+  `wam_driver_node.cpp:59-60`) and the MagEncOnSerial role bit; the April
+  zerocal suggests OK, confirm from the driver's puck-version line and
+  libbarrett's per-puck zero-compensation log on the first launch. (b) Free-
+  hanging J1 repeatability within 4 deg. (c) Pose-dependent cable stretch on
+  the right J4 no longer tracked; measured by the per-attempt check.
 
   **Verification.** (1) Bench, no balls: power cycle, hang, launch, all 8
   pucks report zero-compensation, shift-activate, goto juggling home, both arms
