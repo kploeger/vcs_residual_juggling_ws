@@ -334,6 +334,26 @@ code and the data* that would otherwise be lost between sessions.
 
 ### Planning
 
+- [x] **LAUNCH TIME: planner snapshot + in-place solver swap (2026-09-13
+  15:00, juggling 66fb6b6/11c4896, trajectory_planning e899a81/094ea61).**
+  Kai: ready in under 10 s from disk. Before: ~75 s on the chain (24 s NLP
+  construction on a FULL AOT cache hit -- 0.3 s of C generation per NLP just
+  to compute the cache key -- + 22 s seeding on a fingerprint miss + 24 s
+  rebuild with online options). Now: the online options are swapped on the
+  compiled objects (10 ms), and the fully built planners are pickled after
+  the build and loaded on the next launch with the same fingerprint (short
+  chain: construction 16.5 s -> 2.5 s, load 0.07-0.16 s, 2/2 attempts on
+  the loaded planners). Fingerprint deliberately excludes the time-step
+  dict (it grows during the build) and includes cfg, arms, URDF contents,
+  every .py of the three planning packages, TP_NLP_*/JP_DONOR* env, AOT
+  dir, casadi/pinocchio versions.
+  Follow-ups: (a) a COLD build still pays 0.3 s/NLP of C generation for the
+  AOT cache key -- a cheaper structural key would cut a cold chain build
+  from ~50 s to ~15 s; (b) the seed disk cache's 4-file code digest and the
+  snapshot's whole-package digest differ in scope; unify when touching
+  either; (c) the snapshot freezes post-seeding warm starts and caches --
+  any seeding change must land in the digested packages (it does today).
+
 - [x] **RESOLVED 2026-09-13 13:10 (juggling 915e629, juggle_planning
   886b72e): the degenerate "rest" seed targets were FAKE from-rest beats.**
   Probe `_probe/capped/degen_probe.py` (log `degen.log`): every degenerate
