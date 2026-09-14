@@ -18,6 +18,20 @@ code and the data* that would otherwise be lost between sessions.
 
 ### Hardware / calibration
 
+- [ ] **The left 534 four-after-five vetoes under the Fs wide-hands geometry, not
+  per se.** (2026-09-14 19:05, from a supervisor cross-check.) Direct MuJoCo,
+  cascade5 chain, 534 at throws 52-63: WITHOUT narrow_Fs_widehands.yaml 2/2,
+  0 capped, 0 vetoes (_probe/narrow/runs/c5_noFs); WITH it every attempt 1
+  vetoes throw 57/59 ssbank_left_i5_p5_o4 (c5full645_live4, c5full_clr,
+  c5full_clr2: 1/4 each, 30 iters capped, plan 0.84-1.3 rad from the
+  reference after a 10-12 cm outboard catch adaptation). TLL_learners' 720
+  direct-sim attempts on the standard geometry: 0 vetoes. On the real robot
+  (all Fs runs, 84 attempts): 5 fallbacks, 4 on i5_p5_o4, 6 of 12 capped
+  solves on that family; ROS-sim with Fs: 3/4, 0 vetoes. So: quote no
+  direct-MuJoCo success rate for Fs chains; the fix is geometric (the left
+  arm's 534 five-catch sits near the wide-hands reach limit) or a converged
+  retry from the capped point when the guard vetoes.
+
 - [ ] **RUN ON MOTOR ENCODERS ONLY: hang-down zero-calibration + OptiTrack
   correction in the application.** (Kai, 2026-09-13 16:00: "the right arm's
   joint 4 encoder is broken ... once the offsets were all correct the smoke3
