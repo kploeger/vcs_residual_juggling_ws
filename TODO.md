@@ -553,6 +553,22 @@ code and the data* that would otherwise be lost between sessions.
 
 ### Process
 
+- [ ] **A test on the shipped base branch is red and has been for a while:**
+  `tests/test_early_flight_fallback.py::test_velocity_offset_learner_uses_fallback_when_descent_data_is_missing`
+  in `python_packages/juggling_residual_learning`. `result["evaluation_method"]`
+  is `None` where the test asserts `"release_fit"`; the learner logs
+  `label_generator.py:742 "no ballistic-consistent measurement subset in the
+  flight window; 5 of 7 samples survived"`, i.e. the synthetic fixture's own
+  samples no longer pass the ballistic-consistency filter that
+  `0d1bdeb "Harden the takeoff fallback: verify the ball, clamp the window"`
+  (2026-09-02) added. Reproduced identically on a detached worktree at
+  `warmstart-donor-fix` and on `lab/replan-025`, so it is NOT branch-local:
+  `1 failed, 7 passed` both times. Either the fixture needs to be made
+  ballistic-consistent or the hardening changed the contract the test pins.
+  Whoever owns the takeoff-fallback work should pick it up. (2026-09-15,
+  replan-025 agent, found by backgrounding the full suite.)
+
+
 - [ ] **`docker_ws` should use `--init` (or tini) instead of `sleep infinity`.**
   Needs Kai — it is a function in `~/.zshrc`. pid 1 never reaps, so every
   killed roslaunch leaves unreaped children: `rwam_plan` reached **168 zombies
