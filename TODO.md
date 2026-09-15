@@ -465,6 +465,92 @@ code and the data* that would otherwise be lost between sessions.
   ceiling**, 2 reached 19; but **54 of 160 exceeded the 25 ms reserved
   planning window** (max 52.2 ms) with zero late sends.
 
+- [ ] **`measurement_backed` is never cleared when a track COASTS, so it is
+  not the provenance signal its own message comment promises.** (2026-09-15,
+  from the lab-day recording audit; tracker branch
+  `update-timestamp-retrodiction`.) `catkin_ws/src/optitrack-ball-tracker/msg/BallState.msg` says the flag is
+  "True iff the most recent thing to touch this track was a REAL MEASUREMENT,
+  rather than an extrapolation or an application update". The prediction step
+  (`include/optitrack_ball_tracker/detail/multi_ball_tracker_impl.hpp:200-211`)
+  increments `framesSinceUpdate` for every unassociated track but leaves
+  `measurementBacked` alone; it is set true only where a marker corrects
+  (`:242-244`) or initialises (`:1130-1132`) a track, and cleared only by
+  application updates (`:1833-1834`, `:1854`). So a track that has coasted N
+  frames still publishes `measurement_backed = true`.
+  **Consequence in our code:**
+  `python_packages/juggling_residual_learning/juggling_residual_learning/jugglers/drop_detection.py:543-544`
+  short-circuits `_floor_candidate_measurement_age` to `0.0` on the flag and
+  never reads `last_measurement_time`, so a coasting track is scored as
+  freshly measured — the exact held-ball false floor-drop the comment at
+  `drop_detection.py:492-500` describes (`_probe/bisect_held_dt050` attempt 4,
+  throw 21, 2026-09-11). **Only `last_measurement_time` is a valid staleness
+  signal today.** Fix is tracker-side (clear the flag in the prediction step)
+  and until it lands, consumers must difference `last_measurement_time`, not
+  read the flag. Deliberately NOT changed before the 2026-09-17 lab day:
+  nothing driver/tracker-level merges before Thursday.
+
+- [ ] **Two tracker paths leave `measurementBacked` stale-true after wiping the
+  measurement anchor.** (2026-09-15, same audit.) (i) The branch of
+  `processApplicationUpdates` that creates a BRAND-NEW track from an
+  application update (`catkin_ws/src/optitrack-ball-tracker/include/optitrack_ball_tracker/detail/multi_ball_tracker_impl.hpp:1995-1998`)
+  zeroes `lastMeasurementPosition`/`lastMeasurementTime` but — unlike the
+  matched-track branch at `:1833-1834`/`:1854` — never sets
+  `measurementBacked = false`. (ii) `resetTrackState` (`:1150-1166`) clears
+  every other field of a recycled slot and also leaves the flag. Result: a
+  track seeded purely from our own application update can publish
+  `measurement_backed = true` together with `last_measurement_time = 0.0` —
+  "backed" with no anchor behind it. Any gate reading the flag alone passes
+  it. Same deferral as the item above.
+
+- [ ] **Audit the provenance gates: two of three key on `last_update_time`,
+  which application updates refresh.** (2026-09-15, same audit.) `BallState.msg`
+  states `last_update_time` is "the last time ANYTHING touched this track — a
+  raw measurement OR an application update … therefore NOT a measurement
+  time", and we publish an application update for every airborne ball every
+  control step (`jugglers/env_glue.py::_update_all_ball_tracks`). Yet:
+  * `jugglers/catch_pipeline.py:1048-1069` (`_ball_state_age`) is documented as
+    "Seconds since the ball state was last backed by a measurement" and reads
+    `ball.last_update_time`. Its gate at `:960-972` logs "the tracker is
+    coasting, so this position is an extrapolation rather than a measurement"
+    — on a quantity that cannot show coasting. Check how often
+    `_stale_ball_state_rejections` (`catch_pipeline.py:224-231`) has ever
+    fired on hardware; suspicion is ~never.
+  * `jugglers/env_glue.py:1437-1462` (`_use_posterior_for_track_match`) gates
+    `max_posterior_staleness` on the same field, so the "don't feed a coasting
+    prediction back as the association hint" guard does not see coasting
+    either.
+  * `environment/ros_env.py:2456-2478` (`RosBall.measurement_time`) is the one
+    correct, sentinel-aware implementation — and has **no production caller**
+    (grep: tests only). Route the two gates above through it.
+  Reported rather than fixed on 2026-09-15: changing what a catch gate accepts
+  changes recorded numbers, and the lab day is 09-17.
+
+- [ ] **Two runners record no OptiTrack measurement stream at all.**
+  (2026-09-15.) `runners/learn_10__single_throw.py` and
+  `runners/test_01__repeatability.py` never construct a
+  `RawMeasurementRecorder`, unlike learn_20/21/22/30/31/32/40 (which do, at
+  e.g. `runners/learn_40__siteswap.py:428-429`). An attempt run from either on
+  hardware saves the tracker's estimates with no record of the detections
+  behind them. Add the two recorders (clear per attempt, stash into the
+  result) if either is used on a lab day.
+
+- [ ] **`/ball_tracker/raw_measurements` is complete on hardware but NOT in the
+  MuJoCo driver plugin.** (2026-09-15, verified by reading + against
+  `data/real/anchor_rep_5ball/newton__late__touchdown_pos_s3/attempts/010.pkl`:
+  13574 raw vs 7485 prefiltered entries over 3052 frames, 2-7 markers/frame,
+  24 distinct marker ids.) On hardware the publisher copies
+  `frame.unlabeledMarkers` verbatim — no association, no filter, no dedup
+  (`catkin_ws/src/optitrack-ball-tracker/nodes/ball_tracker_node.cpp:152`,
+  `catkin_ws/src/optitrack-ball-tracker/include/optitrack_ball_tracker/detail/ros_publisher_impl.hpp:261-282`).
+  In sim, the plugin synthesises the frame and SKIPS balls outside the tracker
+  state box before building it
+  (`catkin_ws/src/optitrack-ball-tracker/include/optitrack_ball_tracker/detail/ros_mujoco_driver_plugin_impl.hpp:119-130`),
+  so a sim `raw_measurements` is already filtered and cannot answer "was there
+  a detection the tracker missed?". Don't use sim raw as a stand-in for the
+  hardware stream in any analysis. (Also note `confidence` in the recorded
+  dicts is the OptiTrack marker SIZE — `ros_publisher_impl.hpp:274`.)
+
+
 ### Process
 
 - [ ] **`docker_ws` should use `--init` (or tini) instead of `sleep infinity`.**
