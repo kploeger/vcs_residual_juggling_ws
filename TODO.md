@@ -1375,3 +1375,24 @@ learner applies an unrelated operating point's mean error at full step.
 Candidate fix: shrink the correction by the total kernel weight mass / fall
 back to the prior below a threshold (opt-in). Kai's day-priority already
 drops the kNN arm before the no-init arm.
+
+### Landing isrr-rerun-fixed-model: ONE domain-randomisation implementation survives (decided 2026-09-15)
+
+Decision (coordinator, per Kai "choose yourself"): keep isrr's package-root
+`domain_randomization.py` (the paper's ±30% per-arm link-mass/armature draw,
+root.tex:730, ~940 recorded seed dirs with the draw in config.json), delete
+lab's `environment/domain_randomization.py` (no armature axis, draws never
+recorded), keep `utils/plant_randomisation.py` unchanged (the only one that
+reaches the ROS/real stack). Before deleting (a), port into (b): ball mass
++ `mj_setConst` (free-joint inertia is cached, otherwise inert), tool
+tilt/offset, per-axis RNG streams while keeping the legacy link-mass draw
+order (a new stream re-rolls every recorded isrr_rerun plant). Union the two
+tests/test_domain_randomization.py suites (one name collides). Collapse the
+duplicated run_seed_from_cfg (domain_randomization.py:253 vs
+throw_scheduler.py:38) per tests/test_no_global_numpy_rng.py. Freeze, do not
+re-run, the transitions dr_*.sh L1/L2/L3 A/B (calibrated on (a)'s shape).
+Also: scripts/overnight_robustness.sh inlines a 4th, buggy DR (controller
+keys perturbed with the plant, so no mismatch; randomises cup radius);
+experiments/transitions/configs/ros_domain_rand.yaml is a per-throw
+disturbance, not DR: rename. Full report: .claude/reviews/dr_comparison_2026-09-15.md
+(untracked). Paper: root.tex:751 says 10 plants, isrr manifest says 16.
