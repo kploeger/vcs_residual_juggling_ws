@@ -7,7 +7,8 @@ describes the problem, proposes a fix, and says why it was deferred.
 
 ## `release_fit_min_fit_points` is silently clamped to 6
 
-**Where:** `juggling_residual_learning/juggling_residual_learning/label_generator.py:275`
+**Where:** `juggling_residual_learning/juggling_residual_learning/label_generator.py:479`
+(was :275 when this entry was written; the line moved)
 
 ```python
 min_pts = max(int(self.release_fit_min_fit_points), 6)
@@ -19,13 +20,45 @@ not the config in force. This is the same family as the `--learner-type`
 override and the render-preset override: an explicit setting discarded
 without a word.
 
+**The split is live, not hypothetical.** The shipped default is
+`release_fit_min_fit_points: int = 4` (`learners/_cfg_base.py:237`), and
+`label_generator.py:698` passes the UNCLAMPED value to the release fit while
+:479 clamps it to 6. So every run today uses 4 in one place and an effective
+6 in the other.
+
 It currently breaks one test.
 `tests/test_early_flight_fallback.py::test_velocity_offset_learner_uses_fallback_when_descent_data_is_missing`
 configures `release_fit_min_fit_points=4` and supplies 7 samples; the trim
 loop drops 2 outliers, leaving 5, and `5 < 6` rejects the window, so
 `evaluation_method` comes back `None` instead of `"release_fit"`. This is a
-REGRESSION, not a stale test: the test dates from 911fcdf (2026-05-08) and
-the floor arrived in 527c004 (2026-08-12), a large mixed commit.
+REGRESSION, not a stale test.
+
+**Culprit verified by experiment 2026-09-15** (throwaway worktrees, the one
+test run in the container), after the lab-day integrator mis-attributed it
+to `2223620`:
+
+    b1f08e3 2026-03-19  passed
+    911fcdf 2026-05-08  passed
+    d864007 (527c004^)  passed    clamp absent
+    527c004 2026-08-12  FAILED    clamp present
+    656b8c2, 0d1bdeb, 73c3185, 2223620, 62a7565 (HEAD)  FAILED
+
+So it has been red since 12 Aug. `2223620` is not involved: the test's
+records carry no `last_measurement_time`, which is exactly that commit's
+fallback path. Note `label_generator.py:805` is the `_warn` helper, so every
+warning reports that line -- it does not identify the code that decided.
+
+**Measured blast radius (2026-09-15), which is the part that was missing.**
+Over every recorded attempt in this tree -- 162 files, 3439 throws, all
+direct-MuJoCo sim -- `evaluation_method` is `touchdown_fit` 3106, `None`
+332, `release_fit` **1**. All 332 unevaluated throws have `t_landing` but NO
+`ls_fit_*` field and no `touchdown_pos_observed`, and 324 of 332 are the
+last two throws of their attempt: they never reached a fit because the
+attempt ended, so the clamp is NOT implicated in any of them. There is no
+recorded case of this floor rejecting a real window, and the path it gates
+fired once in 3439 throws. That lowers the urgency but does not settle the
+question -- it means the evidence for choosing between the two fixes below
+would have to be made, not found.
 
 **But the floor may well be right.** Reproducing the trim loop on that
 measurement set:
