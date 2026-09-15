@@ -1359,3 +1359,19 @@ MuJoCo 8/8 (three runs across the changes) and ROS sim 8/8
 1 capped solve of 720, 0 deadline misses, planning p95 16 ms. One new bug
 on the way: the tracker plot's plt.show() blocked between attempts now
 that the container has a display (fixed, juggling fbb9014).
+
+### kNN (cmp_b_boxed) fails the cascade5 growth chain at the 504 entry beat (2026-09-15, ROS-sim)
+
+Learner-bracket plumbing check on Ball's ROS-sim (branch lab/learner-bracket
+d73de7b): smoke3 is 20/20/20 for all three arms, but on the cascade5 growth
+chain knn_boxed is 0/8 (flat at 33-36 throws) while both Newton arms are 8/8
+at 96 throws. 6 of 8 drops on throw 26 = `ssbeat_b26_right` (the 504's entry
+beat), consistent -0.3..-0.4 m/s z error, 7 hits on the +-0.4 box.
+Evidence: Ball, python_packages/_lab_learner_bracket/data/ros_sim/.../
+std__knn_boxed__cascade5_s0 (sim only, one seed, 8 attempts).
+Hypothesis under test: at a new operating point retrieval takes the k nearest
+even when every weight is tiny, Nadaraya-Watson renormalises them, and the
+learner applies an unrelated operating point's mean error at full step.
+Candidate fix: shrink the correction by the total kernel weight mass / fall
+back to the prior below a threshold (opt-in). Kai's day-priority already
+drops the kNN arm before the no-init arm.
