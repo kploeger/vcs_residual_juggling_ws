@@ -1461,3 +1461,31 @@ Consequences: (1) never rank configs from conditions run back to back on one sim
 a fresh sim per condition and interleave A/new/A/new; (2) earlier ROS-sim A/Bs that reused one
 instance across conditions (replan fire-time A/B, learner bracket plumbing, the 2026-09-15 gate is a
 plumbing check and unaffected) should be read with that in mind.
+UPDATE 2026-09-19 evening (planner-modes agent, jrl docs/known_issues.md 1cq RESOLVED): the
+"warm state shared outside the seed dir" hypothesis is FALSIFIED. tp_planner_snapshot / tp_seed_cache
+are written at build time only (planner_bank.py:1078/1133/1498), keyed on cfg + code + URDF
+fingerprint; learner state lives only in attempts/NNN_learners.pkl and reloads only under --resume.
+A fresh-sim shipped run (FA1) reached 14/4/4/83/50/28/1/28, so a single 77 is inside the ordinary
+spread; A_repeat never got a fresh sim and ended with ball_states SILENT. In direct MuJoCo the same
+config run twice with separately rebuilt snapshots is numerically identical (n=10312 catches).
+
+### Planner modes: what was decided offline, what is still open (2026-09-19)
+
+Evidence: /home/kai/.local/share/docker_retain/planner_modes/results + plans_for_video + videos;
+overlays in jrl experiments/real_robot/siteswap_sequence/configs/planner_modes_*20260919.yaml.
+- Offline scan, 300 samples x 42 operating points: SHIPPED (min_normal_acc 10.0, catch lo -0.10)
+  534/21504 off-mode, basin around x = -0.056 m (NOT everything beyond a threshold: -0.10 is
+  in-family); FLAT (5.0, lo -0.060) 0; REACH (5.0, launcher-fed 10.0, lo -0.065) 1; PER-THROW 15.
+- [ ] Robot test pending: five-arm sequence ablation in the siteswap_sequence manifest (ac16237).
+- [ ] **Vacant-phase hand re-ascent is NOT fixed by the bound.** Worst in-family beat
+  (ssbeat_b52_right): 226.5 mm / 3.50 m/s peak upward at 10.0 vs 195.7 mm / 2.96 m/s at 5.0.
+  Cause not investigated (suspects: touchdown-velocity matching, cost shape). Kai's criterion 2.
+- [ ] PER-THROW tables cannot address transition beats with an explicit learner (no
+  incoming/previous/outgoing/tempo/segment context), so those keep the global bound.
+- [ ] Bias-only DR cannot reproduce the robot's catch scatter (2.5 % < -0.03 m vs 21.7 % on the
+  robot, unchanged at 3x the mismatch): no closed-loop sim A/B can show twitch avoidance
+  (known_issues 1cr). Forced per-beat catch offset hook does not exist; the injection driver
+  refuses chains with 4-fountain segments (configs/_forced_catch_offset.yaml).
+- Seeding ablation in sim abandoned on Kai's word (2026-09-19 20:34): at mild DR without the release
+  kick the chain completes on attempt 1 in 179/180 attempts; partial data in
+  docker_retain/kernel_sweep_nokick (mild) and kernel_sweep_seed_L3 (mass .30/arm 1.0/tilt 6, 16/56).
