@@ -1423,3 +1423,29 @@ J1 response lags 50-60 ms vs lead_time 0.01. Non-repeatable floor 0.8-1.0 mrad
 vs 6.5 mrad reached. Candidate cell: ilc_kp [100,100,50,50], ilc_kd
 [10,5,3.75,1.25], lead 0.02-0.05 s, per-joint RMS logging with a divergence
 tripwire, and ~30 updates/attempt via --no-stop-on-drop or ball-less shadow juggling.
+
+### Sequence to the 645: why 17 Sep did not complete where 13 Sep did (real robot, analysis 2026-09-19)
+
+Report, script and figures: /home/kai/.local/share/docker_retain/lab_20260917/analysis_sequence/
+(15 Sunday vs 12 Thursday attempts on the same chain; throw schedule byte-identical).
+- Right arm calibration state differed: hand-check compensation right J4 -0.0355 -> -0.0813 rad,
+  left J4 +0.0586 -> +0.0267; right resting-ball error median 2.4 -> 5.3 mm (left unchanged).
+  The 3x12 control (every key starts from exactly zero on both days) converged to a residual
+  ~0.10 m/s different in x on both arms, reproducibly across restarts. Sunday's residuals are
+  therefore not a valid warm start for Thursday's robot.
+- 534 "twitch" = a different local optimum of the planner, not a scaled plan: joint 3 dives to
+  -2.0 rad, |dq_des| 5.2 vs family 2.8 rad/s, ddq 121 vs 40 rad/s^2; converged solves (11/18 its),
+  all warm-started from cache with in-range donor distance; still present with splice replanning
+  off; the 2 cm replan clamp never bound. Trigger: applied catch displacement >= 6.5 cm PULLED
+  TOWARD the robot (x <= -0.05); +x of larger size never twitched. Such displacements: 1/70 534
+  throws Sunday vs 15/87 Thursday.
+- 552: the hold-throw (5 after a 2) is equally bad both days (0.13 m/s); the Thursday regression is
+  the 5 after a real catch (0.064 -> 0.155 m/s), i.e. upstream incoming-ball error, not cup seating.
+- nearest_state scale 0.10 -> 0.05: not globally worse, but 2x worse seeds on the two right-hand
+  534 five-throw keys and one bound-saturated seed [+0.138,-0.400,-0.194] on both right 552 keys
+  that directly dropped THU_r2 attempt 3. Donor identity is not recorded per key (gap).
+- Thursday never ran more than 6 attempts in a run (restarts reset the learner bank); Sunday
+  completed at attempts 9 and 10. Attempt for attempt Thursday was ahead (index 92 vs 67 after 5).
+Candidate overlays: 534 per-segment max_adaptation_lo x -0.10 -> -0.03; cap/reject a donor seed
+that exceeds 0.30 m/s or touches a bound; >= 10 attempts per run; optional peak-|dq_des| family
+gate with a re-solve from the nominal seed.
