@@ -1490,6 +1490,24 @@ overlays in jrl experiments/real_robot/siteswap_sequence/configs/planner_modes_*
   nothing, min_normal_acc 0 buys 7 %, offsets zeroed 11 mm of 160; 77 % of the dip is the elbow.
   Cost is a single joint-acceleration term. No existing parameter removes it.
   planner_modes_bump_20260919.yaml has NO effect in sequence; do not ship it.
+- Both of Kai's levers were built 2026-09-20 night, opt-in, defaults pinned unchanged: juggle_planning
+  lab/vacant-hand-cost 873f53a (clone docker_retain/vacant_cost/juggle_planning, NOT merged), jrl
+  lab/vacant-hand-cost 48f8f56; write-up in jrl docs/known_issues.md 1cw/1cx.
+  (A) cost on squared tool vz over the vacant knots (weight = per-solve param): fountain 4 re-ascent
+  186 -> 56 mm at 3e5, J4 sign-flip plans 52 -> 29 %, solve time unchanged; in sequence (paired
+  seeds 1,2) the 4s improve far outside between-seed noise, completion 7/8 REACH vs 5/8, 6/8
+  (n.s.), but the 6s' throw velocity error degrades beyond the seed spread (.026/.038 -> .048/.064):
+  NOT RECOMMENDED until that is explained. Global 1e6 breaks the chain via one 645 beat (scope, not
+  weight). "The chain conserves the bump" was retracted: start states identical to 1e-4 rad.
+  (B) elbow-only no-lift bound: feasible everywhere but fountain 4 only 186 -> 118 mm.
+  (B') tool-vz no-lift bound: window from 0.33 of the vacant phase gives fountain 4 dip 160 -> 32 mm,
+  re-ascent 186 -> 39 mm, fragile 645 beat 63 -> 5 mm with the OLD cost improving; but off-mode
+  residual 0.197 vs 0.20 and a degenerate neighbour at max_lift_vel 0.2, no sequence run yet.
+  At 0.5 the fountain 4's catch is 9.7 mm ABOVE the hand, so the bound is infeasible by construction
+  and the solver hides it by climbing after the window.
+- [ ] Next step if picked up: choose the no-lift WINDOW per beat from that beat's headroom (catch z
+  minus hand z at window start), then judge on the WHOLE-chain re-ascent table + completion with
+  >= 2 paired seeds, never on the 4s alone. PyYAML trap: write 300000.0, not 3.0e5 (string).
 - [ ] Candidate levers (Kai to decide): a vacant-phase tool-z floor (new constraint class; the
   library has no position constraint) or a Cartesian hand-motion cost in the vacant phase.
 - [ ] PER-THROW tables cannot address transition beats with an explicit learner (no
