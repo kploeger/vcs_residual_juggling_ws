@@ -1396,3 +1396,30 @@ keys perturbed with the plant, so no mismatch; randomises cup radius);
 experiments/transitions/configs/ros_domain_rand.yaml is a per-throw
 disturbance, not DR: rename. Full report: .claude/reviews/dr_comparison_2026-09-15.md
 (untracked). Paper: root.tex:751 says 10 plants, isrr manifest says 16.
+
+### Recorded `q_err` has the opposite sign convention to `dq_err`; recomputed q_des - q can race (2026-09-19)
+
+From the ILC hardware analysis (real robot 2026-09-17, std__c3__g025_s0;
+/home/kai/.local/share/docker_retain/lab_20260917/analysis_ilc/ilc_analysis.txt):
+the recorded arm column `q_err` is q - q_des (controller publishes
+pRobotModel_->difference(reference, estimated), trajectory_controller-inl.hpp:766-770,
+Pinocchio difference(a,b) = b - a) while `dq_err` is dq_des - dq. The ILC tap
+is safe (ros_env.py:1514 recomputes q_des - q), but any analysis reading the
+recorded column has a sign flip on positions only. Slope of q_err vs (q - q_des)
+= 1.000 +- 0.01. Also: on 3 of 8 attempts recomputing q_des - q from the npz
+q/q_des columns disagrees with the q_err column by up to 2x, because
+_build_recorded_data_point reads self._q/self._q_des that a second subscriber
+thread (/state vs /extended_state) can overwrite mid-build. Use the q_err
+column (negated) until fixed.
+
+### ILC gain cells are fractions of the SIM PD gains, not of the real controller's (2026-09-19)
+
+Same analysis: real PDFFID gains are p [400,400,200,200], d [40,20,15,5]
+(wam4_controllers.yaml:46-49, confirmed by regression Kp 398/401/199/208,
+Kd 38.6/19.5/14.6/4.8), so g025's kd/Kd_real is 0.09/0.28/0.21/0.62: J4's
+derivative channel is 2.5x its designed relative gain and J4 DIVERGES on all
+five learner slots (x1.03-1.07 per update) while J1-J3 converge (x0.85-0.95);
+J1 response lags 50-60 ms vs lead_time 0.01. Non-repeatable floor 0.8-1.0 mrad
+vs 6.5 mrad reached. Candidate cell: ilc_kp [100,100,50,50], ilc_kd
+[10,5,3.75,1.25], lead 0.02-0.05 s, per-joint RMS logging with a divergence
+tripwire, and ~30 updates/attempt via --no-stop-on-drop or ball-less shadow juggling.
