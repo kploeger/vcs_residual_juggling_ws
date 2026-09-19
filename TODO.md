@@ -1449,3 +1449,15 @@ Report, script and figures: /home/kai/.local/share/docker_retain/lab_20260917/an
 Candidate overlays: 534 per-segment max_adaptation_lo x -0.10 -> -0.03; cap/reject a donor seed
 that exceeds 0.30 m/s or touches a bound; >= 10 attempts per run; optional peak-|dq_des| family
 gate with a re-solve from the nominal seed.
+
+### ROS-sim results degrade with the age of the sim instance (2026-09-19, Thales)
+
+Planner-modes seating A/B (lab/planner-modes, /home/kai/.local/share/docker_retain/planner_modes/results):
+the SAME shipped config on ONE 5-ball ROS-sim instance reached 77,1,21,84,96,116,17,85 throws per
+attempt when the sim was ~24 min old and 11,15,17,20,26 when it was ~70 min old; two other configs
+run in between (41 and 48 min) fell in line with sim age, not with their settings. Deadline misses
+were comparable (28/24/20 per 8 attempts), so it is not plain CPU starvation. Cause not diagnosed.
+Consequences: (1) never rank configs from conditions run back to back on one sim instance; bring up
+a fresh sim per condition and interleave A/new/A/new; (2) earlier ROS-sim A/Bs that reused one
+instance across conditions (replan fire-time A/B, learner bracket plumbing, the 2026-09-15 gate is a
+plumbing check and unaffected) should be read with that in mind.
