@@ -1480,6 +1480,18 @@ overlays in jrl experiments/real_robot/siteswap_sequence/configs/planner_modes_*
 - [ ] **Vacant-phase hand re-ascent is NOT fixed by the bound.** Worst in-family beat
   (ssbeat_b52_right): 226.5 mm / 3.50 m/s peak upward at 10.0 vs 195.7 mm / 2.96 m/s at 5.0.
   Cause not investigated (suspects: touchdown-velocity matching, cost shape). Kai's criterion 2.
+- Vacant-phase bump, follow-up same evening (evidence: docker_retain/planner_modes/minsep/,
+  dip_fk.py = share of vacant phases with planned-hand re-ascent > 20 mm, whole sequence, seed 0):
+  fountain 4 100 % (mean 94 mm), 534's 4 85 %, 534's 3 81 %, 423's 3 75 % (also in the 13 Sep ROBOT
+  recording), 645's 4 36 %, 504's 4 15 %; distributions are BIMODAL, never compare medians.
+  post_takeoff_min_separation line search in sim: 0 cm after a 4/5/6 juggles 4/4 and changes
+  nothing; after a 3 the floor is 3 cm (0/4 at 0 and 1 cm, 3/4 at 2 cm, all drops at throws 59-63,
+  the 534's 3). Offline leave-one-out on the fountain 4: both cones HOLD THE DIVE BACK, min_sep
+  nothing, min_normal_acc 0 buys 7 %, offsets zeroed 11 mm of 160; 77 % of the dip is the elbow.
+  Cost is a single joint-acceleration term. No existing parameter removes it.
+  planner_modes_bump_20260919.yaml has NO effect in sequence; do not ship it.
+- [ ] Candidate levers (Kai to decide): a vacant-phase tool-z floor (new constraint class; the
+  library has no position constraint) or a Cartesian hand-motion cost in the vacant phase.
 - [ ] PER-THROW tables cannot address transition beats with an explicit learner (no
   incoming/previous/outgoing/tempo/segment context), so those keep the global bound.
 - [ ] Bias-only DR cannot reproduce the robot's catch scatter (2.5 % < -0.03 m vs 21.7 % on the
