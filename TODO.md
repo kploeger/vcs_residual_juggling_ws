@@ -1505,6 +1505,12 @@ overlays in jrl experiments/real_robot/siteswap_sequence/configs/planner_modes_*
   residual 0.197 vs 0.20 and a degenerate neighbour at max_lift_vel 0.2, no sequence run yet.
   At 0.5 the fountain 4's catch is 9.7 mm ABOVE the hand, so the bound is infeasible by construction
   and the solver hides it by climbing after the window.
+- DECIDED 2026-09-20 (Kai): REACH + vz cost 100000.0, off on the 6-throwers
+  (planner_modes_reach_vaccost_20260920.yaml, known_issues 1da) is the default of the cascade5_645
+  rung for the three-way learner bracket; juggle_planning master 1de7f82, jrl main 7229b04, on Ball.
+  [ ] first hardware run pending; [ ] why the cost hurts the 6 it prices is unexplained;
+  [ ] Ball: std__newton__cascade5_645_s0 still holds the 17 Sep attempts (old planner) and must be
+  archived before the bracket runs, or the runner continues it.
 - [ ] Next step if picked up: choose the no-lift WINDOW per beat from that beat's headroom (catch z
   minus hand z at window start), then judge on the WHOLE-chain re-ascent table + completion with
   >= 2 paired seeds, never on the 4s alone. PyYAML trap: write 300000.0, not 3.0e5 (string).
