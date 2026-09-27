@@ -1469,6 +1469,30 @@ A fresh-sim shipped run (FA1) reached 14/4/4/83/50/28/1/28, so a single 77 is in
 spread; A_repeat never got a fresh sim and ended with ball_states SILENT. In direct MuJoCo the same
 config run twice with separately rebuilt snapshots is numerically identical (n=10312 catches).
 
+### Catch predictor is biased 3-4 cm on the robot, per ball count and arm (TLL_planner_eval, 2026-09-27)
+
+Evidence: 17 Sep error_propagation closed-loop level-0 anchors, ~190 catches per cell; figure
+/home/kai/.local/share/docker_retain/lab_20260917/analysis_errprop/fig_predictor.png; code
+experiments/analysis/error_propagation/ on branch analysis/error-propagation-real (clone
+/retain/lab_20260922/jrl, cf263c8). Reference = the recorded ballistic fit at the nominal touchdown
+plane z = 0.54 m, cross-checked against raw tracker samples (raw - fit within +-8 mm). predicted -
+measured, x < 0 toward the robot base, mean +- sd, mm and ms:
+  3 balls  left (-35+-5, -38+-7, -11 ms)   right (-39+-5, +19+-6, -8 ms)
+  4 balls  left (  0+-12, -19+-9, -17 ms)  right ( -1+-10,  +5+-10, -17 ms)
+  5 balls  left (+27+-10, +8+-6, +3 ms)    right (+34+-10, -32+-6, +1 ms)
+The x sign FLIPS between 3 and 5 balls; timing explains ~1 cm at most. The planned catch carries it
+(3 balls: ~-25 mm after the clamp, catch 8-10 ms early).
+- [ ] Consequence for the twitch story: on 3 balls the predictor pulls the catch ~3.5 cm TOWARD the
+  robot by itself, i.e. part of the 21.7 % of robot catches below -0.03 m (2026-09-19 analysis) may be
+  predictor bias rather than ball scatter. Re-check the 13 Sep sequence run (lab_20260917/
+  siteswap_sequence/_archive/...20260913T185700Z) with the same tool before treating -0.065 as a
+  physical limit.
+- [ ] Find the cause: candidates are a tracker velocity bias at prediction time (4 cm / 0.6 s flight
+  ~ 0.06 m/s), the prediction lead (state age vs remaining flight differs per ball count), or the
+  catch_plane mode's handling of the nominal catch time. Not constant across levels? Unknown yet.
+- [ ] The pattern-parameter learner (lab/pattern-*) will lean on this predictor; keep the bias in mind
+  when reading its catch adaptation magnitudes.
+
 ### Planner modes: what was decided offline, what is still open (2026-09-19)
 
 Evidence: /home/kai/.local/share/docker_retain/planner_modes/results + plans_for_video + videos;
