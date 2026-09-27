@@ -1469,6 +1469,28 @@ A fresh-sim shipped run (FA1) reached 14/4/4/83/50/28/1/28, so a single 77 is in
 spread; A_repeat never got a fresh sim and ended with ball_states SILENT. In direct MuJoCo the same
 config run twice with separately rebuilt snapshots is numerically identical (n=10312 catches).
 
+### kNN learner: 504 growth-chain failure RESOLVED on main; the hardware kNN arm is mis-configured (2026-09-27)
+
+Evidence: package C of the pattern subproject, direct MuJoCo, /home/kai/.local/share/docker_retain/pattern_bo/knn/
+(replay.py reconstructs the failing ask; tables in table.py/paired.py/ramp_table.py), branch lab/knn-context.
+- The 2026-09-17 "kNN fails the cascade5 growth chain at the 504 entry beat" (TODO entry above, ROS-sim
+  0/8) does NOT reproduce on main: 24/24 chains over 6 paired seeds x 4 attempts, |ve| median 0.006 vs
+  Newton 22/24 / 0.009. Root cause was the undamped step anchor (a step of 0.1 applied -0.50 m/s of the
+  0.54 m/s energy gap between segments), fixed by 44e251a which landed AFTER the failing branch.
+- `n_trust` (shrink toward the prior by weight mass) makes it WORSE (attempt-1 |ve| +0.019, 6/6 seeds);
+  under a fixed model mismatch the local residual transfers between operating points. Leave it None
+  (test pins it).
+- [ ] **The hardware arm's config differs from Kai's decision.** siteswap_sequence/configs/
+  learner_knn_boxed.yaml carries a step schedule (step_scale 0.8 -> floor 0.1 over 20 iters, anneal
+  clock shared across an arm's keys) while Kai decided rate 1 / NO schedule (2026-09-15) and
+  cmp_b_boxed.yaml has eta 0. Measured cost: commanded residual 0.004 vs 0.047 m/s, throw error 3x
+  Newton's on the 3-ball stack and 9x on the growth chain, +8 mm catch offset absorbed by catch
+  adaptation. configs/learner_knn_rate1.yaml matches Newton's numbers. Decide which one
+  std__knn_boxed__cascade5_645 runs BEFORE the next robot session.
+- Pattern parameters as kNN context features (bandwidths 10 ms / 10 mm / 20 mm) are implemented and
+  inert unless p is stamped; on a +-5 cm width ramp they buy nothing because the converged residual
+  moves only ~0.18 (m/s) per m of hand width. Expect them to matter for cycle_time (phase 2).
+
 ### test_quadratic_convergence fails standalone, passes inside the full suite (order-dependent) (2026-09-27)
 
 `pytest tests/test_model_based_learners.py::TestLocallyQuadraticLearnerConvergence::test_quadratic_convergence`
