@@ -1469,6 +1469,34 @@ A fresh-sim shipped run (FA1) reached 14/4/4/83/50/28/1/28, so a single 77 is in
 spread; A_repeat never got a fresh sim and ended with ball_states SILENT. In direct MuJoCo the same
 config run twice with separately rebuilt snapshots is numerically identical (n=10312 catches).
 
+### Pattern-BO subproject: first online run works in sim; open items (2026-09-28, 01:00)
+
+Branch lab/pattern-bo (clone docker_retain/pattern_bo/bo/jrl, = main c21178a + metric + schedule +
+knn-context + bo + test fix), design docker_retain/pattern_bo/DESIGN.md, results
+experiments/pattern_bo/RESULTS.md, plots data/mujoco/pattern_bo/plots/. All direct MuJoCo, 3-ball
+cascade, no robot, no ROS.
+- Works: `learn_40 --pattern-bo <yaml>`: settle 10 / measure 20 throws, objective = planned motion
+  cost + take-off error penalty, trust region in normalised box units, GP on a worker thread
+  (1.7 s mean, 5.6 s max vs a 300 ms beat: threading is load-bearing). bo_newton: 15370 -> 14030
+  (-8.7 %), 802 throws, 0 drops, ends 2-3 mm from the offline landscape's own minimum in the box.
+  Executed/planned cost = 0.991 every window; offline map r = 0.976 with the in-run cost but
+  1.47x LOWER in level (steering map, never an absolute number).
+- [ ] Objective degeneracy: every run drives to the travel floor (-0.10 m); the one drop in 6x800
+  throws happened there (0.72 m/s take-off error at throw 89, not reproducible). D suggests a
+  floor of -0.13 m until a seating/drop term exists. KAI TO DECIDE the seating term.
+- [ ] kNN under the BO never beats its first window: its take-off error triples when the geometry
+  moves (26 -> 45 mm/s), so the error penalty rises faster than the motion cost falls; the
+  objective cannot separate "worse pattern" from "learner not caught up". Needs rate 1 (see the
+  kNN entry above) and probably a longer settle.
+- [ ] Runs are not bit-reproducible (the proposal installs on whatever beat the worker finishes);
+  compare statistically. No independent-seed replication yet.
+- [ ] Landscape seeding: 3.8x faster to a good geometry, slightly worse endpoint (UCB beta 2
+  spends the remainder between seeded points). The seeded values must NOT be the trust-region
+  incumbent (fixed: incumbent = best measured window).
+- [ ] The in-run drop handling is unit-tested but has never fired in a sim run.
+- [ ] Phase 2: cycle_time as a pre-built NLP ladder (structural); the kNN pattern context should
+  start to matter there.
+
 ### kNN learner: 504 growth-chain failure RESOLVED on main; the hardware kNN arm is mis-configured (2026-09-27)
 
 Evidence: package C of the pattern subproject, direct MuJoCo, /home/kai/.local/share/docker_retain/pattern_bo/knn/
