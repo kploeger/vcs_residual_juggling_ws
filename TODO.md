@@ -1491,16 +1491,16 @@ Evidence: package C of the pattern subproject, direct MuJoCo, /home/kai/.local/s
   inert unless p is stamped; on a +-5 cm width ramp they buy nothing because the converged residual
   moves only ~0.18 (m/s) per m of hand width. Expect them to matter for cycle_time (phase 2).
 
-### test_quadratic_convergence fails standalone, passes inside the full suite (order-dependent) (2026-09-27)
+### test_quadratic_convergence was flaky: unseeded exploration, and 2 of 10 seeds genuinely diverge (2026-09-27)
 
-`pytest tests/test_model_based_learners.py::TestLocallyQuadraticLearnerConvergence::test_quadratic_convergence`
-fails on jrl main c21178a (assert 0.928 < 0.048, "cost should decrease over learning"), also when the
-whole file runs (1 failed, 38 passed), but the full suite with `-m "not slow and not sim"` reports
-0 failures (2026-09-21, 3599 passed). So an earlier test in the suite seeds a global RNG that this
-test depends on (see tests/test_no_global_numpy_rng.py). Found by the pattern-schedule agent, verified on
-main by TLL_siteswaps. Not a regression of any lab/pattern-* branch.
-- [ ] make the test seed its own RNG (or the locally-quadratic learner take one) and see whether
-  the learner really converges from that seed.
+`LocallyQuadraticVelocityOffsetLearner` explores with its own `RandomState(seed)`; the test passed no
+seed, so it drew OS entropy and failed about one run in five (it looked order-dependent). Fixed on
+branch fix/quadratic-test-seed (seed 0 pinned). The learner finding underneath: on the test's toy
+quadratic (H = diag(4,2,1), 50 asks, alpha 0.8, bandwidth 0.5), seeds 1 and 6 of 0..9 DIVERGE
+(final cost 0.08 and 0.25 from starts of 0.008 and 0.07) while the other seeds reach 0.0000.
+- [ ] Understand why an exploration draw can send the locally-quadratic learner off (bad early
+  Hessian estimate + alpha 0.8?), and whether the same can happen on the robot (it is not the
+  shipped learner; Newton is).
 Also: run the full suite with OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1; the
 botorch-backed tests thrash on an uncapped torch thread pool and look like a hang.
 
