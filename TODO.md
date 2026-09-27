@@ -1469,6 +1469,19 @@ A fresh-sim shipped run (FA1) reached 14/4/4/83/50/28/1/28, so a single 77 is in
 spread; A_repeat never got a fresh sim and ended with ball_states SILENT. In direct MuJoCo the same
 config run twice with separately rebuilt snapshots is numerically identical (n=10312 catches).
 
+### test_quadratic_convergence fails standalone, passes inside the full suite (order-dependent) (2026-09-27)
+
+`pytest tests/test_model_based_learners.py::TestLocallyQuadraticLearnerConvergence::test_quadratic_convergence`
+fails on jrl main c21178a (assert 0.928 < 0.048, "cost should decrease over learning"), also when the
+whole file runs (1 failed, 38 passed), but the full suite with `-m "not slow and not sim"` reports
+0 failures (2026-09-21, 3599 passed). So an earlier test in the suite seeds a global RNG that this
+test depends on (see tests/test_no_global_numpy_rng.py). Found by the pattern-schedule agent, verified on
+main by TLL_siteswaps. Not a regression of any lab/pattern-* branch.
+- [ ] make the test seed its own RNG (or the locally-quadratic learner take one) and see whether
+  the learner really converges from that seed.
+Also: run the full suite with OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1; the
+botorch-backed tests thrash on an uncapped torch thread pool and look like a hang.
+
 ### Catch predictor is biased 3-4 cm on the robot, per ball count and arm (TLL_planner_eval, 2026-09-27)
 
 Evidence: 17 Sep error_propagation closed-loop level-0 anchors, ~190 catches per cell; figure
