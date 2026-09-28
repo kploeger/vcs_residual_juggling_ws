@@ -1469,6 +1469,19 @@ A fresh-sim shipped run (FA1) reached 14/4/4/83/50/28/1/28, so a single 77 is in
 spread; A_repeat never got a fresh sim and ended with ball_states SILENT. In direct MuJoCo the same
 config run twice with separately rebuilt snapshots is numerically identical (n=10312 catches).
 
+### ILC feedforward is wiped by a catch replan; the written fix sits in tag archive/ilc-replan-tauff (2026-09-28)
+
+jrl docs/known_issues.md ("A CATCH REPLAN WIPES THE ILC FEEDFORWARD FOR THE REST OF THE THROW") names
+commit 901c083 (branch lab/ilc-replan-tauff, WIP, 4 files +447/-7 incl. a 289-line test) as the
+unit-tested fix, not on main. The branch ref was deleted in the 2026-09-28 cleanup; the commit is
+reachable as tag `archive/ilc-replan-tauff`. Masked today because the shipped ILC study runs open loop.
+- [ ] Before ILC runs with replanning ON: validate 901c083 in ROS-sim as the known_issues entry
+  specifies (tracking RMS 0.0074 -> ~0.0012 rad by attempt 3), then cherry-pick it to main.
+Other archive tags from the same cleanup (nothing to salvage, kept for history): archive/
+ball-growth-siteswap-chains (reverted track-association flip, older 12-beat layout), archive/
+merge-learners-ab (learners A/B arm; the machinery is on main via tll-learner-dev), archive/dev/refactor
+(April base_juggler refactor, 1400 commits stale); juggle_planning archive/contant_maintanance_extended.
+
 ### Pattern-BO subproject: first online run works in sim; open items (2026-09-28, 01:00)
 
 Branch lab/pattern-bo (clone docker_retain/pattern_bo/bo/jrl, = main c21178a + metric + schedule +
