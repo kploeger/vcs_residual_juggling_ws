@@ -1508,7 +1508,9 @@ Evidence: package C of the pattern subproject, direct MuJoCo, /home/kai/.local/s
 - `n_trust` (shrink toward the prior by weight mass) makes it WORSE (attempt-1 |ve| +0.019, 6/6 seeds);
   under a fixed model mismatch the local residual transfers between operating points. Leave it None
   (test pins it).
-- [ ] **The hardware arm's config differs from Kai's decision.** siteswap_sequence/configs/
+- [x] RESOLVED 2026-09-28 (Kai: constant step, no schedule): learner_knn_boxed.yaml fixed on main
+  (eta 0, cross_key_penalty 1), rate1/trust variants deleted, 10 attempts for the newton and
+  knn_boxed arms, 100 for newton_noinit. Historical note: **the hardware arm's config differed.** siteswap_sequence/configs/
   learner_knn_boxed.yaml carries a step schedule (step_scale 0.8 -> floor 0.1 over 20 iters, anneal
   clock shared across an arm's keys) while Kai decided rate 1 / NO schedule (2026-09-15) and
   cmp_b_boxed.yaml has eta 0. Measured cost: commanded residual 0.004 vs 0.047 m/s, throw error 3x
@@ -1596,8 +1598,8 @@ overlays in jrl experiments/real_robot/siteswap_sequence/configs/planner_modes_*
   (planner_modes_reach_vaccost_20260920.yaml, known_issues 1da) is the default of the cascade5_645
   rung for the three-way learner bracket; juggle_planning master 1de7f82, jrl main 7229b04, on Ball.
   [ ] first hardware run pending; [ ] why the cost hurts the 6 it prices is unexplained;
-  [ ] Ball: std__newton__cascade5_645_s0 still holds the 17 Sep attempts (old planner) and must be
-  archived before the bracket runs, or the runner continues it.
+  [x] Ball: the 17 Sep std__newton__cascade5_645_s0 archived 2026-09-28 as
+  _archive/std__newton__cascade5_645_s0__20260917T165312Z.
 - [ ] Next step if picked up: choose the no-lift WINDOW per beat from that beat's headroom (catch z
   minus hand z at window start), then judge on the WHOLE-chain re-ascent table + completion with
   >= 2 paired seeds, never on the 4s alone. PyYAML trap: write 300000.0, not 3.0e5 (string).
