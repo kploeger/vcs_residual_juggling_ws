@@ -1482,6 +1482,23 @@ ball-growth-siteswap-chains (reverted track-association flip, older 12-beat layo
 merge-learners-ab (learners A/B arm; the machinery is on main via tll-learner-dev), archive/dev/refactor
 (April base_juggler refactor, 1400 commits stale); juggle_planning archive/contant_maintanance_extended.
 
+### Pattern-BO: variance objective + multi-GP acquisition built; no variance signal in sim (2026-09-28)
+
+Branch lab/pattern-bo-variance (clone docker_retain/pattern_bo/multi/jrl, results experiments/pattern_bo/
+RESULTS_MULTI.md, plots data/mujoco/pattern_bo/plots_multi/). Mechanism: per-objective settle/measure
+(motion 10/20, variance 15/40 throws), one GP per objective normalised by a reference, UCB on the
+weighted sum of posteriors (not the sum of UCBs), trust region unchanged; single-objective path
+bit-identical (golden test); 236 tests; independent review clean. Five 1200-throw runs, 0 drops.
+- Fixed-p noise check: at M=40 the scatter estimate has cv ~0.20 (its i.i.d. floor 0.226) AND falls
+  ~28 % as the learner converges at a fixed geometry; a one-window comparison must clear ~40 %.
+- log(scatter) ~ window + width + travel over all runs: largest |t| 1.32, R^2 <= 0.23, signs disagree
+  between learners. No signal in sim. A variance objective at weight 1 also costs the motion
+  objective (-8.1 % -> -0.7 %): a GP on noise keeps its posterior variance high and wins the UCB.
+- [ ] Do not ship variance weight 1 on this sim. Second look on the robot, or with several windows
+  per geometry (a protocol change, not a weight change).
+- Side result: with the constant-step kNN (865cd59) the kNN's take-off error under the BO is
+  14 mm/s, not the 44 mm/s of the annealed run: the constant-step fix works on a moving geometry.
+
 ### Pattern-BO subproject: first online run works in sim; open items (2026-09-28, 01:00)
 
 Branch lab/pattern-bo (clone docker_retain/pattern_bo/bo/jrl, = main c21178a + metric + schedule +
