@@ -1727,6 +1727,15 @@ at throw ~1100-1900. Workaround in the explore configs: hand_width_y floor
 - [ ] Make an unreachable scheduled catch a recorded infeasibility inside the
   throw loop (feasibility row for the BO, throw marked failed), not an
   exception -- the reach edge is part of the stability map Kai wants.
+- Third occurrence 2026-09-30 00:27 (explore2d_knn, throw 6915 of 8000, 112
+  observations): a different trigger, same exit. A ball on the floor
+  (z 0.037) stayed registered as the left hand's incoming ball (IN_FLIGHT_THROWN,
+  zero velocity, "below_min_speed"), the catch-and-throw was planned to
+  x = [0.49, 0.13, 0.54] -- 0.66 m below the catch plane -- IK raised, and the
+  nominal fallback raised before the refill for that slot fired.
+  RESULTS_EXPLORE.md 3c; logs/explore2d_knn.log lines 123724-123990. So the
+  fix must also drop a floor ball from the incoming set (or treat a catch
+  target below the plane as "no ball"), not only clamp the catch adaptation.
 
 ## Explore-mode pattern BO, first 3-ball maps (2026-09-29, direct MuJoCo, kick 0, no DR, kNN)
 
