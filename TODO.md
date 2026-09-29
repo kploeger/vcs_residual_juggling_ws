@@ -1695,3 +1695,22 @@ either by re-settling between repeats (each repeat becomes a separate visit) or
 by estimating it online from revisits, which the loop can already do: every
 window logs its p and its K-mean. Do NOT just raise `success_frac`; that is the
 band-aid, and the number to use is measurable.
+
+## Refill under a walking pattern schedule: three fixes in sim, one open on the robot (2026-09-29)
+
+Found by the refill probe for explore-mode pattern BO (jrl `lab/entropy-tempo`
+69e121a6, direct MuJoCo only): (1) the drop-in aimed at the NOMINAL catch
+position (`jugglers/launchers.py:357` re-registered the nominal at construction)
+-- 126 mm off at hand_width_y 0.48; (2) the refill catch TIME came from the
+uniform formula on `cfg.pattern.cycle_time`, seconds off with the tempo ladder
+at 0.50 s; (3) with `catch_eval.stop_on_drop_detection: false` the pattern-BO
+drop hook never fired (only wired in the stopping branch of attempt_runner).
+All three fixed on that branch; (1) moves the SIM launcher to the current
+catch geometry.
+
+- [ ] On the REAL robot the launcher cannot move: a refill under a walked
+  geometry needs the hand to come to the launcher (or the nominal slot to be
+  the refill slot). Decide before any pattern-BO run with auto-refill on
+  hardware; `ros_env.refill` (ros_env.py:3080, :3375) is untouched by the fix.
+- [ ] Bugs (2) and (3) also affect any tempo-ladder run with hotkey refill,
+  BO or not -- check the demos' refill path once the branch is on main.
