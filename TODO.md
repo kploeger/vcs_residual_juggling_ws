@@ -1482,6 +1482,27 @@ ball-growth-siteswap-chains (reverted track-association flip, older 12-beat layo
 merge-learners-ab (learners A/B arm; the machinery is on main via tll-learner-dev), archive/dev/refactor
 (April base_juggler refactor, 1400 commits stale); juggle_planning archive/contant_maintanance_extended.
 
+### Variance landscape: the release kick was ~30x the signal; entropy separates best; online loop needs several windows per geometry (2026-09-29)
+
+jrl experiments/variance_landscape/RESULTS_VARIANCE.md (on main), plots data/mujoco/variance_landscape/plots/
+in docker_retain/pattern_bo/varmap/jrl. Direct MuJoCo, kick 0, no DR, Newton, fixed pattern per cell,
+150 throws (5-ball 300), first 50 discarded (3-ball settles by throw ~23-37; 5-ball median 111-190, never
+fully settles). metrics/dispersion.py: trace, largest eigenvalue, 0.5 log det entropy (relative floor).
+- Geometry dependence above a single point's bootstrap sd: 3-ball trace 6.7x, max_eig 5.9x, ENTROPY 24.6x;
+  5-ball 3.6 / 3.5 / 5.9 at 300 throws; with the shipped 0.01 m/s kick ON: 0.45 / 0.46 / 0.65 (the null
+  of 2026-09-28). Entropy wins because the clouds are anisotropic (lambda_max/trace 0.66 vs 0.33).
+- 5-ball has ~7x the variance but a weaker landscape; the two grids rank-correlate only 0.18-0.35.
+- Breakdown: every point at lateral_travel -0.05 drops within 10 throws (seating), width 0.20/travel -0.35
+  is IK-unreachable; c5 0.25/-0.30 "completes" with the safety guard on 150/152 throws (exclude such runs:
+  guard_dominated filter).
+- [ ] The dispersion is nearly redundant with mean |take-off error| on this grid (r 0.96-0.99): in a
+  deterministic sim it measures the Newton residual's limit cycle. The robot (or tracker noise) is where
+  variance and mean error can separate.
+- [ ] Entropy-only BO (2000 throws, M=100) did NOT demonstrate learning: window-to-window sd at a fixed p is
+  1.25 nats (8x the grid's bootstrap sd 0.15), one lucky window became the incumbent and the trust region
+  collapsed. Protocol fix, not a dead end: several windows per geometry, incumbent from the mean of
+  repeats, and do not shrink the trust region on single-window "failures".
+
 ### Pattern-BO: variance objective + multi-GP acquisition built; no variance signal in sim (2026-09-28)
 
 Branch lab/pattern-bo-variance (clone docker_retain/pattern_bo/multi/jrl, results experiments/pattern_bo/
