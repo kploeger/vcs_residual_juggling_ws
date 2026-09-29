@@ -1665,3 +1665,33 @@ overlays in jrl experiments/real_robot/siteswap_sequence/configs/planner_modes_*
 - Seeding ablation in sim abandoned on Kai's word (2026-09-19 20:34): at mild DR without the release
   kick the chain completes on attempt 1 in 179/180 attempts; partial data in
   docker_retain/kernel_sweep_nokick (mild) and kernel_sweep_seed_L3 (mass .30/arm 1.0/tilt 6, 16/56).
+
+## Repeats measure the WITHIN-visit spread; the loop faces the BETWEEN-visit one (2026-09-29)
+
+Measured in `/retain/pattern_bo/entropy/jrl/data/mujoco/entropy_bo/` (direct
+MuJoCo, 3-ball `3*@0.60`, kick 0, no DR, Newton, S=30 M=100), via
+`experiments/entropy_bo/analyse.py`:
+
+| quantity | entropy_k3 | entropy_k3_tc | entropy_k1 |
+|---|---|---|---|
+| within-visit sd (K=3 repeats after ONE settle) | 0.39 | 0.39 | n/a |
+| between-visit sd, ONE window, same p revisited | 1.48 | 1.18 | 2.24 |
+| between-visit sd of the K-MEAN | 1.43 | 1.12 | 2.24 |
+
+Two things follow, and they point in opposite directions:
+
+1. **The repeats do what they promise.** A K=3 mean's between-visit sd is
+   1.1-1.4 nats against the K=1 single window's 2.24 -- the sqrt(3) = 1.7
+   reduction, measured. RESULTS_VARIANCE §8b's 1.25 nats is confirmed as the
+   BETWEEN-visit number.
+2. **But the loop sets its trust-region margin from the wrong one.** K repeats
+   after a single settle share the settled residual, so they measure 0.39 nats
+   while the quantity the region actually has to resolve is ~1.2-2.2. The
+   margin is therefore ~3-5x too small, and windows that are pure noise still
+   read as genuine failures.
+
+The next protocol change is to take the margin from the BETWEEN-visit spread --
+either by re-settling between repeats (each repeat becomes a separate visit) or
+by estimating it online from revisits, which the loop can already do: every
+window logs its p and its K-mean. Do NOT just raise `success_frac`; that is the
+band-aid, and the number to use is measurable.
