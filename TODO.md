@@ -1714,3 +1714,16 @@ catch geometry.
   hardware; `ros_env.refill` (ros_env.py:3080, :3375) is untouched by the fix.
 - [ ] Bugs (2) and (3) also affect any tempo-ladder run with hotkey refill,
   BO or not -- check the demos' refill path once the branch is on main.
+
+## Arm-reach edge crashes a pattern-BO run instead of counting as infeasible (2026-09-29)
+
+Twice today (explore3d_knn at width 0.167 / 0.44 s, explore2d_knn at width
+~0.15, both direct MuJoCo, jrl `lab/entropy-tempo`): a catch at |y| ~ 0.13 m is
+beyond the arm's reach, the IK raises, and `_plan_catch_with_nominal_fallback`
+only demotes ADAPTED catches, so the ValueError propagates and kills the run
+at throw ~1100-1900. Workaround in the explore configs: hand_width_y floor
+0.20 (the arm's edge is ~0.17-0.20 m).
+
+- [ ] Make an unreachable scheduled catch a recorded infeasibility inside the
+  throw loop (feasibility row for the BO, throw marked failed), not an
+  exception -- the reach edge is part of the stability map Kai wants.
