@@ -1727,3 +1727,27 @@ at throw ~1100-1900. Workaround in the explore configs: hand_width_y floor
 - [ ] Make an unreachable scheduled catch a recorded infeasibility inside the
   throw loop (feasibility row for the BO, throw marked failed), not an
   exception -- the reach edge is part of the stability map Kai wants.
+
+## Explore-mode pattern BO, first 3-ball maps (2026-09-29, direct MuJoCo, kick 0, no DR, kNN)
+
+Data: docker_retain/pattern_bo/tempo_bo/jrl/data/mujoco/entropy_tempo/{explore2d_knn,explore3d_knn}
+(85 / 82 observations at 21:35, runs to 8000 throws), plots in plots_interim/2135/.
+
+- Drop map: travel shallower than about -0.10 drops at every width (13/15 rows
+  in [-0.10, 0]); a narrow-hands / deep-carry wedge below the diagonal from
+  (0.20, -0.24) to (0.34, -0.40). ~64 % of the box feasible at 0.60 s.
+- Touchdown entropy separates dropped from clean observations only when the
+  dropped windows are measured from arrival with the miss included (all rows
+  rho +0.46 / +0.55); WITHIN clean windows it does not predict drops (rho
+  -0.27 / -0.11) -- the quietest clean windows sit ~3 cm from the edge.
+  Entropy alone would walk the BO into the corner; the P(drop) map keeps it out.
+- [ ] The feasibility GPC's tempo lengthscale hits its bound (3 boxes) and
+  calls tempo flat while the per-rung bars show a trend (drop fraction 20/35
+  below 0.53 s vs 6/13 above 0.67 s; clean entropy vs tempo rho +0.54, n 42).
+  Widen the lengthscale prior / bound or fit the tempo axis on rung index.
+- [ ] 12 of 33 (2-D) and 12 of 40 (3-D) dropped rows resolved < 3 throws and
+  carry no entropy: the pattern drops within the first beats of arriving.
+  Lower the minimum to 2, or measure the walk INTO the edge per beat.
+- [ ] Per-throw wall time roughly doubled over each run (~40 -> ~20
+  throws/min), unexplained (not machine load: load avg ~4). Profile the
+  proposal path (GP + GPC fits grow with the row count) before longer runs.
