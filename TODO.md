@@ -1774,3 +1774,13 @@ Data: docker_retain/pattern_bo/tempo_bo/jrl/data/mujoco/entropy_tempo/{explore2d
 - [ ] Per-throw wall time roughly doubled over each run (~40 -> ~20
   throws/min), unexplained (not machine load: load avg ~4). Profile the
   proposal path (GP + GPC fits grow with the row count) before longer runs.
+
+## Flaky: test_paraboloid_minimization[cmaes] (2026-09-30)
+
+`tests/test_paraboloid_minimization.py::test_learner_minimizes_paraboloid[cmaes]`
+failed once in a full run on jrl fix/floor-ball-incoming 71598368 (assert
+0.184 <= 0.162, `objfun_has_noise=True`), passed twice in isolation on the same
+tree and in the full run on 2e2ec57f; the branch does not touch learners/.
+Order/RNG dependent like the quadratic-convergence test before it.
+- [ ] Seed it (or widen the bound with a justification), as was done for
+  `test_quadratic_convergence`.
