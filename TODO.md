@@ -1733,9 +1733,23 @@ at throw ~1100-1900. Workaround in the explore configs: hand_width_y floor
   zero velocity, "below_min_speed"), the catch-and-throw was planned to
   x = [0.49, 0.13, 0.54] -- 0.66 m below the catch plane -- IK raised, and the
   nominal fallback raised before the refill for that slot fired.
-  RESULTS_EXPLORE.md 3c; logs/explore2d_knn.log lines 123724-123990. So the
-  fix must also drop a floor ball from the incoming set (or treat a catch
-  target below the plane as "no ball"), not only clamp the catch adaptation.
+  RESULTS_EXPLORE.md 3c; logs/explore2d_knn.log lines 123724-123990.
+- FIXED on jrl fix/floor-ball-incoming (2e2ec57f, 2026-09-30): root cause was
+  `drop_detection._mark_ball_dropped` having ZERO callers on the direct-MuJoCo
+  path, so `ball.dropped` was never set and every `if ball.dropped` guard was
+  dead; empty-handed throws re-registered the floor ball. Correction to the
+  entry above: the failing IK point x=[0.493,0.128,0.54] is the THROW release
+  point (planner.py:1446), z=0.54 IS the plane; the IK failed from a posture
+  degraded by 563 safety fallbacks. Now: floor balls leave the incoming pool,
+  a PlanningFailure re-executes the last scheduled trajectory re-anchored to
+  the arm state and fires the BO drop hook.
+- [ ] The ROS floor path (`_check_ros_floor_dropped`) still does not mark Ball
+  objects (no application-id -> Ball mapping); with
+  `stop_on_drop_detection: false` + refill through ROS a floor ball would
+  still be carried as incoming. Needed before explore mode runs on hardware.
+- [ ] `drop_height_threshold` 0.2 fires on a ball at z=0.18 mid-fall past the
+  cup (probe_floor_ball.py log, throw 67) -- the detector marks a drop a beat
+  before touchdown; harmless for refill, but drop-TIMING numbers are early.
 
 ## Explore-mode pattern BO, first 3-ball maps (2026-09-29, direct MuJoCo, kick 0, no DR, kNN)
 
