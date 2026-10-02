@@ -1802,10 +1802,11 @@ position+height check). ROS-sim dry runs on Thales:
 data/ros_sim/entropy_tempo/dryrun_robot{1..5} in the tempo_bo clone; run 5 =
 462 throws, 20 drop episodes, 76 refills, 15 pauses, 0/18 clean segments.
 
-- [ ] BO stalls after a resume at a dropping geometry: every resumed segment
-  collapsed within 6 throws, the dropped observation never closed
-  (drop_close_delay 6), no new proposal all run. Observe the drop before the
-  pause, or retreat to the last feasible p on resume.
+- [x] BO stalls after a resume at a dropping geometry -- FIXED jrl c4da3291
+  (2026-10-02): a pause inside the drop-close delay closes the observation
+  with what was measured; resume_at_current moves off a target whose last
+  feasibility row says dropped (explore: next proposal / design point,
+  retreat: last_good). Not yet re-run in ROS-sim.
 - [ ] safety_guard.guard() spikes to 84-96 ms (normally 0.1 ms;
   juggle_planning/planner.py:870) during a refill flurry after a 3-ball
   collapse -> planning-deadline misses; plus sub-ms send misses. Decide
