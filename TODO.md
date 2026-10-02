@@ -1818,9 +1818,13 @@ data/ros_sim/entropy_tempo/dryrun_robot{1..5} in the tempo_bo clone; run 5 =
   juggle_planning/planner.py:870) during a refill flurry after a 3-ball
   collapse -> planning-deadline misses; plus sub-ms send misses. Decide
   JRL_ROS_STRICT=0 for hardware and budget the deadline.
-- [ ] A 3-ball collapse spends a 4-ball magazine in ~2 s; the robot's
-  magazine_size must match the real magazine and the operator expects a
-  reload per collapse. Physical RosBallLauncher.refill() path untested.
+- [x] Magazine from the LAUNCHER's count (2026-10-02, jrl main 0cb58629,
+  ball_launcher master f85bcb9): `refill.magazine_source: launcher` reads
+  `num_balls_left`, pauses when short, the menu asks the loaded count and
+  calls the new `set_num_balls_left` service (partially filled launchers
+  are fine). ROS-sim dryrun_robot9: pause from the launcher count -> set
+  10 -> resumed at the same target, 58 clean throws. Still untested: the
+  physical refill() path and a reload per collapse on hardware.
 - [ ] Weights: the TUNE rung from zero drops at throw 7 on the ROS plant; use
   `--condition std__c3__anchor0_closed --weights demos/weights/offsets_c3.yaml`.
 - [ ] Not run on Ball yet; the Thales sim's cup geometry matched the rung.
