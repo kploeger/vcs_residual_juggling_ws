@@ -1743,10 +1743,18 @@ at throw ~1100-1900. Workaround in the explore configs: hand_width_y floor
   degraded by 563 safety fallbacks. Now: floor balls leave the incoming pool,
   a PlanningFailure re-executes the last scheduled trajectory re-anchored to
   the arm state and fires the BO drop hook.
-- [ ] The ROS floor path (`_check_ros_floor_dropped`) still does not mark Ball
+- [x] The ROS floor path (`_check_ros_floor_dropped`) still does not mark Ball
   objects (no application-id -> Ball mapping); with
   `stop_on_drop_detection: false` + refill through ROS a floor ball would
   still be carried as incoming. Needed before explore mode runs on hardware.
+  FIXED on jrl lab/robot-readiness (39cee682, 2026-09-30): every confirmed
+  candidate is mapped to its Ball by `application_id` (the id `RosBall` was
+  created with), else to the nearest ball whose tracked `x` lies within
+  `position_tolerance_xy`, and goes through `_mark_ball_dropped`
+  (`drop_detection._mark_ros_floor_balls`); in `settled` mode every entry
+  that reached `confirmations_required` is marked, not only the trigger.
+  tests/test_ros_floor_ball_marked.py (the 3c crash scene through the ROS
+  detector: both floor balls out of the pool, airborne one kept).
 - [ ] `drop_height_threshold` 0.2 fires on a ball at z=0.18 mid-fall past the
   cup (probe_floor_ball.py log, throw 67) -- the detector marks a drop a beat
   before touchdown; harmless for refill, but drop-TIMING numbers are early.
