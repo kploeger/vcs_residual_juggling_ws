@@ -1807,6 +1807,13 @@ data/ros_sim/entropy_tempo/dryrun_robot{1..5} in the tempo_bo clone; run 5 =
   with what was measured; resume_at_current moves off a target whose last
   feasibility row says dropped (explore: next proposal / design point,
   retreat: last_good). Not yet re-run in ROS-sim.
+- dryrun_robot6 (main c4da3291, 2026-10-02 22:30): the stall did not recur
+  (drop closed before the attempt end, BO advanced to proposal 2, 136 clean
+  throws), but 0 pauses / 0 refills -- anchor0_closed weights barely drop, so
+  the pause path is unit-tested only. All 3 attempts ended on send /
+  scheduling deadline misses (1.2-2.1 ms, cold-start 16.9 ms late), none on
+  juggling; guard() max 0.2 ms this run. Thales ROS-sim is now bounded by
+  timing, not drops.
 - [ ] safety_guard.guard() spikes to 84-96 ms (normally 0.1 ms;
   juggle_planning/planner.py:870) during a refill flurry after a 3-ball
   collapse -> planning-deadline misses; plus sub-ms send misses. Decide
