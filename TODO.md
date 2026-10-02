@@ -1792,3 +1792,27 @@ tree and in the full run on 2e2ec57f; the branch does not touch learners/.
 Order/RNG dependent like the quadratic-convergence test before it.
 - [ ] Seed it (or widen the bound with a justification), as was done for
   `test_quadratic_convergence`.
+
+## Explore-mode BO on the robot: what the ROS-sim dry run says is still missing (2026-10-02)
+
+jrl main c2b678e0 has the readiness package (refill.catch_at_nominal,
+refill.magazine_size pause/resume at the current geometry, PatternBox
+throw_y_min midline constraint, ROS floor path marks Ball objects with a
+position+height check). ROS-sim dry runs on Thales:
+data/ros_sim/entropy_tempo/dryrun_robot{1..5} in the tempo_bo clone; run 5 =
+462 throws, 20 drop episodes, 76 refills, 15 pauses, 0/18 clean segments.
+
+- [ ] BO stalls after a resume at a dropping geometry: every resumed segment
+  collapsed within 6 throws, the dropped observation never closed
+  (drop_close_delay 6), no new proposal all run. Observe the drop before the
+  pause, or retreat to the last feasible p on resume.
+- [ ] safety_guard.guard() spikes to 84-96 ms (normally 0.1 ms;
+  juggle_planning/planner.py:870) during a refill flurry after a 3-ball
+  collapse -> planning-deadline misses; plus sub-ms send misses. Decide
+  JRL_ROS_STRICT=0 for hardware and budget the deadline.
+- [ ] A 3-ball collapse spends a 4-ball magazine in ~2 s; the robot's
+  magazine_size must match the real magazine and the operator expects a
+  reload per collapse. Physical RosBallLauncher.refill() path untested.
+- [ ] Weights: the TUNE rung from zero drops at throw 7 on the ROS plant; use
+  `--condition std__c3__anchor0_closed --weights demos/weights/offsets_c3.yaml`.
+- [ ] Not run on Ball yet; the Thales sim's cup geometry matched the rung.
