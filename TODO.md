@@ -1828,3 +1828,14 @@ data/ros_sim/entropy_tempo/dryrun_robot{1..5} in the tempo_bo clone; run 5 =
 - [ ] Weights: the TUNE rung from zero drops at throw 7 on the ROS plant; use
   `--condition std__c3__anchor0_closed --weights demos/weights/offsets_c3.yaml`.
 - [ ] Not run on Ball yet; the Thales sim's cup geometry matched the rung.
+
+## ILC divergence tripwire fires on plateau wobble (2026-10-03, sim)
+
+ILC vs 30 % DR study (jrl main eb27c176, experiments/real_robot/ilc/
+RESULTS_SIM_DR30.md, direct MuJoCo, no balls): the divergence tripwire fired
+80-125x per 300-throw run on < 0.01 mrad wobble around the converged floor --
+125x on the NO-DR control. ILC itself converges in 5-7 updates and holds
+(floor 0.72-1.11 mrad under DR vs 0.52 nominal; J4 the residue, 1.8 vs 0.84).
+- [ ] Make the tripwire threshold relative to the converged floor (or a
+  minimum absolute step) before the lab day, so hardware logs are not flooded
+  and a real divergence is visible.
