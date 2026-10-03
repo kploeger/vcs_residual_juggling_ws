@@ -1839,3 +1839,23 @@ RESULTS_SIM_DR30.md, direct MuJoCo, no balls): the divergence tripwire fired
 - [ ] Make the tripwire threshold relative to the converged floor (or a
   minimum absolute step) before the lab day, so hardware logs are not flooded
   and a real divergence is visible.
+
+## The robot's 7.6 mrad pre-ILC error is the missing dissipation feedforward (2026-10-03, sim)
+
+jrl main 3bf5c9d2, experiments/real_robot/ilc/RESULTS_SIM_ILC_REALISTIC.md:
+the direct-sim IDPD adds robot_control's `joint_dissipation_ff` (damping*dq
++ friction*sign(dq), control.py:254); the real PDFFID is plain pinocchio rnea
+with `hysteresis_models: {}`. With `JRL_FF_DISSIPATION_SCALE=0` the sim's
+pre-ILC RMS is 7.31 mrad = 0.97x the robot's 7.56 (lab 2026-09-17), same
+joint pattern; quasi-static tau_diss/Kp predicts 6.8/0/7.8/11.2 vs measured
+7.0/3.1/11.1/8.7. ILC from there floors at 1.6-2.0 mrad (Coulomb step at
+velocity reversals), J4 ~3.
+- [ ] Try the dissipation feedforward ON THE ROBOT (IAS system-ID damping
+  1.648/2.364/0.811/0.6005, frictionloss 1.605/0.533/0.372/0.642 are already in
+  the plant model): the sim says it removes most of the 7.6 mrad before any
+  ILC. Needs the PDFFID hysteresis/dissipation path or an equivalent in the
+  ROS controller -- generic package, warn before changing.
+- [ ] Sim-only knob `JRL_FF_DISSIPATION_SCALE=0` is now the setting for any
+  hardware-comparable sim claim; add it to the ILC/residual run sheets.
+- [ ] ILC floor on the Coulomb step: CoulombFriction hysteresis compensation
+  or a sharper Q-filter if ~2 mrad on the arm is not enough.
