@@ -1859,3 +1859,23 @@ velocity reversals), J4 ~3.
   hardware-comparable sim claim; add it to the ILC/residual run sheets.
 - [ ] ILC floor on the Coulomb step: CoulombFriction hysteresis compensation
   or a sharper Q-filter if ~2 mrad on the arm is not enough.
+
+## Movement-cost BO: the term is invisible behind entropy; refill catch adaptation unclamped (2026-10-03)
+
+jrl main e777c93f, experiments/entropy_tempo/RESULTS_MOVEMENT.md (direct sim,
+7 runs): with `acq_feasibility: multiply` the gate holds (no GP proposal below
+P(feasible) 0.93, 88/89 argmaxes pulled out of drop bands), but
+entropy + W*motion at W 0.5..3.0 is proposal-identical to entropy-only for
+2-6 GP steps and the motion term fell in only 2 of 7 runs, weakly. The
+planner-only motion landscape slopes toward zero carry (RESULTS.md), i.e.
+INTO the shallow drop band, so inside the basin the motion optimum sits on
+the constraint edge and the entropy GP dominates the scalarisation.
+- [ ] If a min-jerk/acc/vel pattern is wanted: optimise the motion term ALONE
+  behind the feasibility gate (no entropy in the objective; entropy only
+  logged), so the term is the whole acquisition. Expect it to walk to the
+  gate's edge on the shallow side -- that IS the answer.
+- [ ] BUG: a refill catch after a mid-walk drop was adapted by 0.117 m to
+  |y| 0.13 (unreachable) -> PlanningFailure killed 3 runs at 1660-2949
+  throws; `catch_adaptation.max_adaptation 0.05` does not clamp the refill
+  (launcher-fed) adaptation path. Clamp it (and keep boundary probes out of
+  the deep-carry corner until then).
