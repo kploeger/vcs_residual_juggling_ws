@@ -1896,7 +1896,8 @@ Evidence: explore2d_* logs + attempts/001.pkl in docker_retain/pattern_bo/tempo_
   thought it was at 0.204 / -0.291; window 22 scored as a clean (failed-verdict) observation.
 - [x] Fallback throws out of the planned motion cost (jrl lab/motion-only-bo 17776f2).
 - [ ] Executed cost, vel_err and the dispersion objectives still include fallback throws.
-- [ ] A fallback should be an INFEASIBILITY row (close the window like a drop, retreat), not data.
+- [x] A fallback is an INFEASIBILITY event, same path as a drop, logged as cause safety_fallback
+  (jrl lab/motion-only-bo 08f8c55, Kai 2026-10-05). Not yet exercised in a sim run.
 - [ ] Stop the walk during a burst; ramp back so the first passing plan does not catch a ball 0.16 m away.
 - [ ] Bound the box by the guard envelope (offline map with pattern_landscape.py), or re-anchor the reference
   along the walk after a geometry is verified. Do NOT just raise the 0.8 rad threshold (hardware safety).
