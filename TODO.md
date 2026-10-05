@@ -1879,3 +1879,38 @@ the constraint edge and the entropy GP dominates the scalarisation.
   throws; `catch_adaptation.max_adaptation 0.05` does not clamp the refill
   (launcher-fed) adaptation path. Clamp it (and keep boundary probes out of
   the deep-carry corner until then).
+
+## Trajectory safety fallbacks in pattern-BO runs: cause and handling (2026-10-05, direct sim, read-only analysis)
+
+Evidence: explore2d_* logs + attempts/001.pkl in docker_retain/pattern_bo/tempo_bo/jrl/data/mujoco/entropy_tempo
+(7 runs, 21,014 throws, 157 fallback throws).
+- Cause: the guard (`trajectory_planning/safety_guard.py:88-135`) compares each plan to ONE reference -- the
+  catch-and-throw plan at the START geometry p0 (0.3535 / -0.20), built once (`cascade_juggler.py:1150`)
+  and deliberately never moved (`pattern_schedule.py:24-31`). 99 % of fallback throws fail the joint-position
+  check alone (max |q - q_ref| > 0.8 rad). All 157 sit at width <= 0.34 AND travel <= -0.24 (27/51 throws
+  in the worst cell); nowhere else in the box. The BO box is larger than the guard's envelope.
+- Bursts feed themselves: P(fallback | same arm's previous throw fell back) 0.91 vs 0.0007 otherwise. The
+  fallback IS the p0 reference (learner offset dropped, `evaluation.py:76`), throws at p0's velocity, the ball
+  lands 0.35-0.39 m off, the other hand's catch adaptation moves ~0.16 m, the next plan deviates more
+  (q 0.81 -> 1.32 rad) -> vetoed again. explore2d_entropy juggled p0 for 69 throws (1306-1374) while the BO
+  thought it was at 0.204 / -0.291; window 22 scored as a clean (failed-verdict) observation.
+- [x] Fallback throws out of the planned motion cost (jrl lab/motion-only-bo 17776f2).
+- [ ] Executed cost, vel_err and the dispersion objectives still include fallback throws.
+- [ ] A fallback should be an INFEASIBILITY row (close the window like a drop, retreat), not data.
+- [ ] Stop the walk during a burst; ramp back so the first passing plan does not catch a ball 0.16 m away.
+- [ ] Bound the box by the guard envelope (offline map with pattern_landscape.py), or re-anchor the reference
+  along the walk after a geometry is verified. Do NOT just raise the 0.8 rad threshold (hardware safety).
+- [ ] `safety.strict_fallback: true` in sim explore runs: a loud failure instead of silent p0 juggling.
+- [ ] Separate: "Treating completed failed evaluation as dropped-ball condition ... throw 80" is logged on
+  every throw from ~80 on (2915 lines/run) -- looks like stale state.
+
+## Motion-cost BO: why the term was invisible, fixed (2026-10-05, jrl lab/motion-only-bo 17776f2, direct sim)
+
+The 10-03 motion GP had width lengthscale 0.011 and noise ~0 (explore2d_jerk_w15_b gp_noise_log): dropped
+motion rows carried the LOG-DET stderr (nats) for a cost of ~8000, unmeasured drops imputed the WORST motion
+(10188) on the shallow band where the plan is cheapest (~8030), fallback throws reported p0's cost. Fixed;
+plus opt-in convergence knobs (constrain gate, logged recommendation, exploit_after, acq_boundary_until).
+Pooled clean windows (492, all 2-D runs): along the shallow edge (travel -0.09..-0.135) jerk is lowest at
+width ~0.35, acc ~0.30, vel ~0.25-0.30; every term rises toward the deep-carry / narrow corner.
+- [ ] motion2d_{jerk,acc,vel} runs (4000 throws, launched 11:55) -- results into RESULTS_MOVEMENT.md.
+- [ ] lab/motion-only-bo is NOT pushed: the remote refused this session's ssh key (git push / fetch).
