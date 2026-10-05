@@ -1883,6 +1883,23 @@ Same hw025 gains: direct sim 7.55 -> 0.061 mrad (shipped 2.03), ROS-sim
   in the juggler (one-update delay); revisit with gamma ~0.25 if the arm
   needs faster convergence.
 
+## ILC first robot run 2026-10-05: 15 Hz growth + window-start runaway; periodic ILC (2026-10-05 evening)
+
+HARDWARE std__c3__pos_gate_s0 (ball: data/real/real_robot/ilc/, copy on Thales
+under .../_from_ball/), 8 attempts: tracking fell, but (1) a ~15 Hz component
+of u grew linearly in J1-J3 (left J1 1.3 -> 9.6 Nm / 31 updates) under the
+30 Hz 2nd-order Q while the 15 Hz error stayed ~0.4 mrad; (2) the cyclic
+slot's first knots ran to the 60 Nm clamp (62 Nm boundary step). jrl a0a8c6e:
+per-joint q_cutoff_hz + q_order, periodic ILC; start_taper_s for finite slots.
+Robot cell -> Q 10 Hz o4 on J1-J3 (30 on J4), periodic on cyclic, start taper
+50 ms on one-off slots. RESULTS_SIM_ILC_FLOOR.md section 7.
+- [x] ROS-sim validate the new cell: 6.63 -> 0.075 mrad (jrl 666a683; cell
+  now also has J1 lead 40 ms + start taper for the one-off slots).
+- [ ] Rerun c3 on the arm with the new cell; watch the 15 Hz band and u[0].
+- [ ] If the arm is stable at 10 Hz, try 12 Hz (sim: 0.116 -> 0.072 mrad).
+- [ ] The 50-60 ms J1 lag sets the usable bandwidth; a per-joint lead (J1
+  ~50 ms) might allow a higher J1 cutoff -- untested.
+
 ## ball_launcher reload_count is not honoured by jrl's cached ball count (review 2026-10-05)
 
 catkin_ws/src/ball_launcher gained set_reload_count (refill may load < 10),
