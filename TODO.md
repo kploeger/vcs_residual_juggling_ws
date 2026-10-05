@@ -1857,8 +1857,43 @@ velocity reversals), J4 ~3.
   ROS controller -- generic package, warn before changing.
 - [ ] Sim-only knob `JRL_FF_DISSIPATION_SCALE=0` is now the setting for any
   hardware-comparable sim claim; add it to the ILC/residual run sheets.
-- [ ] ILC floor on the Coulomb step: CoulombFriction hysteresis compensation
-  or a sharper Q-filter if ~2 mrad on the arm is not enough.
+- [x] ~~ILC floor on the Coulomb step~~ -- WRONG DIAGNOSIS, superseded
+  2026-10-05: the ~2 mrad floor was the learning law (moving-average Q-filter
+  + measured-velocity D term), not Coulomb friction -- it survives a
+  frictionless plant unchanged. See "ILC floor: learning-law defects" below.
+
+## ILC floor: learning-law defects, fixed; hardware run pending (2026-10-05, sim + ROS-sim)
+
+jrl main ab6f8b0 / 2dde3bc / e55eb4e, experiments/real_robot/ilc/
+RESULTS_SIM_ILC_FLOOR.md. Two defects floored ILC at ~2 mrad in a deterministic
+sim: (1) the 9-knot moving-average Q on the STORED profile ((I-Q)u* = QLe*);
+(2) the D term used dq_des - dq, whose velocity lags position (half a step in
+MuJoCo, differencing/filter on the arm) -> phantom kd*lag*ddq, fixed point
+e = (kd/kp)*lag*ddq. Fix: derivative_source: position + zero-phase Q 30 Hz.
+Same hw025 gains: direct sim 7.55 -> 0.061 mrad (shipped 2.03), ROS-sim
+7.03 -> 0.071 (shipped 1.45).
+- [ ] HARDWARE: run std__c3__hw025_lead020_pos_q30 (now first in run_order)
+  then std__c3__hw025_lead020 as the A/B control, --no-balls. Expect the
+  floor to be set by the arm's non-repeatable noise (0.85 mrad, 09-17 Q2).
+- [ ] Attempt-start transient: the first catch_and_throw of each attempt
+  inherits the once-per-attempt first_throw slots' handover (8.7 mrad /
+  218 mrad/s at t0). start_gate_factor (ilc.py) skips learning from it;
+  validation in progress -- add to the robot cell once it holds in ROS-sim.
+- [ ] Model-inverse law (ilc_ka) converges 2x faster in isolation but rings
+  in the juggler (one-update delay); revisit with gamma ~0.25 if the arm
+  needs faster convergence.
+
+## ball_launcher reload_count is not honoured by jrl's cached ball count (review 2026-10-05)
+
+catkin_ws/src/ball_launcher gained set_reload_count (refill may load < 10),
+but jrl's RosBallLauncher.refill() (environment/ros_env.py:3471-3480) still
+sets self._num_balls = 10 after every refill. The operator question that
+corrects it (_ask_balls_loaded_after_startup_refill, jugglers/launchers.py
+:806-816) is skipped under --autoapprove, so an autoapproved run with
+reload_count 5 schedules for 10 and dies on "Not enough balls loaded"
+mid-run. Found by the code-reviewer; not in the ILC thread, not fixed.
+- [ ] After a successful refill, read the node's real count
+  (query_num_balls_left / get_reload_count) instead of hardcoding 10.
 
 ## Movement-cost BO: the term is invisible behind entropy; refill catch adaptation unclamped (2026-10-03)
 
