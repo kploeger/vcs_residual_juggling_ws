@@ -1948,5 +1948,6 @@ motion rows carried the LOG-DET stderr (nats) for a cost of ~8000, unmeasured dr
 plus opt-in convergence knobs (constrain gate, logged recommendation, exploit_after, acq_boundary_until).
 Pooled clean windows (492, all 2-D runs): along the shallow edge (travel -0.09..-0.135) jerk is lowest at
 width ~0.35, acc ~0.30, vel ~0.25-0.30; every term rises toward the deep-carry / narrow corner.
-- [ ] motion2d_{jerk,acc,vel} runs (4000 throws, launched 11:55) -- results into RESULTS_MOVEMENT.md.
+- [x] motion2d_{jerk,acc,vel} runs: each converges to its own shallow-edge geometry (jerk ~0.39/-0.10
+  as a flat width band, acc 0.31/-0.10, vel 0.28/-0.09); jrl 074f61b RESULTS_MOVEMENT.md pass 3.
 - [ ] lab/motion-only-bo is NOT pushed: the remote refused this session's ssh key (git push / fetch).
