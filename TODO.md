@@ -1978,3 +1978,7 @@ the attempt pickles were not written. Not seen at 3000-8000 throws in the 10-03 
 RAM headroom?).
 - [ ] Find what the teardown holds (attempt record build / npz / pickling of the full ball+arm
   history?) and stream or cap it. Until then: budget ~8 GB per run_explore sim at its end.
+- It is ALSO growth during the run, not only teardown: the second map30 run (reduced box,
+  2400 throws) was at 4.3 GB RSS after 22 windows (~1400 throws), the tr_* runs at ~8 GB by
+  throw 2000. 4 such runs + other agents took Thales to 1 GB free (16:45). Matters on the
+  robot too: a 3000-throw hardware run would carry the same history.
