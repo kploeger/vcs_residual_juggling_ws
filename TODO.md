@@ -1895,7 +1895,14 @@ Robot cell -> Q 10 Hz o4 on J1-J3 (30 on J4), periodic on cyclic, start taper
 50 ms on one-off slots. RESULTS_SIM_ILC_FLOOR.md section 7.
 - [x] ROS-sim validate the new cell: 6.63 -> 0.075 mrad (jrl 666a683; cell
   now also has J1 lead 40 ms + start taper for the one-off slots).
-- [ ] Rerun c3 on the arm with the new cell; watch the 15 Hz band and u[0].
+- [ ] LAB DAY (planned 2026-10-08): manifest cell pos_gate_chain (jrl
+  dce6aa0+), c3 -> c4 -> c5, 30 x 30, WITH balls (ball errors logged for the
+  report). Command: ./status.py --target real && ./run_next.py --target real
+  (run dirs are NEW: std__c<n>__pos_gate_chain_s0; ball's
+  std__c3__pos_gate_s0 is the 10-05 old-setup run). Watch: J1 |u|_max creep
+  (wind-up hypothesis -- fix would be J1 decay < 1), a ripple in u growing
+  over attempts, RMS rising. Expected: 7.6 -> ~1 mrad (noise floor).
+- [x] superseded: rerun c3 with the 10-05 cell.
 - [ ] If the arm is stable at 10 Hz, try 12 Hz (sim: 0.116 -> 0.072 mrad).
 - [ ] The 50-60 ms J1 lag sets the usable bandwidth; a per-joint lead (J1
   ~50 ms) might allow a higher J1 cutoff -- untested.
