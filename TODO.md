@@ -1896,13 +1896,22 @@ Robot cell -> Q 10 Hz o4 on J1-J3 (30 on J4), periodic on cyclic, start taper
 - [x] ROS-sim validate the new cell: 6.63 -> 0.075 mrad (jrl 666a683; cell
   now also has J1 lead 40 ms + start taper for the one-off slots).
 - [ ] LAB DAY (planned 2026-10-08): manifest cell pos_gate_chain (jrl
-  dce6aa0+), c3 -> c4 -> c5, 30 x 30, WITH balls (ball errors logged for the
+  2d61159 scheduler), c3 -> c5 (c4 OUT, see next item), 30 x 30, WITH balls (ball errors logged for the
   report). Command: ./status.py --target real && ./run_next.py --target real
   (run dirs are NEW: std__c<n>__pos_gate_chain_s0; ball's
   std__c3__pos_gate_s0 is the 10-05 old-setup run). Watch: J1 |u|_max creep
   (wind-up hypothesis -- fix would be J1 decay < 1), a ripple in u growing
   over attempts, RMS rising. Expected: 7.6 -> ~1 mrad (noise floor).
 - [x] superseded: rerun c3 with the 10-05 cell.
+- [ ] Bank-mode (siteswap c4) ILC roles. The similarity bank gives EVERY key
+  the cyclic config and the chain is [throw_i..., catch_and_throw_<arm>], so in
+  c4 the key sequence right: throw_0 -> ssbeat_b2_right -> ssbank_right_i4_*,
+  left: throw_0 -> ssbank_left_ix_* -> ssbank_left_i4_* gets no step-free chain
+  or first-cycle skip, and ssbank_left_ix_p4_o4_t50_s0 runs periodic: True
+  while flying once per attempt (10 updates in 10 attempts, learner pickle of
+  the 10-07 c4 direct-sim run). A generalisation (e6a11c8/dce6aa0) was wrong
+  (code review 10-07) and reverted. Fix: decide periodic / chain roles from the
+  OBSERVED key repetition per attempt, not from the key name.
 - [ ] If the arm is stable at 10 Hz, try 12 Hz (sim: 0.116 -> 0.072 mrad).
 - [ ] The 50-60 ms J1 lag sets the usable bandwidth; a per-joint lead (J1
   ~50 ms) might allow a higher J1 cutoff -- untested.
