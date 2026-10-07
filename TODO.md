@@ -1968,3 +1968,13 @@ width ~0.35, acc ~0.30, vel ~0.25-0.30; every term rises toward the deep-carry /
 - [x] motion2d_{jerk,acc,vel} runs: each converges to its own shallow-edge geometry (jerk ~0.39/-0.10
   as a flat width band, acc 0.31/-0.10, vel 0.28/-0.09); jrl 074f61b RESULTS_MOVEMENT.md pass 3.
 - [ ] lab/motion-only-bo is NOT pushed: the remote refused this session's ssh key (git push / fetch).
+
+## Pattern-BO sim runs balloon to ~8 GB each in end-of-run teardown (2026-10-07, direct sim)
+
+tr_{vel,acc,jerk,entropy} (jrl lab/motion-only-bo, run_explore.py, 2000 throws) reached throw 2001,
+logged "Waiting for pattern to complete", then sat >8 min with no log output at ~8 GB RSS each
+(4 runs: RAM 60/62 GB, blocking another agent's sim) until killed. pattern_bo.json was complete;
+the attempt pickles were not written. Not seen at 3000-8000 throws in the 10-03 runs (different
+RAM headroom?).
+- [ ] Find what the teardown holds (attempt record build / npz / pickling of the full ball+arm
+  history?) and stream or cap it. Until then: budget ~8 GB per run_explore sim at its end.
