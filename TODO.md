@@ -1998,3 +1998,27 @@ RAM headroom?).
   2400 throws) was at 4.3 GB RSS after 22 windows (~1400 throws), the tr_* runs at ~8 GB by
   throw 2000. 4 such runs + other agents took Thales to 1 GB free (16:45). Matters on the
   robot too: a 3000-throw hardware run would carry the same history.
+
+## ROS-sim rehearsal of real_robot/motion_bo: three bugs found and fixed, two hazards left (2026-10-07)
+
+jrl lab/motion-only-bo (rebased on main 201133e, head 703041a; NOT pushed -- session SSH key refused).
+Logs: /retain/pattern_bo/motion_bo/{leakprobe*,clean_vel}.log, data/ros_sim/real_robot/motion_bo/.
+- [x] LEAK: RosJugglingEnvironment.plot_track_recording never closed the tracker figure when it
+  was not shown (unattended / autoapprove runs): ~500k matplotlib objects per attempt (gc census:
+  Bbox, Path, CompositeGenericTransform, CallbackRegistry), runner 10 GB in 12 min. Fixed 506238b
+  (close when not shown). Main still has it for unattended ROS runs with the track-viz plot on.
+- [x] RACE: kNN _propose_candidate read self.memory several times while tell() (another thread
+  under ROS) appended / trimmed -> crash "shapes (151,) (150,)" at an attempt's first ask, and
+  silently wrong neighbour indices otherwise. Fixed 12883e8 (one snapshot per ask). On main too.
+- [x] Throw-0 stalls: attempts died at throw 0 ("learner ask=564 ms"; the same ask is 2-4 ms
+  offline) once the runner had grown. timing.first_throw_lead (5a573e8, default 0); motion_bo uses
+  1.0 s. The clean rehearsal with it + the fixes: no throw-0 stall, no late start.
+- [ ] Explore-mode attempts still end on single timing events: a 7.5 ms SEND DEADLINE miss at throw
+  241 (clean_vel attempt 2), deadline misses during drop flurries (floor detection + evaluation
+  fallbacks + refills overrun the slack; throw 372 of the vel run). With JRL_ROS_STRICT=0 that ends
+  the attempt, not the run -- but every new attempt restarts the walk at the shipped geometry.
+- [ ] Explore attempts record ~200-400k tracker measurements each (400 Hz, several tracks incl.
+  floor balls); the end-of-attempt plot of them is off in motion_bo (no_track_viz_plot) but other
+  long unattended studies pay seconds and GBs per attempt end.
+- Lesson: an in-process gc.get_objects() census thread caused deadline misses itself; don't time
+  ROS runs with heavy instrumentation in-process.
