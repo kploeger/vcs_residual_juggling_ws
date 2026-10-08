@@ -497,3 +497,57 @@ tolerance question first.
 **Why deferred.** Not in the path of the current chain work; `ikin` is shared
 generic code (`trajectory_planning`), so the decision belongs with whoever
 touched the limit fading.
+
+---
+
+## The QUALIFY outward bias is probably discarded on the learner's first ask
+
+**Where:** `juggling_residual_learning/juggling_residual_learning/jugglers/siteswap_juggler.py:1071`
+(`SiteswapJuggler._qualify_initial_offset`), consumed at
+`jugglers/evaluation.py:184-186`, defeated at
+`learners/newton_raphson.py:446-508`.
+
+`_qualify_initial_offset` seeds the qualify learners of an EVEN-ball siteswap
+outward (`+-0.1 m/s` in y) so the two-arm fountain does not collapse into a
+column. It delivers that seed as a constructor `initial_offset`, which lands
+in `last_velocity_offset`.
+
+Newton's `_propose_candidate` then does this on the learner's FIRST ask:
+
+```python
+should_query_previous = (self.use_previous_initial
+                         and self.previous_learner is not None
+                         and (self.ask_counter == 0 or ...))
+...
+self.last_velocity_offset = prev_offset.copy()
+```
+
+`LearnerCfg.use_previous_initial` defaults to **True** (`learners/_cfg_base.py:180`)
+and `previous_learner` is whatever `_find_previous_arm_learner` registered last
+on that arm. So for every qualify learner that is not the first one built for
+its arm -- `catch_and_throw_<arm>`, `throw_1_<arm>`, ... -- the outward bias is
+overwritten by an unrelated key's offset before `compute_next_offset` runs.
+The FIRST learner of each arm (`throw_0_<arm>`) has no predecessor and keeps
+its bias, which is why the effect is partial and easy to miss.
+
+This is the same mechanism recorded in `learners/base.py:219-246`, where it
+made every `pattern.learner_init` strategy numerically identical (5640
+commanded offsets, zero differing between `hybrid` and `zero`) until
+`warm_start_with` started setting `use_previous_initial = False`. Pickling
+drops `previous_learner`, so a saved run cannot show it -- it has to be caught
+live.
+
+**Proposed fix:** route the qualify seed through the same claim the per-key
+reload uses -- `SiteswapJuggler._claim_reloaded_offset` on `lab/freeze-reload`
+calls `learner.warm_start_with(offset)` and clears `use_previous_initial` --
+or set `use_previous_initial=False` on any learner constructed with an
+explicit `initial_offset`.
+
+**Why deferred:** it changes the commanded offsets of every even-ball siteswap
+run that has a qualify prologue, i.e. it moves recorded numbers, and we are in
+the pre-real-robot phase where defaults stay put. `lab/freeze-reload` fixed it
+only for keys named by `pattern.initial_offsets_file`, which is opt-in and
+therefore a no-op by default. Confirm with a LIVE run before changing it.
+
+*(Noticed 2026-09-15 while building the per-key freeze/reload; the reload hit
+the identical bug and the fix is in `siteswap_juggler._claim_reloaded_offset`.)*
