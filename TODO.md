@@ -1896,7 +1896,8 @@ Robot cell -> Q 10 Hz o4 on J1-J3 (30 on J4), periodic on cyclic, start taper
 - [x] ROS-sim validate the new cell: 6.63 -> 0.075 mrad (jrl 666a683; cell
   now also has J1 lead 40 ms + start taper for the one-off slots).
 - [ ] LAB DAY (planned 2026-10-08): manifest cell pos_gate_chain (jrl
-  2d61159 scheduler), c3 -> c5 (c4 OUT, see next item), 30 x 30, WITH balls (ball errors logged for the
+  2d61159 scheduler), c3 -> c5 (c4 OUT, see next item), 30 x 30, NO BALLS for now (manifest common.no_balls: true, 10-08, debugging on the
+  arm; set false to go back to WITH balls -- ball errors logged for the
   report). Command: ./status.py --target real && ./run_next.py --target real
   (run dirs are NEW: std__c<n>__pos_gate_chain_s0; ball's
   std__c3__pos_gate_s0 is the 10-05 old-setup run). Watch: J1 |u|_max creep
