@@ -2034,3 +2034,13 @@ Logs: /retain/pattern_bo/motion_bo/{leakprobe*,clean_vel}.log, data/ros_sim/real
   from a 10-ball magazine with no pause; the ROS-sim run `ros_mag.log` paused
   correctly after 10+10. Fixing it changes every direct-sim run that uses
   `magazine_source: launcher` (they would start pausing) -- decide first.
+
+## Real-robot drop / success numbers use a floor rule that misses arm drops (2026-10-08)
+
+- [ ] Decide the drop rule for ARM data in the evaluation pipeline.
+  - `experiments/analysis/success_recompute.py` `recompute_attempt_success` calls a ball dropped when its tracked z < 0.2 m. On the arm, a lost ball's recorded state is parked at the nominal catch point or follows the planned arc (z 0.54-0.98 m), so it never fires.
+  - Evidence, data/real/real_robot/ilc/std__c3__pos_gate_chain_s0: the floor rule finds 0 third drops in 20 attempts. The throw records (flight_loss_times: landing of a ball's last measured flight) show 13/20 attempts losing all three balls, and 7/20 with one ball measured on all 10 of its throws (sub-mm fit residuals).
+  - Consumers that inherit the floor rule on `--env real`: plots/extract.py (recomputed_success, n_dropped, first_drop_time), make_tables.py (succ_all / succ_pw / streak), compute_catch_outcomes, plots/catches.py, plots/compare.py. Real-robot success rates, drop counts and catch rates from these are likely biased towards success.
+  - Option: a `drop_rule="flights"` mode in recompute_attempt_success, used for env=real. It changes every real-robot number in evaluations/, so it is Kai's call.
+  - Caveats of the flight rule: a tracker dropout reads as a loss, and a ball_id reused by a mid-attempt refill would mix two balls.
+
