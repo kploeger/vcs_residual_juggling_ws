@@ -2023,3 +2023,14 @@ Logs: /retain/pattern_bo/motion_bo/{leakprobe*,clean_vel}.log, data/ros_sim/real
   long unattended studies pay seconds and GBs per attempt end.
 - Lesson: an in-process gc.get_objects() census thread caused deadline misses itself; don't time
   ROS runs with heavy instrumentation in-process.
+
+- **Direct-MuJoCo launcher never counts its launches** (found 2026-10-08,
+  TLL_bumblebee). `MuJoCoBallLauncher._balls_launched_counter` is reset but
+  never incremented (`environment/mj_env.py` ~2454-2560; the ROS-sim launcher
+  does it at `ros_env.py:3266`), so `num_balls_left` stays at the magazine
+  size forever: `refill.magazine_source: launcher` can never pause in direct
+  sim, and magazine logic is only testable in the ROS sim. Evidence: direct
+  run `/retain/pattern_bo/refill_debug/mag_both.log`, ~25 right-arm refills
+  from a 10-ball magazine with no pause; the ROS-sim run `ros_mag.log` paused
+  correctly after 10+10. Fixing it changes every direct-sim run that uses
+  `magazine_source: launcher` (they would start pausing) -- decide first.
