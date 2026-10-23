@@ -732,6 +732,30 @@ code and the data* that would otherwise be lost between sessions.
   turning on for hardware runs if someone confirms the cache directory
   survives between them.
 
+- **Greedy ball-ball collision avoidance on the random sequence, then repeat
+  coverage and success with collisions ON.** (Kai, 2026-10-23.) The clearance
+  machinery exists but only for STEADY patterns: `patterns/ball_clearance.py`
+  has the exact closest approach of two free-flight balls
+  (`min_separation_from_state`, linear relative motion under equal gravity)
+  and `SteadyPatternClearance`, the minimum centre distance over every pair in
+  flight, built from the juggler's own nominal beats to reject BO suggestions
+  below 2*r_ball+3cm (Kai, 2026-10-10). A RANDOM siteswap sequence is not
+  steady, so none of that applies to it, and nothing plans around a predicted
+  ball-ball contact beat by beat. After the fact it is only DETECTED, from the
+  velocity step across a fitted ballistic arc (`jugglers/ball_collisions.py`).
+  The physics is off too: `ball_ball_collisions` defaults to off
+  (`jugglers/config.py:269`, `utils/plant_randomisation.py:148`) and the ball
+  geom class ships `contype=1 conaffinity=0`, so MuJoCo never collides two
+  balls (`jugglers/ball_collisions.py:310-313`); `drop_detection.py:366`
+  already flags a measurement that means something else with collisions off.
+  EVIDENCE GAP THIS CREATES: every coverage and success number from the random
+  sequences was measured in a world where balls pass through each other, so a
+  pattern counted as reached may be unreachable with contact enabled. Want: a
+  greedy per-throw avoidance layer over the random sequence (greedy because
+  the sequence is generated beat by beat, so the choice can be made per throw
+  rather than over the whole pattern), then re-run coverage and success with
+  `--ball-ball-collisions` and compare against the collisions-off numbers.
+
 ---
 
 ### 2026-09-11 — AOT compile, plant DR, second robot_description checkout
