@@ -755,6 +755,13 @@ code and the data* that would otherwise be lost between sessions.
   the sequence is generated beat by beat, so the choice can be made per throw
   rather than over the whole pattern), then re-run coverage and success with
   `--ball-ball-collisions` and compare against the collisions-off numbers.
+  ASSIGNED to TLL_siteswaps 2026-10-23 18:09, split in two: phase 1 is a
+  zero-drop random siteswap graph walk with collisions OFF over some
+  throw-height range at some cycle time (acceptance is not a single dropped
+  ball, not a success rate, because no drop with collisions on can be
+  attributed to a collision until the collisions-off baseline is clean);
+  phase 2 is the greedy/online layer above. Target range still to be chosen
+  and reported back.
 
 ---
 
