@@ -592,6 +592,25 @@ code and the data* that would otherwise be lost between sessions.
   flow entry. Measured cost of that in random walks: 12/75 first solves
   Restoration_Failed on the ideal plant (README experiments/random_walk). Not
   tested on a cyclic pattern.
+- [ ] **Rolling warm starts are banked whether or not the solve converged.**
+  (2026-10-28, from mix48 s13.) `juggle_planning/planner.py`
+  `plan_catch_and_stop_trajectory` (`if store_warm_start and is_safe:
+  config.warm_starts[ws_key] = ...last_solution`, ~line 2640) and the same line
+  in the catch-and-throw path (~1816) store the last solution as the key's
+  next seed on `is_safe` alone. Only the SolutionCache put (~1833) is gated on
+  convergence and the multiplier. catch_and_throw mostly seeds from the cache,
+  but catch_and_stop has no cache, so an unconverged held-2 catch becomes the
+  next held-2 catch's seed. Strict mode stops at the first unconverged solve,
+  so random walks are unaffected; non-strict runs (ROS, robot) are not. Fix:
+  gate both rolling stores on stats success and not Maximum_Iterations_Exceeded
+  (same test as the cache). Left alone because it changes non-strict
+  behaviour under other sessions' runs.
+- [ ] **Cyclic held 2 out of a 0 has no rest seed either.** (2026-10-28.) The
+  walk fix cf54ccb (branch hold-rest-seed) covers held 2s OUTSIDE a cyclic
+  segment. In a cyclic segment the held-2 catch rolls on ("stop_after", idx),
+  and `_create_warm_starts` plans that key only after a slot with a
+  catch-and-throw reference, so a slot after a 0 has no entry and takes a
+  donor. Untested; no cyclic pattern with a held 2 after a 0 in use.
 
 - [x] **LAUNCH TIME: planner snapshot + in-place solver swap (2026-09-13
   15:00, juggling 66fb6b6/11c4896, trajectory_planning e899a81/094ea61).**
