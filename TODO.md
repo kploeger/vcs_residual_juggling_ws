@@ -577,6 +577,22 @@ code and the data* that would otherwise be lost between sessions.
 
 ### Planning
 
+- [ ] **A tossed 0 is the held-0 rest cycle: implement the empty-handed toss.**
+  (2026-10-27, random-walk session; Kai: "we should do both tossed and held for
+  both 0s and 2s".) `jrl/jugglers/throw_kinds.py:55-59`: TOSS_NO_BALL executes
+  the same rest cycle as REST_NO_BALL (ends_at_rest=True), so every "tossed 0" in
+  every run so far was a hold. Needs a decision from Kai on the motion (e.g. the
+  hand keeps its catch/throw cycle with no ball), then a no-ball NLP key and
+  ends_at_rest=False, and the catch after it is then a flowing catch again.
+- [ ] **Cyclic warm-start double-pass still chains a moving end state through a
+  rest.** (2026-10-27, from the px-seeding fix c25dedd.) `_create_warm_starts`
+  in `jrl/jugglers/siteswap_juggler.py` (cyclic loop after the transition walk)
+  has the chaining the fix removed from the transition walk; on a single-tempo
+  CYCLIC pattern with 0s (e.g. 504) the first catch out of a 0 then seeds from a
+  flow entry. Measured cost of that in random walks: 12/75 first solves
+  Restoration_Failed on the ideal plant (README experiments/random_walk). Not
+  tested on a cyclic pattern.
+
 - [x] **LAUNCH TIME: planner snapshot + in-place solver swap (2026-09-13
   15:00, juggling 66fb6b6/11c4896, trajectory_planning e899a81/094ea61).**
   Kai: ready in under 10 s from disk. Before: ~75 s on the chain (24 s NLP
