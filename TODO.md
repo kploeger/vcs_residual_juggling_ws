@@ -716,7 +716,11 @@ code and the data* that would otherwise be lost between sessions.
   started 17.7 units away (28 iterations). Evidence in
   /retain/random_walk/cache_probe.py on
   /retain/tp_seed_cache/seeds_9bb381ed91913c7d36124f1cc728889e.pkl. This
-  changes the seeds of every run, robot included.
+  changes the seeds of every key whose old budget overflowed (random walks,
+  robot and transition chains); plain cascades are unchanged. The review of
+  1bfdfb8 found the seed-file LOAD path re-truncating such payloads to the
+  cfg capacity, construction entries first. That is fixed in the follow-up
+  commit.
 - [ ] **Robot (multi-tempo) chains: the live cyclic-slot references are planned
   at the slot's FIRST occurrence.** (2026-10-28, code review of eb74ee5,
   verified.) With more than one chain duration `_tempo_key_for_throw`
