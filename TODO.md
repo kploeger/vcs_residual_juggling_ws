@@ -569,6 +569,14 @@ code and the data* that would otherwise be lost between sessions.
   warning names throw, flight, samples and best attempt, and a
   fallback-anchor label warns on its own. The rerun waits for a sim slot
   (mix48i/mix48j run on 1bfdfb8, which predates the logging).
+  ANSWERED 2026-10-28 19:35 (unbounded online walk with the logging,
+  /retain/random_walk/online_rssfix.log, 1741 throws, no floor drop): the
+  failing flights are the TOSSED 2s (0.22 s). 15 of 43 got no usable fit at
+  all ("no ballistic flight could be fitted in the window", cost 1000, the
+  candidate is cancelled, so that learner gets no data). Others fell back to
+  'early' ("late-anchor ... no window of >= 3 samples after the peak"). Same
+  throw 130 miss on the 210-throw s43 runs. Every miss was a tossed 2; no
+  other value failed.
 
 
 ### Process
