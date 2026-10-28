@@ -950,7 +950,9 @@ code and the data* that would otherwise be lost between sessions.
       knots are NOT the cause; the margin is. CORRECTION to the mechanism
       line above: the coasting through the catch is the lateral bound
       acting around touchdown, not the k 12..14 window.
-    - mix48s (FUNNELS ONLY, shipped carry): 8/8 finished walks clean so far.
+    - mix48s (FUNNELS ONLY, shipped carry): 12/12 clean. Iterations median 5
+      (mix48q 6), p90 8, p99 20, max 23 as mix48q; >= 15: 44 vs 39. The exact
+      funnels alone are fine on every walk.
     - mix48t (ALL EXACT, carry margin 1.0 / launcher 3.0): 0/5 finished
       walks so far. Every failure is a 3 (cost ~1.76, the same value in
       every walk: i3_p7_o3, i6_p3_o3, i7_p7_o3, i6_p6_o3), then that ball's
