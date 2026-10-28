@@ -983,6 +983,31 @@ code and the data* that would otherwise be lost between sessions.
       deg faces) with dense knots on s43: also 212/212, no costly throw,
       iterations mean 5.06 vs 4.89 (faces), NLP ms p90 12.7 vs 14.0: equal
       for practical purposes. The knots matter, the fit does not.
+    - MIX48V: ALL EXACT WORKS ON THE 12 WALKS (2026-10-29 00:40). Overlay
+      exact_overlays/allm1dense_all.yaml (carry contact_force_cone a_margin
+      1.0 / launcher 3.0 in catch_and_throw and first_throw, pre/post
+      funnels faces-fit at their cones' angles, post_takeoff_funnel k 1..5
+      hand-edited in), code wt_exact / wt_jp_exact (all of it in jrl main
+      and jp master; the worktree heads are local merges). 12/12, 2551
+      solves, no guard fallback, no planning failure. vs mix48q (shipped,
+      same walks): iterations median 5 vs 6, p90 8 both, p99 17 vs 20, max
+      25 vs 23, >= 15: 52 vs 39. NLP ms median 7.7 vs 7.5, p90 11.3 vs 9.7,
+      p99 17.4 vs 13.6, max 32.2 vs 20.2.
+    - THE TOSSED 2s COME GOOD UNDER THE EXACT CARRY. Throw cost over the 12
+      walks: mix48q median 0.0060, p99 0.142, 43 throws above 0.05 and 18
+      failed evaluations (cost 1000); mix48v median 0.0054, p99 0.0115, max
+      0.019, none above 0.05. Every costly mix48q throw is an outgoing
+      tossed 2 (_o2_; 53 of them: median 0.10 -> 0.003). s43 ablations:
+      carry m1 alone (abl_carrym1) fixes them (o2 median 0.003), funnels
+      alone (abl_funnels) do not (0.071). So it is the carry cone at margin
+      1.0 replacing min_tool_normal_acc. The late anchor still fails on
+      every tossed 2 in mix48v (s43/s0/s8: 5/3/4, as the late-anchor entry
+      above predicts), but the 'early' fallback now fits each one ("no
+      ballistic flight could be fitted": 0 vs 6 on those seeds in mix48q),
+      at low cost. So the early-fallback failures in that entry most likely
+      come from how min_tool_normal_acc throws a tossed 2, not from the fit
+      (inference; the ball's contact with the cup after release was not
+      checked, these runs keep no recording).
   - Steps, each a short A/B against mix48m (12 seeds; use shorter walks for
     iteration): (a) bucket the pool by override signature; (b) seed only from
     the pool; (c) enumeration seeding for random walks, disk-cached;
