@@ -844,7 +844,15 @@ code and the data* that would otherwise be lost between sessions.
     mix48q changes ~1/3 of solves per seed, mean shift ~0, range -7..+5);
     jrl suite on 5d9a831 5033 passed. jp master -> 62380c6, jrl main and
     random-walk-baseline -> 5d9a831 (fast-forwards). Review of the pool
-    commits running. Held-2-from-rest seeds:
+    commits running. REVIEW FIXES LANDED 22:05 (jp master 82774df, jrl main
+    f9a87e5, jrl suite 5038 passed, jp 213): walk seeding records slot points
+    again (the robot default had lost them since 72df293);
+    per_slot_warm_starts defaults to True again (the IK guess store shares
+    the warm-start key, so pool-only rolls one IK guess across slots).
+    The random-walk configs set false. OPEN: give the IK store its own
+    per-slot key (jp planner + solver worker), then check a robot-default
+    chain for guard vetoes before pool-only can be the default.
+    Held-2-from-rest seeds:
     deferred, low value. Online s43 catch_and_stop solves took 8-15
     iterations without them.
     GENERAL CONE IN THE DIRECT SIM (Kai's daily note: "reruns to use general
