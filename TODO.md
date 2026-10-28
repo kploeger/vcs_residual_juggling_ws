@@ -1146,6 +1146,19 @@ code and the data* that would otherwise be lost between sessions.
   +-12 cm 0.0 / 0.0, with ~25% of throws off the nominal plane. Crossing
   flights must sit >= 1 D apart in x, so small offsets do nothing. Open: is
   +-9-12 cm in x reachable on the WAM, and at what cost to the solves?
+  UNDER ALL EXACT CONSTRAINTS (mix48v, 2026-10-29 00:45): 346 contacts in
+  2340 throws (14.8/100), the same pairs; planned vs measured 346 both,
+  separation measured - planned median +0.4 mm, |.| p90 5.6 mm. Every one is
+  below 0.6 D (one vertical plane). /retain/random_walk/contacts_mix48v.json.
+  IN THE SIM NEXT (jrl x-offset-walks e3b85e3): experiments/random_walk/
+  gen_x_offsets.py writes the greedy x offsets into the run's
+  chain_beat_overrides (throw_offset_delta on the release beat,
+  catch_offset_delta on the landing beat; only flights inside the walk
+  segment move). s43 at +-12 cm / 1.5 D: 38 of 132 movable flights moved,
+  nominal contacts 30 -> 1. Smoke xo12 (all exact + offsets, wt_exact code,
+  /retain/random_walk/batch54_smoke.sh) answers the planner and plant side
+  of "reachable" (WAM model limits, strict mode); the real robot's
+  workspace is still Kai's call.
 - [ ] **Ball count as a difficulty axis.** (Kai, 2026-10-28: "We may do both.
   Especially for trying ball-ball collision planning we may want to ablate
   difficulty over ball numbers.") 5 balls stays the random-walk baseline.
