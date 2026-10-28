@@ -740,7 +740,11 @@ code and the data* that would otherwise be lost between sessions.
   jrl experiments/random_walk/README.md "Tossed-2 catches without the relaxed
   threshold". The juggle_planning branch own-seed-competes (b1a5543) is
   superseded: with every healthy solve cached it is redundant, and it missed
-  the cyclic entry beats. Delete it once mix48m confirms.
+  the cyclic entry beats. Left on origin as a record, not merged. STILL
+  OPEN: the 1e10 gate is global, but only random walks were surveyed.
+  Survey the robot chains' construction solves (/retain/random_walk/degen5.py
+  pattern) before the next robot session. Multipliers are now recorded per
+  attempt and named above 1e9 (946bbb4).
 - [ ] **The degeneracy gate is a magnitude test standing in for a
   constraint-qualification check.** Warning part DONE and merged (a0325f4). (2026-10-28.) Healthy multipliers reach
   1.3e8 (a tossed 2 thrown as a 7, cone at 50 ms), while the failure it was
