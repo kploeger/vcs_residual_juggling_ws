@@ -872,6 +872,11 @@ code and the data* that would otherwise be lost between sessions.
     beats (key None) and runtime replans (catch_pipeline.py:730 passes no
     key and stores, so each replan NLP rolls ONE IK guess in every mode,
     per-slot included). jp ik-slot-key must reach jp master before jrl's.
+    MERGED 2026-10-29 01:00: mix48u 12/12 clean (strict_summary), iterations
+    median 6 / p90 8 / p99 20 / max 23 as mix48q, 712 of 2551 solves differ.
+    jp master -> 36eedc1 (fast-forward, jp suite 218 passed), jrl main ->
+    2b4c9f9 (ik-slot-key + main 80f142d; full suite on the pre-80f142d merge
+    2569980: 5042 passed, 13 skipped, 1 xfailed; on 2b4c9f9 running).
     Held-2-from-rest seeds:
     deferred, low value. Online s43 catch_and_stop solves took 8-15
     iterations without them.
