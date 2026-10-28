@@ -550,6 +550,22 @@ code and the data* that would otherwise be lost between sessions.
   hardware stream in any analysis. (Also note `confidence` in the recorded
   dicts is the OptiTrack marker SIZE — `ros_publisher_impl.hpp:274`.)
 
+- [ ] **The late-anchor parabola fit fails ~3x per walk on the IDEAL plant.**
+  (2026-10-28, random-walk session.) "late-anchor fit failed RMSE threshold"
+  (`jrl/juggling_residual_learning/label_generator.py:644`) fires 159 times
+  over the 48 mix48d walks (mix48: 148; ~213 throws each), with no tracker
+  noise and no ball-ball contact. When it fires, the label generator falls
+  back to the learner's `fallback_anchor` (default "early", e.g.
+  `learners/noop.py:41`); no "early-anchor ..." warning appears in any of the
+  48 logs, so those throws were most likely labelled from the release-side
+  fit, a different label definition from the touchdown fit the rest get. A
+  noop learner ignores labels, so no phase-1 result depends on it; a learning
+  run on the same chains would mix the two label kinds without saying so.
+  The log line names no ball or throw, so which flights fail (held 2s? short
+  flights? the observation window reaching into the hand contact?) is
+  unknown. First step: log the throw id, n_points and the best rmse with the
+  warning, plus which anchor produced the label, then rerun one walk.
+
 
 ### Process
 
