@@ -630,10 +630,13 @@ code and the data* that would otherwise be lost between sessions.
 - [ ] **The 2-hop catch (a tossed 2 caught and thrown on) is the whole
   iteration tail, and it is never cached.** (2026-10-28, mix48d analysis;
   numbers and probes in jrl `experiments/random_walk/README.md`, "The whole
-  iteration tail is the 2-hop catch".) mix48d: 309 2-hop catches, median 21
-  IPOPT iterations, max 31, 12 at >= 30; all 6 249 other catch-and-throws:
-  median 7, max 25, none at 30. They are also 77 of the 126 "Slow planning"
-  warnings (> 25 ms). Every 2-hop solve, seed or online, has max|lam_g|
+  iteration tail is the 2-hop catch".) mix48d, 48 walks: 153 tossed-2
+  catches, median 24 IPOPT iterations, max 31, 12 at >= 30; all 8 649 other
+  ssbank catch-and-throws: median 6, max 25, none at 30. They are also 75 of
+  the 126 "Slow planning" warnings (> 25 ms). (Corrected 2026-10-28: the
+  first version, "309 2-hop catches, median 21", pooled the throws out of a
+  HELD 2, which share the `i2_p2` key but are from-rest throws: n 156,
+  median 14, max 23.) Every 2-hop solve, seed or online, has max|lam_g|
   4e7-8e7 on the pre-touchdown cone (ball 2.7 / 6.2 cm from the cup at the
   20 / 50 ms points, 40 deg off vertical), so the cache's degenerate gate
   (`juggle_planning/planner.py:1852`, 5e6) drops all of them and each 2-hop is
@@ -646,8 +649,52 @@ code and the data* that would otherwise be lost between sessions.
   mixed, needs a batch); (b) reformulate the cone for a ball that close (e.g. a
   "ball over the cup" position condition instead of an angle at 2.7 cm); (c)
   hold 2s on the robot (held-2 catches out of the move: median 9-10, max 18 in
-  mix48). Until then the incoming-ball term stays off by default: it helps
-  every other catch (p90 13 -> 10) but pushes some 2-hops from 28-29 to 30-31.
+  mix48; the throw out of the hold then costs median 14, max 23). Until then
+  the incoming-ball term stays off by default: it helps every other catch
+  (p90 11 -> 9) but pushes some 2-hops from 28-29 to 30-31.
+  **(a) measured, mix48g (2026-10-28, 12 seeds, gate 1.5e8 via
+  /retain/random_walk/gate_1p5e8.yaml): 12/12 clean**, tossed-2 median 24 ->
+  9, p90 30 -> 10, >= 30: 10 -> 1; 40 of 49 went to 8-10. Other catches
+  mean 6.58 -> 6.82 (max 20 both). "Slow planning" 38 -> 14. No
+  Restoration_Failed. The three solves still near the cap lack a seed target
+  (next two items), not a cached solve.
+- [ ] **Seed-target dedupe ignores the start velocity.** (2026-10-28, slot
+  dumps /retain/random_walk/slot_dump_s{0,29,43}.pkl.) `_slot_seed_targets`
+  (jrl planner_bank.py:1379) keys a target on (x_catch, t_catch, dx_throw,
+  rest/flow, ball) and keeps the first slot per key in str-sorted order, so
+  flow slots that differ only in dq_start collapse. s0: the 2-hop
+  ('trans', 137), |dq| 3.87, merged into the cyclic ('slot', 0) record,
+  |dq| 9.66; it was never seeded, and online it took 30 iterations from a
+  17.9-unit entry in both mix48d and mix48g. s29 throw 118: same, 26. s43
+  right: trans 34 and 50 (|dq| 7.89) were merged into slot 0 (9.66). Adding
+  dq to the key (rounded to 0.1-1 rad/s, the count barely changes) takes
+  the targets 55 -> 100 (s0), 59 -> 103 (s29), 62 -> 103 (s43). That is
+  about twice the seeding time (s43 13.6 s now).
+- [ ] **The cyclic slot's warm start is planned for the wrong ball, and the
+  cyclic entry beat has no seed.** (2026-10-28.) jrl
+  `siteswap_juggler.py:_create_warm_starts` plans each cyclic slot from the
+  steady-state start, with the steady-state occurrence's overrides and
+  catch test (`n_prefix + idx + period`, see the "STEADY-STATE context"
+  comment). The incoming ball, though, comes from the FIRST occurrence
+  (`_nominal_incoming_velocity(n_prefix + idx)`, :2061; the stop reference
+  does the same at :2125). After a random walk that ball is whatever the
+  walk's tail threw: s0 left slot 0 and s29 right slot 1 get a 2-hop ball at
+  |dq| 9.66, which no beat visits. That stores the slot's warm start and
+  safety reference at that ball and gives the cyclic slot a fake seed target
+  (which then absorbs real 2-hop targets via the item above). One period
+  later (the occurrence the overrides use) the source can still be a
+  transition throw: s0 beat 161 receives the 7 from beat 154. Fully steady
+  only at s0 beat 165. Separately, the first occurrence itself, a real
+  transitional catch from the transition's end state (s41 b159: the walk's
+  last 2, caught straight out of the 2's release), is planned by neither
+  walk. It took 30
+  iterations from 17.8 units away in mix48d and mix48g; mix48d s0 b159 took
+  28. Fix candidates: give the ball (and overrides) a fully steady
+  occurrence (source and prev both inside the cyclic block); continue the
+  transition walk through the cyclic block's first pass to record the entry
+  beats as seed targets. Check the robot chains first: their tail
+  segment's first cyclic ball also comes from the previous segment (645 ->
+  5).
 
 - [x] **LAUNCH TIME: planner snapshot + in-place solver swap (2026-09-13
   15:00, juggling 66fb6b6/11c4896, trajectory_planning e899a81/094ea61).**
