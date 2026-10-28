@@ -855,6 +855,27 @@ code and the data* that would otherwise be lost between sessions.
     (harmless on direct MuJoCo, which does not gate on wall time). Logs:
     /retain/random_walk/online_{cone,nocone}_s43.log. A full A/B on the 12
     seeds is the next step once the merge batches are through.
+    ALL EXACT CONSTRAINTS (Kai, 2026-10-28 21:00: "use all of them in the
+    random siteswap sequence sim work"). Overlay /retain/random_walk/
+    exact_overlays/all.yaml, from contact_force_cone_ab.py --carry cone
+    --ball-cones funnel (jrl funnel-cone-angles b3c01c2;
+    exact_overlay_gen.sh). The body is identical for s43 and s0, so one file
+    serves the 12 walks:
+    - catch_and_throw: carry contact_force_cone (square, slope 24, k 12..25,
+      a_margin 4.23), pre_touchdown_funnel and post_takeoff_funnel at their
+      cones' own angles (pre 5 deg, post 15 deg, clearance 0); the round
+      cones and min_tool_normal_acc are off.
+    - catch_and_stop: both funnels (cyclic_stop inherits them).
+    - first_throw: carry contact_force_cone (k 1..25, a_margin 2.54).
+      cyclic_from_rest (every throw out of a 0 or a held 2) is built from
+      first_throw's constraints.
+    - Knots as shipped (post funnel k [2]). TLL: dense k 1..5 kept the walls
+      off the ball in their replay test; that is a follow-up arm.
+    Code: jrl exact-cones-run 140dfb9 (integrate-pools-2 + TLL
+    funnel-cone-angles), jp exact-cones-run a6e7760 (integrate-buckets-2 +
+    e9c9cde). Smoke s43 running. The 12-seed mix48r is queued after mix48q
+    (the shipped arm). Check the shipped arm on the new code (s43 throw for
+    throw vs mix48q) before reading mix48r.
   - Steps, each a short A/B against mix48m (12 seeds; use shorter walks for
     iteration): (a) bucket the pool by override signature; (b) seed only from
     the pool; (c) enumeration seeding for random walks, disk-cached;
