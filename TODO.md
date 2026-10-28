@@ -597,7 +597,11 @@ code and the data* that would otherwise be lost between sessions.
 
 ### Planning
 
-- [ ] **A tossed 0 is the held-0 rest cycle: implement the empty-handed toss.**
+- [x] **A tossed 0 is the held-0 rest cycle: implement the empty-handed toss.**
+  DROPPED (Kai, 2026-10-28 10:05): "let's only keep the held 0s", so there
+  is no stand-in motion to invent, and two versions (held/tossed 2) instead
+  of four. Random walks hold every 0 (jrl experiments/random_walk/gen_modes.py).
+  TOSS_NO_BALL stays as it is.
   (2026-10-27, random-walk session; Kai: "we should do both tossed and held for
   both 0s and 2s".) `jrl/jugglers/throw_kinds.py:55-59`: TOSS_NO_BALL executes
   the same rest cycle as REST_NO_BALL (ends_at_rest=True), so every "tossed 0" in
