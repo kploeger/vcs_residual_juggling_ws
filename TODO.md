@@ -968,6 +968,14 @@ code and the data* that would otherwise be lost between sessions.
   clear 1 D and leave 11.1/100 below 1.5 D. => Phase 2 has to plan geometry
   (per-throw throw/catch points, timing within the dwell), not just the
   sequence. Kai's call which levers are in scope.
+  PER-THROW GEOMETRY WORKS IN THE MODEL (2026-10-28 20:05, ad hoc
+  /retain/random_walk/_xgreedy.py, same 12 uniform walks, walk unchanged):
+  each flight greedily takes the smallest x offset (throw and catch, 5
+  levels) that clears the earlier flights by 1.5 D. Contacts at 1 D / below
+  1.5 D per 100: +-3 cm 17.7 / 25.7, +-6 cm 15.8 / 20.5, +-9 cm 0.0 / 15.9,
+  +-12 cm 0.0 / 0.0, with ~25% of throws off the nominal plane. Crossing
+  flights must sit >= 1 D apart in x, so small offsets do nothing. Open: is
+  +-9-12 cm in x reachable on the WAM, and at what cost to the solves?
 - [ ] **Ball count as a difficulty axis.** (Kai, 2026-10-28: "We may do both.
   Especially for trying ball-ball collision planning we may want to ablate
   difficulty over ball numbers.") 5 balls stays the random-walk baseline.
