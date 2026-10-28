@@ -565,6 +565,10 @@ code and the data* that would otherwise be lost between sessions.
   flights? the observation window reaching into the hand contact?) is
   unknown. First step: log the throw id, n_points and the best rmse with the
   warning, plus which anchor produced the label, then rerun one walk.
+  Logging DONE on jrl seed-targets (2026-10-28, after 1bfdfb8): the
+  warning names throw, flight, samples and best attempt, and a
+  fallback-anchor label warns on its own. The rerun waits for a sim slot
+  (mix48i/mix48j run on 1bfdfb8, which predates the logging).
 
 
 ### Process
