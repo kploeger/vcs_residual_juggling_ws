@@ -666,6 +666,37 @@ code and the data* that would otherwise be lost between sessions.
   mean 6.58 -> 6.82 (max 20 both). "Slow planning" 38 -> 14. No
   Restoration_Failed. The three solves still near the cap lack a seed target
   (next two items), not a cached solve.
+- [ ] **PLAN (Kai, 2026-10-28): one warm-start path for every execution, as a
+  pool per NLP type; infinite random walks in bounded memory.** These are the
+  fixes in the way of the actual goal, online pattern / ball-ball collision
+  planning; keep them lean and the feedback loops short (Kai: "I don't want
+  you to wait long durations for code to finish running").
+  - Warm starts come from ONE pool per bucket. Bucket = (arm, compiled NLP incl.
+    tempo variant, resolved constraint overrides) = everything the matching
+    metric does not parameterise. The buckets are derived from the
+    experiment/pattern configuration (dynamic), not hard-coded. No per-slot
+    warm-start stores (("trans", i), ("entry", j), ("slot", idx),
+    ("stop_after", idx)) and no second walk for tempo variants. Cascade and
+    siteswap run the same path.
+  - Seeding is a strategy that fills the pool: walk a planned chain (+ Sobol,
+    robot-sized boxes, Kai), or, for random walks, enumerate every
+    (incoming x previous x outgoing) context the graph allows (walk-independent,
+    so it can be computed once per cfg and loaded from disk).
+  - Safety guard: reference guard only on repetitive segments (cascade, cyclic
+    tail; steady-state references). Elsewhere the reference-free absolute
+    envelope check (`_validate_warm_start_reference_envelope`: joint limits).
+  - Infinite walk, measured 2026-10-28 on mix48m: sim RSS grows ~6 MB/s
+    (s20 3.8 -> 4.1 GB in 50 s), ~20 MB per throw, i.e. ~20 GB/h. That matches
+    recording every 8 kHz control step in memory (attempt npz 343 MB per
+    13-min walk). Needs: the walk generated online (not a pre-built 150-beat
+    chain), no per-beat construction stores, recorded state streamed to disk
+    and/or decimated, bounded per-throw records.
+  - Steps, each a short A/B against mix48m (12 seeds; use shorter walks for
+    iteration): (a) bucket the pool by override signature; (b) seed only from
+    the pool; (c) enumeration seeding for random walks, disk-cached;
+    (d) guard only on repetitive segments; (e) delete the per-slot machinery
+    and the second walk; (f) bounded memory: streamed/decimated recording,
+    online walk generation.
 - [ ] **Tossed-2 catches at the default gate: the route chosen 2026-10-28,
   verification running (mix48m).** jrl branch post-takeoff-inert-margin
   (b18b36e) goes with juggle_planning post-takeoff-inert-margin (19ade35):
