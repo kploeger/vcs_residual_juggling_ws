@@ -658,7 +658,9 @@ code and the data* that would otherwise be lost between sessions.
   mean 6.58 -> 6.82 (max 20 both). "Slow planning" 38 -> 14. No
   Restoration_Failed. The three solves still near the cap lack a seed target
   (next two items), not a cached solve.
-- [ ] **Seed-target dedupe ignores the start velocity.** (2026-10-28, slot
+- [ ] **Seed-target dedupe ignores the start velocity.** FIXED on jrl branch
+  seed-targets (206da1a), single-tempo; tick once batch41 (mix48h) is in and
+  the branch is merged. (2026-10-28, slot
   dumps /retain/random_walk/slot_dump_s{0,29,43}.pkl.) `_slot_seed_targets`
   (jrl planner_bank.py:1379) keys a target on (x_catch, t_catch, dx_throw,
   rest/flow, ball) and keeps the first slot per key in str-sorted order, so
@@ -666,12 +668,15 @@ code and the data* that would otherwise be lost between sessions.
   ('trans', 137), |dq| 3.87, merged into the cyclic ('slot', 0) record,
   |dq| 9.66; it was never seeded, and online it took 30 iterations from a
   17.9-unit entry in both mix48d and mix48g. s29 throw 118: same, 26. s43
-  right: trans 34 and 50 (|dq| 7.89) were merged into slot 0 (9.66). Adding
-  dq to the key (rounded to 0.1-1 rad/s, the count barely changes) takes
-  the targets 55 -> 100 (s0), 59 -> 103 (s29), 62 -> 103 (s43). That is
-  about twice the seeding time (s43 13.6 s now).
+  right: trans 34 and 50 (|dq| 7.89) were merged into slot 0 (9.66). The
+  fix keys flow targets on q_start (0.01 rad) and dq_start (0.1 rad/s) too:
+  55 -> 102 targets (s0), 59 -> 104 (s29), 62 -> 103 (s43), measured
+  without the entry beats of the next item. s43 seeding with both fixes:
+  24.3 s against 13.6 s.
 - [ ] **The cyclic slot's warm start is planned for the wrong ball, and the
-  cyclic entry beat has no seed.** (2026-10-28.) jrl
+  cyclic entry beat has no seed.** FIXED for single-tempo chains on jrl
+  branch seed-targets (eb74ee5: `_steady_cyclic_beat`, ("entry", j) walk,
+  stop ball from the beat it catches). Multi-tempo: next item. (2026-10-28.) jrl
   `siteswap_juggler.py:_create_warm_starts` plans each cyclic slot from the
   steady-state start, with the steady-state occurrence's overrides and
   catch test (`n_prefix + idx + period`, see the "STEADY-STATE context"
@@ -695,6 +700,26 @@ code and the data* that would otherwise be lost between sessions.
   beats as seed targets. Check the robot chains first: their tail
   segment's first cyclic ball also comes from the previous segment (645 ->
   5).
+- [ ] **Robot (multi-tempo) chains: the live cyclic-slot references are planned
+  at the slot's FIRST occurrence.** (2026-10-28, code review of eb74ee5,
+  verified.) With more than one chain duration `_tempo_key_for_throw`
+  (jrl siteswap_juggler.py:2438) puts EVERY beat on a
+  `catch_and_throw@<dur>` variant, so the default-key walk that eb74ee5
+  fixed is dead there. The live stores come from
+  `_create_tempo_variant_beat_references`, which fills each
+  (variant, ("slot", idx)) at the first beat that uses it, with that
+  beat's start, ball and overrides (`fill`, :4013). That record is
+  self-consistent, but transitional. Growth chain dump
+  (`3x12@0.60,...,552x4@0.50,5*@0.48`, /retain/random_walk/
+  slot_dump_growth.pkl): `catch_and_throw@0.480` left slot 1 is the 552's
+  2-hop at |dq| 3.93. Every steady 5 of the tail, |dq| 10.59 with the 5 ball,
+  rolls on and is guarded against that reference, and there is no seed at
+  the steady point. Unknown whether it costs anything on the robot: the
+  rolling warm start adapts after the first solve; whether the guard's
+  tolerance hides the mismatch is not checked. Fix: in the variant walk, fill cyclic slots at
+  `_steady_cyclic_beat` and record the entry beats as their own targets,
+  mirroring eb74ee5. Changes robot references, so needs Kai and a sim
+  rerun of the growth chain.
 
 - [x] **LAUNCH TIME: planner snapshot + in-place solver swap (2026-09-13
   15:00, juggling 66fb6b6/11c4896, trajectory_planning e899a81/094ea61).**
