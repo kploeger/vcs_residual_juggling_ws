@@ -913,6 +913,27 @@ code and the data* that would otherwise be lost between sessions.
       costs are the same as shipped (median 0.071 vs 0.068), and throw 139
       has no fit in both. mix48s (funnels only, 12 seeds) is queued after
       mix48r.
+    - mix48r final: 0/12 (each stops at throw 17-48).
+    - ORIENTATION IS RIGHT (TLL_exact_square, measured): the MuJoCo cup in
+      the planner hand frame has walls at azimuth 0/90/180/270, slope 24,
+      plane 37.5 mm from the origin, so rotation_deg 0. The 45 deg test was
+      stopped (STOPPED_NOTE.txt in its run dir).
+    - THE MARGIN IS THE PROBLEM (TLL test 1): carry only on s43 with
+      a_margin 1.0 (launcher-fed 3.0) juggles 212/212, every throw below cost
+      0.05, iterations median 6 / p90 8 / max 25. The on-axis-equivalent
+      4.23 equals a_min only for a purely axial force; anywhere else the cone
+      is strictly tighter (f_z >= 5 + tan24 (|fx|+|fy|)). Shipped plans
+      carried with up to ~2.4 g lateral at f_z 5.
+    - Mechanism at margin 4.23, s43 throw 22 (hand finite differences):
+      shipped brakes the cup sideways through the tossed-2 catch (|a_lat|
+      28-34 m/s2) and ramps a_z 34 -> 108 -> 47 into the release. The cone
+      plan coasts through the catch (|a_lat| < 1 m/s2, since the window
+      k 12..25 starts before touchdown ~k15 and bounds the empty cup), and
+      the throw is squeezed into a final burst (a_z 256, lateral 123 m/s2
+      at 6.650 s) while the ball is still 2 cm off its seat.
+    - mix48t = all exact with the carry at margin 1.0 / launcher 3.0
+      (exact_overlays/allm1_all.yaml), 12 seeds, running next to mix48s.
+      Test 2 (k 15..25 at margin 4.23) still running.
   - Steps, each a short A/B against mix48m (12 seeds; use shorter walks for
     iteration): (a) bucket the pool by override signature; (b) seed only from
     the pool; (c) enumeration seeding for random walks, disk-cached;
