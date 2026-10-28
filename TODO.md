@@ -835,7 +835,11 @@ code and the data* that would otherwise be lost between sessions.
     suite on 19aabad running. mix48q (12 seeds, finite chains) runs it after
     mix48o, which had 11/11 finished seeds ok at 19:55. mix48p (pool-warm-
     starts alone) is skipped unless mix48q regresses. When both are green,
-    fast-forward jp master and jrl main to them. Held-2-from-rest seeds:
+    fast-forward jp master and jrl main to them. RE-MERGED 20:30 after
+    TLL_exact_square's funnels landed (jp master e0ca5c2, jrl main 49ffc9f):
+    candidates now jp integrate-buckets-2 62380c6 (suite 210 passed) and
+    jrl integrate-pools-2 5d9a831 (full suite running); both merges were
+    conflict-free, the funnels are off by default. Held-2-from-rest seeds:
     deferred, low value. Online s43 catch_and_stop solves took 8-15
     iterations without them.
     GENERAL CONE IN THE DIRECT SIM (Kai's daily note: "reruns to use general
