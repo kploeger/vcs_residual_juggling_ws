@@ -577,6 +577,18 @@ code and the data* that would otherwise be lost between sessions.
   'early' ("late-anchor ... no window of >= 3 samples after the peak"). Same
   throw 130 miss on the 210-throw s43 runs. Every miss was a tossed 2; no
   other value failed.
+  LATE-ANCHOR MECHANISM (2026-10-28 22:15, from the code and the record):
+  label_generator._late_anchor fits from the apex down to cutoff = catch
+  height + margin (records: ls_fit_cutoff_height 0.652 = 0.542 + 0.11). A
+  tossed 2 rises v^2/2g = 1.08^2/19.6 = 0.059 m, so its apex (~0.60 m) is
+  BELOW the cutoff. The first sample after the apex already ends the
+  window, len < min_fit_points, and the margin loop `break`s (a larger
+  margin only makes it worse). So the late anchor can never label a tossed
+  2. Fix candidate: cap the margin at a fraction of (apex - catch height)
+  for low flights. Changes labels, so learning runs move. Why the 'early'
+  fallback then fails for ~1/3 of them (learners/base.py:640 "no ballistic
+  flight could be fitted") is not checked yet: few samples between release
+  and the apex (~0.11 s)?
 
 
 ### Process
