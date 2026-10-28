@@ -687,7 +687,8 @@ code and the data* that would otherwise be lost between sessions.
   solve is refused silently, apart from the seeding count. Better: name
   the constraint carrying max|lam| in a warning whenever a solve is
   refused, so a new zero-gradient row shows up the day it appears.
-- [ ] **Sobol seed box vs the ideal plant.** (2026-10-28, mix48i.) The box
+- [x] **Sobol seed box vs the ideal plant.** DECIDED (Kai, 2026-10-28): keep the
+  robot-sized boxes, since seeding is meant for the real robot. (2026-10-28, mix48i.) The box
   is the catch-adaptation clamp (x -6.5..+12 cm, y +-12 cm, dt -20..+5 ms,
   +-0.3 m/s on the throw and start velocities). Online ideal-plant queries
   sit within 29 mm / 4 ms / 0 m/s of the nominal, so almost every seed lies
@@ -752,6 +753,11 @@ code and the data* that would otherwise be lost between sessions.
   1bfdfb8 found the seed-file LOAD path re-truncating such payloads to the
   cfg capacity, construction entries first. That is fixed in the follow-up
   commit.
+- [ ] **Ball count as a difficulty axis.** (Kai, 2026-10-28: "We may do both.
+  Especially for trying ball-ball collision planning we may want to ablate
+  difficulty over ball numbers.") 5 balls stays the random-walk baseline.
+  Once ball-ball avoidance starts, run the same walks at 3/4/5 balls (shares
+  per ball count: thesis plots repo planning/plot_throw_distribution).
 - [ ] **Robot (multi-tempo) chains: the live cyclic-slot references are planned
   at the slot's FIRST occurrence.** (2026-10-28, code review of eb74ee5,
   verified.) With more than one chain duration `_tempo_key_for_throw`
