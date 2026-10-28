@@ -666,6 +666,31 @@ code and the data* that would otherwise be lost between sessions.
   mean 6.58 -> 6.82 (max 20 both). "Slow planning" 38 -> 14. No
   Restoration_Failed. The three solves still near the cap lack a seed target
   (next two items), not a cached solve.
+- [ ] **Tossed-2 catches at the default gate: the route chosen 2026-10-28,
+  verification running (mix48m).** jrl branch post-takeoff-inert-margin
+  (b83c7bd) needs juggle_planning post-takeoff-inert-margin (8f93ff7); merge
+  jp first, since jrl passes `squared_slack`, which older jp rejects. The
+  branch adds the post-takeoff cone `squared_slack` (an inert row at exactly
+  0 was a constraint-qualification failure, 5.2e16 on a catch after a held
+  0), raises the gate 5e6 -> 1e10 (largest healthy solve after the fix
+  1.3e8), and drops the tossed-2 catch's 20 ms cone point (Kai). Evidence:
+  jrl experiments/random_walk/README.md "Tossed-2 catches without the relaxed
+  threshold". The juggle_planning branch own-seed-competes (b1a5543) is
+  superseded: with every healthy solve cached it is redundant, and it missed
+  the cyclic entry beats. Delete it once mix48m confirms.
+- [ ] **The degeneracy gate is a magnitude test standing in for a
+  constraint-qualification check.** (2026-10-28.) Healthy multipliers reach
+  1.3e8 (a tossed 2 thrown as a 7, cone at 50 ms), while the failure it was
+  built for sat at 5e16 and earlier at 1e7-5e8 (2026-09-13). A degenerate
+  solve is refused silently, apart from the seeding count. Better: name
+  the constraint carrying max|lam| in a warning whenever a solve is
+  refused, so a new zero-gradient row shows up the day it appears.
+- [ ] **Sobol seed box vs the ideal plant.** (2026-10-28, mix48i.) The box
+  is the catch-adaptation clamp (x -6.5..+12 cm, y +-12 cm, dt -20..+5 ms,
+  +-0.3 m/s on the throw and start velocities). Online ideal-plant queries
+  sit within 29 mm / 4 ms / 0 m/s of the nominal, so almost every seed lies
+  where no query goes. Decision for Kai: leave it (robot-sized), or scale it
+  by the expected noise. Narrowing it changes robot seeding.
 - [ ] **Seed-target dedupe ignores the start velocity.** FIXED on jrl branch
   seed-targets (206da1a), single-tempo; tick once batch41 (mix48h) is in and
   the branch is merged. (2026-10-28, slot
