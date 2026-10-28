@@ -666,6 +666,20 @@ code and the data* that would otherwise be lost between sessions.
   mean 6.58 -> 6.82 (max 20 both). "Slow planning" 38 -> 14. No
   Restoration_Failed. The three solves still near the cap lack a seed target
   (next two items), not a cached solve.
+- [ ] **The attempt-end ball-collision summary never runs on direct MuJoCo or
+  ROS tracks (found 2026-10-28).** env_glue.py `_log_attempt_ball_collision_summary`
+  takes `np.asarray(arr)` of each ball's recording and needs a 2-D array, but
+  `_collect_attempt_result` passes `ball.get_recorded_data()`, a list of
+  per-frame dicts: asarray gives a 1-D object array, every track is skipped,
+  and the "report-only" summary silently reports nothing. Fix: pass
+  `get_recorded_array()` (MjBall has it since jrl 3bee901; RosBall would need
+  one) or build [t, x, y, z] from the dicts.
+- [ ] **Direct-MuJoCo attempt files have tau_meas all NaN (found 2026-10-28).**
+  MjArm.get_recorded_data names the last field "tau"; the npz writer
+  (experiment_utils.py, arm_trajectories dict path) reads "tau_meas", so the
+  four tau_meas columns stay NaN in every sim attempt. The recorder row holds
+  the value (= applied torque in MuJoCo); the streamed recording
+  (recording_spill_seconds) carries it. Fix: one key name on either side.
 - [ ] **PLAN (Kai, 2026-10-28): one warm-start path for every execution, as a
   pool per NLP type; infinite random walks in bounded memory.** These are the
   fixes in the way of the actual goal, online pattern / ball-ball collision
