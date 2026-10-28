@@ -785,6 +785,14 @@ code and the data* that would otherwise be lost between sessions.
     walk then grew 2073 -> 2121 MB (8 MB/min, was ~360 MB/min). mix48n (12
     seeds, enum seeds + guard scope + memory fixes, finite chains): no
     regression -- construction entries still win the pool there.
+    (e) DESIGN (2026-10-28 night): pools for catch_and_stop and
+    throw-from-rest are on jp branch stop-throw-pools (e1b042b, A/B mix48o
+    running). Then the runtime warm start comes from the pool for EVERY solve
+    (no per-slot warm-start keys; construction stops storing them but keeps
+    feeding the pool), and safety references stay per slot only where the
+    guard scope keeps a guard ("all", the robot default: every beat as today;
+    "repetitive": periodic segments). One runtime path for online and finite
+    runs; the guard's coverage is the only difference, and explicit.
     OPEN: unbounded-walk tracemalloc (running) for the residual per-throw
     growth (ScheduledThrow.arm_trajectory kept for the attempt is the
     suspect); SiteswapPattern (tracker prior) keeps every event and scans them
