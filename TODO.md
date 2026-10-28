@@ -700,6 +700,19 @@ code and the data* that would otherwise be lost between sessions.
   beats as seed targets. Check the robot chains first: their tail
   segment's first cyclic ball also comes from the previous segment (645 ->
   5).
+- [ ] **The seeding pass evicted its own earliest seeds.** FIXED on jrl branch
+  seed-targets (1bfdfb8), all chains; tick once mix48i/mix48j are in and
+  the branch is merged. (2026-10-28.) `_seed_solution_caches` (jrl
+  planner_bank.py, the `need =` line) sized each key's cache as
+  targets x 16 + 32. The cache already holds the construction walks' solves
+  (about one per transition beat, ~75 per arm on a 150-beat walk), so it
+  filled up mid-pass and LRU dropped the oldest entries: the first targets'
+  seeds. 44 of 96 mix48d caches ended exactly full. In mix48h s0 the 2-hop
+  entry target, which sorts first, kept none of its 10 seeds, and throw 137
+  started 17.7 units away (28 iterations). Evidence in
+  /retain/random_walk/cache_probe.py on
+  /retain/tp_seed_cache/seeds_9bb381ed91913c7d36124f1cc728889e.pkl. This
+  changes the seeds of every run, robot included.
 - [ ] **Robot (multi-tempo) chains: the live cyclic-slot references are planned
   at the slot's FIRST occurrence.** (2026-10-28, code review of eb74ee5,
   verified.) With more than one chain duration `_tempo_key_for_throw`
