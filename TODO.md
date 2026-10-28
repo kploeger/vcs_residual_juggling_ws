@@ -935,6 +935,20 @@ code and the data* that would otherwise be lost between sessions.
   Per-contact JSON: /retain/random_walk/contacts_mix48n.json. This is the
   number collision planning must bring to zero. New runs report it in
   result["ball_collisions"]["contacts"].
+  PREDICTABLE AT PLANNING TIME (jrl flight-clearance b274c1c): contacts of
+  the PLANNED flights (record release state + landing time, closed form,
+  jugglers/flight_clearance.py) vs measured, by throw pair: 346 both, 0 either
+  side only; separation measured - planned median +0.3 mm, |.| p90 8.6 mm.
+  Planned approaches below 1.5 D: 26.7/100 throws, below 2 D: 40.1/100.
+  CHOICE ALONE IS NOT ENOUGH (fb8788f, experiments/random_walk/
+  clearance_chooser_offline.py, nominal model, which reproduces the 346
+  pair for pair): a greedy clearance chooser over the ThrowChooser hook gives
+  7.9/100 at 1 D (135 forced picks) and collapses the walk to 100% 5s at
+  1.5 D (from ground state a 6 or 7 always passes within 1.5 D of a 5 up).
+  Static per-value x planes need 8 cm steps (32 cm span, values 3..7) to
+  clear 1 D and leave 11.1/100 below 1.5 D. => Phase 2 has to plan geometry
+  (per-throw throw/catch points, timing within the dwell), not just the
+  sequence. Kai's call which levers are in scope.
 - [ ] **Ball count as a difficulty axis.** (Kai, 2026-10-28: "We may do both.
   Especially for trying ball-ball collision planning we may want to ablate
   difficulty over ball numbers.") 5 balls stays the random-walk baseline.
