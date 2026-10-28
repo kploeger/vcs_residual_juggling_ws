@@ -716,12 +716,18 @@ code and the data* that would otherwise be lost between sessions.
     replay_queue.sh runs a queue of them, replay_cmp.py compares two tags. It
     matches mix48m's level (mean 6.6 vs 6.3 iterations, |diff| median 1) but
     not single beats (corr 0.2-0.3). ~5 min per 6-seed A/B.
-  - (a) DONE on jp branch pool-buckets (5fce8f8): bucket = start class +
-    override signature. Replay A/B on 6 seeds: identical iterations (mean 6.71
-    vs 6.72, no beat moved by >= 5); s43 uses 10 buckets, and the 2 rest-from-flow
-    seedings of the baseline are gone. Merge with (c)-(e) after a sim check.
-    (b) is already true in practice: the cache always wins once seeded, so the
-    per-slot stores are only written. Removing them is part of (e).
+  - (a) DONE on jp branch pool-buckets (5fce8f8, review fixes 0535bc0 on top of
+    a master merge): bucket = start class + override signature. Replay A/B on
+    6 seeds: neutral (mean 6.71 vs 6.72 iterations, no beat moved by >= 5); s43
+    uses 10 buckets, and the 2 rest-from-flow seedings of the baseline are
+    gone. Merge with (c)-(e) after a sim check. When it merges, jrl
+    `_slot_seed_targets` must dedupe on the override signature too, or two
+    targets differing only in overrides collapse and one bucket gets no seeds
+    (review, 2026-10-28).
+    (b) holds for catch_and_throw only: its cache always wins once seeded, so
+    its per-slot stores are only written. CORRECTED 2026-10-28 (review):
+    catch_and_stop and throw have NO pool and READ their per-slot stores, so
+    (e) must give them a pool first, then delete the stores.
   - Sequence (2026-10-28 afternoon), since an unbounded walk cannot be walked up
     front: (1) per-beat resolver, DONE 38baa17 (beat_positions / resolve_beat,
     parity-tested); (c) enumeration seeding; (e) no per-beat construction
@@ -731,7 +737,13 @@ code and the data* that would otherwise be lost between sessions.
     memory. The construction walks (resolved.transition / cyclic), the per-slot
     stores and the learner-bank set-up over `grid` are the only consumers that
     iterate the finite structure (siteswap_juggler.py, learner_bank.py).
-  - (c) design: the contexts (incoming, previous, outgoing, + hold/toss modes)
+  - (c) DONE on jrl branch enum-seeding (2532e7d), `seed_strategy: enumerate`:
+    the contexts come from an exact BFS of the graph (siteswap_graph
+    .throw_contexts; 158 per arm at 5 balls / height 7), not from sampled walks.
+    One seed file per cfg: walks s43 and s0 give the same fingerprint (316
+    targets). Replay A/B with seeds only (no construction entries, as an
+    online walk) running. Original design note:
+    the contexts (incoming, previous, outgoing, + hold/toss modes)
     per arm, collected from many seeded walks of the configured graph (exact
     enough, and quick). Per context: geometry from resolve_beat, the ball from
     the incoming value's source beat, overrides from resolve_context_overrides
@@ -766,7 +778,10 @@ code and the data* that would otherwise be lost between sessions.
   attempt and named above 1e9 (946bbb4). SURVEYED 2026-10-28 15:15: robot
   growth chain (best_chain stack, /retain/random_walk/degen5_growth.log),
   145 construction solves, max 3.9e6 (the 552's tossed 2s). Nothing lies
-  between 5e6 and 1e10, so the gate change is a no-op there.
+  between 5e6 and 1e10, so the gate change is a no-op there -- for the
+  construction solves. The chain's seeding pass and its online solves were
+  not surveyed (review, 2026-10-28); the per-attempt multiplier record
+  (946bbb4) shows them on the next robot-chain run.
 - [ ] **The degeneracy gate is a magnitude test standing in for a
   constraint-qualification check.** Warning part DONE and merged (a0325f4). (2026-10-28.) Healthy multipliers reach
   1.3e8 (a tossed 2 thrown as a 7, cone at 50 ms), while the failure it was
