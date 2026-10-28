@@ -1159,6 +1159,18 @@ code and the data* that would otherwise be lost between sessions.
   /retain/random_walk/batch54_smoke.sh) answers the planner and plant side
   of "reachable" (WAM model limits, strict mode); the real robot's
   workspace is still Kai's call.
+  SMOKE xo12 (2026-10-29 00:50): FAILS AT CONSTRUCTION. 24 warm-start
+  references over the 20 rad/s envelope (max|dq| 20.6-26.2). Each one starts
+  from the same arm's release at -0.12 m (towards the robot): 24 of the 26
+  beats after such a release, 0 of 7 after -0.06 m, 0 of 29 on the -0.12 m
+  releases themselves, 0 of 2 after +0.06/+0.12 (the greedy menu tried -dx
+  first: 29 releases at -0.12, 1 at +0.12). So in the WAM model 12 cm
+  towards the body is past the joint-speed cap for the follow-through, 6 cm
+  is not; +12 cm is barely tested. Also found and fixed (jrl x-offset-walks
+  b284336): enumerate seeding took the per-beat deltas of a value's first
+  beat as the value's geometry (507 seeds after a 6 vetoed). Smoke xm12
+  (menu 0, +0.06, -0.06, +0.12, margin 1.5 D, s43 nominal contacts 30 -> 3)
+  running on wt_exact_xo (wt_exact + that fix).
 - [ ] **Ball count as a difficulty axis.** (Kai, 2026-10-28: "We may do both.
   Especially for trying ball-ball collision planning we may want to ablate
   difficulty over ball numbers.") 5 balls stays the random-walk baseline.
