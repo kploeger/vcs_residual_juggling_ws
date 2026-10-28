@@ -950,6 +950,19 @@ code and the data* that would otherwise be lost between sessions.
       knots are NOT the cause; the margin is. CORRECTION to the mechanism
       line above: the coasting through the catch is the lateral bound
       acting around touchdown, not the k 12..14 window.
+    - mix48s (FUNNELS ONLY, shipped carry): 8/8 finished walks clean so far.
+    - mix48t (ALL EXACT, carry margin 1.0 / launcher 3.0): 0/5 finished
+      walks so far. Every failure is a 3 (cost ~1.76, the same value in
+      every walk: i3_p7_o3, i6_p3_o3, i7_p7_o3, i6_p6_o3), then that ball's
+      catch fails (adaptation_out_of_range). s43 throw 56: the release is
+      identical to carry-only (ball (0, 1.15, 2.16) m/s). Between +30 and
+      +60 ms after release the ball's velocity jumps to (0.78, -0.66, 1.86):
+      the cup's +y wall, reversing towards -y faster than under carry-only
+      (-2.11 vs -1.68 m/s at +60 ms), hits the ball still 4 cm above the
+      seat. So it is the exact post_takeoff_funnel at k [2] only, together
+      with the carry cone; TLL saw dense knots k 1..5 keep the walls off.
+      Testing exact_overlays/allm1dense_all.yaml (post funnel k 1..5) on
+      s43.
   - Steps, each a short A/B against mix48m (12 seeds; use shorter walks for
     iteration): (a) bucket the pool by override signature; (b) seed only from
     the pool; (c) enumeration seeding for random walks, disk-cached;
