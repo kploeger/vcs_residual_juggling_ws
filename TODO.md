@@ -933,7 +933,11 @@ code and the data* that would otherwise be lost between sessions.
       at 6.650 s) while the ball is still 2 cm off its seat.
     - mix48t = all exact with the carry at margin 1.0 / launcher 3.0
       (exact_overlays/allm1_all.yaml), 12 seeds, running next to mix48s.
-      Test 2 (k 15..25 at margin 4.23) still running.
+      Test 2 (k 15..25 at margin 4.23): FAILS like the original (throw 30,
+      adaptation_out_of_range; throw 22 cost 1.66). So the pre-touchdown
+      knots are NOT the cause; the margin is. CORRECTION to the mechanism
+      line above: the coasting through the catch is the lateral bound
+      acting around touchdown, not the k 12..14 window.
   - Steps, each a short A/B against mix48m (12 seeds; use shorter walks for
     iteration): (a) bucket the pool by override signature; (b) seed only from
     the pool; (c) enumeration seeding for random walks, disk-cached;
