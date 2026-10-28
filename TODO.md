@@ -827,6 +827,17 @@ code and the data* that would otherwise be lost between sessions.
     open: held-2-from-rest seeds for online walks; merging jp
     stop-throw-pools (conflicts with jp master 5b0cef7 expected) and jrl
     pool-warm-starts after mix48o/p.
+    UPDATE 2026-10-28 20:00. MERGE CANDIDATE: jrl integrate-pools 19aabad
+    (main + collision chain + review fixes c3e085e + pool-warm-starts +
+    seed-target override dedupe) with jp integrate-buckets 35cde5c (master
+    + stop-throw-pools, merged clean + pool-buckets, one import conflict +
+    catch_and_stop pool bucketed by overrides). jp suite 195 passed; jrl full
+    suite on 19aabad running. mix48q (12 seeds, finite chains) runs it after
+    mix48o, which had 11/11 finished seeds ok at 19:55. mix48p (pool-warm-
+    starts alone) is skipped unless mix48q regresses. When both are green,
+    fast-forward jp master and jrl main to them. Held-2-from-rest seeds:
+    deferred, low value. Online s43 catch_and_stop solves took 8-15
+    iterations without them.
   - Steps, each a short A/B against mix48m (12 seeds; use shorter walks for
     iteration): (a) bucket the pool by override signature; (b) seed only from
     the pool; (c) enumeration seeding for random walks, disk-cached;
