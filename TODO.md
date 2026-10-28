@@ -722,6 +722,23 @@ code and the data* that would otherwise be lost between sessions.
     seedings of the baseline are gone. Merge with (c)-(e) after a sim check.
     (b) is already true in practice: the cache always wins once seeded, so the
     per-slot stores are only written. Removing them is part of (e).
+  - Sequence (2026-10-28 afternoon), since an unbounded walk cannot be walked up
+    front: (1) per-beat resolver, DONE 38baa17 (beat_positions / resolve_beat,
+    parity-tested); (c) enumeration seeding; (e) no per-beat construction
+    stores; then the online walk (a lazily generated, seeded walk with the
+    ResolvedSiteswap queries beat_for / kind_for / incoming_for / lands_at /
+    grid over a window; learner-bank keys created on demand); then (f) bounded
+    memory. The construction walks (resolved.transition / cyclic), the per-slot
+    stores and the learner-bank set-up over `grid` are the only consumers that
+    iterate the finite structure (siteswap_juggler.py, learner_bank.py).
+  - (c) design: the contexts (incoming, previous, outgoing, + hold/toss modes)
+    per arm, collected from many seeded walks of the configured graph (exact
+    enough, and quick). Per context: geometry from resolve_beat, the ball from
+    the incoming value's source beat, overrides from resolve_context_overrides
+    (prev, inc, out, tempo). The start state is the release state of a throw
+    of the previous value (one solve per (arm, value)), or the rest pose after
+    a hold. 16 Sobol seeds each (~250 contexts x 2 arms, ~2 min), keyed by cfg
+    only and loaded from disk for every walk.
   - Steps, each a short A/B against mix48m (12 seeds; use shorter walks for
     iteration): (a) bucket the pool by override signature; (b) seed only from
     the pool; (c) enumeration seeding for random walks, disk-cached;
