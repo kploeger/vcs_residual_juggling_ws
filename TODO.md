@@ -703,7 +703,9 @@ code and the data* that would otherwise be lost between sessions.
     At the attempt's end, :1591-1593 turn the state array into a list of
     per-row dicts (+600 MB), and jugglers/attempt_runner.py:1011 does an FK
     hand trajectory per recorded row (+36 MB).
-    So: per-step Python objects and per-frame dict copies, not the cache. For
+    So: per-step Python objects and per-frame dict copies, not the cache.
+    Requirement (Kai): memory may be large but must CONVERGE (~10 GB is fine),
+    not grow without limit. So: bound, don't minimise. For
     an infinite walk: ring-buffer the ball recorder to the label generator's
     window, stop materialising per-frame dicts (keep arrays), stream the
     state chunks to disk, and drop each throw's ball trajectory once it is
@@ -744,7 +746,10 @@ code and the data* that would otherwise be lost between sessions.
   OPEN: the 1e10 gate is global, but only random walks were surveyed.
   Survey the robot chains' construction solves (/retain/random_walk/degen5.py
   pattern) before the next robot session. Multipliers are now recorded per
-  attempt and named above 1e9 (946bbb4).
+  attempt and named above 1e9 (946bbb4). SURVEYED 2026-10-28 15:15: robot
+  growth chain (best_chain stack, /retain/random_walk/degen5_growth.log),
+  145 construction solves, max 3.9e6 (the 552's tossed 2s). Nothing lies
+  between 5e6 and 1e10, so the gate change is a no-op there.
 - [ ] **The degeneracy gate is a magnitude test standing in for a
   constraint-qualification check.** Warning part DONE and merged (a0325f4). (2026-10-28.) Healthy multipliers reach
   1.3e8 (a tossed 2 thrown as a 7, cone at 50 ms), while the failure it was
