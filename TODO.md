@@ -691,6 +691,18 @@ code and the data* that would otherwise be lost between sessions.
     13-min walk). Needs: the walk generated online (not a pre-built 150-beat
     chain), no per-beat construction stores, recorded state streamed to disk
     and/or decimated, bounded per-throw records.
+  - Fast A/B loop: /retain/random_walk/plan_replay.{py,sh} plans every per-beat
+    catch-and-throw of a walk with the online seed selection and solver, and no
+    MuJoCo; queries are offset by the measured online catch spread.
+    replay_queue.sh runs a queue of them, replay_cmp.py compares two tags. It
+    matches mix48m's level (mean 6.6 vs 6.3 iterations, |diff| median 1) but
+    not single beats (corr 0.2-0.3). ~5 min per 6-seed A/B.
+  - (a) DONE on jp branch pool-buckets (5fce8f8): bucket = start class +
+    override signature. Replay A/B on 6 seeds: identical iterations (mean 6.71
+    vs 6.72, no beat moved by >= 5); s43 uses 10 buckets, and the 2 rest-from-flow
+    seedings of the baseline are gone. Merge with (c)-(e) after a sim check.
+    (b) is already true in practice: the cache always wins once seeded, so the
+    per-slot stores are only written. Removing them is part of (e).
   - Steps, each a short A/B against mix48m (12 seeds; use shorter walks for
     iteration): (a) bucket the pool by override signature; (b) seed only from
     the pool; (c) enumeration seeding for random walks, disk-cached;
