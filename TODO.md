@@ -668,12 +668,14 @@ code and the data* that would otherwise be lost between sessions.
   (next two items), not a cached solve.
 - [ ] **Tossed-2 catches at the default gate: the route chosen 2026-10-28,
   verification running (mix48m).** jrl branch post-takeoff-inert-margin
-  (b83c7bd) needs juggle_planning post-takeoff-inert-margin (8f93ff7); merge
-  jp first, since jrl passes `squared_slack`, which older jp rejects. The
-  branch adds the post-takeoff cone `squared_slack` (an inert row at exactly
-  0 was a constraint-qualification failure, 5.2e16 on a catch after a held
-  0), raises the gate 5e6 -> 1e10 (largest healthy solve after the fix
-  1.3e8), and drops the tossed-2 catch's 20 ms cone point (Kai). Evidence:
+  (b18b36e) goes with juggle_planning post-takeoff-inert-margin (19ade35):
+  merge jp first, because the jrl gate 1e10 is only safe once the jp fix is
+  in. In jp, axial_slack also relaxes the post-takeoff cone's squared row,
+  by its square; the inert row sitting at exactly 0 was a constraint-
+  qualification failure, 5.2e16 on a catch after a held 0. In jrl, the gate
+  goes 5e6 -> 1e10 (largest healthy solve after the fix: 1.3e8), and a
+  tossed-2 catch (catch_and_throw and catch_and_stop) drops its 20 ms cone
+  point (Kai). Evidence:
   jrl experiments/random_walk/README.md "Tossed-2 catches without the relaxed
   threshold". The juggle_planning branch own-seed-competes (b1a5543) is
   superseded: with every healthy solve cached it is redundant, and it missed
