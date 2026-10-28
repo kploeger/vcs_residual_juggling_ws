@@ -838,6 +838,19 @@ code and the data* that would otherwise be lost between sessions.
     fast-forward jp master and jrl main to them. Held-2-from-rest seeds:
     deferred, low value. Online s43 catch_and_stop solves took 8-15
     iterations without them.
+    GENERAL CONE IN THE DIRECT SIM (Kai's daily note: "reruns to use general
+    cone in sim"), 2026-10-28 20:05. Overlay /retain/random_walk/
+    cone_online.yaml, made by contact_force_cone_ab.py --emit-overlay from the
+    online-walk stack (/retain/random_walk/cone_overlay_gen.sh; square cone,
+    slope 24, on-axis-equivalent a_margin 4.23; config.json confirms
+    min_tool_normal_acc off, contact_force_cone n_faces 4). Online s43 for 60
+    throws, jrl flight-clearance c3e085e + jp master 5b0cef7, with vs
+    without: both 62 throws, no drop, no fallback, no planning failure.
+    Iterations median 7 both, p90 12 vs 11, max 20 both. NLP ms median 9.2
+    vs 8.8, p90 19.1 vs 14.0, max 48.6 vs 22.0; "Slow planning" 8 vs 2
+    (harmless on direct MuJoCo, which does not gate on wall time). Logs:
+    /retain/random_walk/online_{cone,nocone}_s43.log. A full A/B on the 12
+    seeds is the next step once the merge batches are through.
   - Steps, each a short A/B against mix48m (12 seeds; use shorter walks for
     iteration): (a) bucket the pool by override signature; (b) seed only from
     the pool; (c) enumeration seeding for random walks, disk-cached;
