@@ -899,6 +899,12 @@ code and the data* that would otherwise be lost between sessions.
       rotation_deg 45 on s43. Asked TLL_exact_square for the cup geometry
       and whether the on-axis-equivalent a_margin is right. The funnels
       alone look fine so far; a funnels-only 12-seed batch is the next run.
+    - Funnels only, s43 (runs_ideal/h7_s43_t0.44_abl_funnels): 212/212
+      clean. 173 of 212 solves differ from shipped, mean -1.53 iterations,
+      max 23. NLP ms median 6.7 vs 7.2, p90 10.3 vs 9.5. Tossed-2 throw
+      costs are the same as shipped (median 0.071 vs 0.068), and throw 139
+      has no fit in both. mix48s (funnels only, 12 seeds) is queued after
+      mix48r.
   - Steps, each a short A/B against mix48m (12 seeds; use shorter walks for
     iteration): (a) bucket the pool by override signature; (b) seed only from
     the pool; (c) enumeration seeding for random walks, disk-cached;
