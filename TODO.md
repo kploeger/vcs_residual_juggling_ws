@@ -972,7 +972,9 @@ code and the data* that would otherwise be lost between sessions.
       8 / max 25, NLP ms median 8.2 / p90 14.0 / max 32.2. mix48v = this
       overlay on the 12 walks, running. Corner fit (TLL 1d77270 --funnel-fit
       corners, square inscribed in the round cone: post 10.73 deg, pre 3.54
-      deg faces) with dense knots is being tested on s43.
+      deg faces) with dense knots on s43: also 212/212, no costly throw,
+      iterations mean 5.06 vs 4.89 (faces), NLP ms p90 12.7 vs 14.0: equal
+      for practical purposes. The knots matter, the fit does not.
   - Steps, each a short A/B against mix48m (12 seeds; use shorter walks for
     iteration): (a) bucket the pool by override signature; (b) seed only from
     the pool; (c) enumeration seeding for random walks, disk-cached;
