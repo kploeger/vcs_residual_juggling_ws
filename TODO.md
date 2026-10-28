@@ -963,6 +963,14 @@ code and the data* that would otherwise be lost between sessions.
       with the carry cone; TLL saw dense knots k 1..5 keep the walls off.
       Testing exact_overlays/allm1dense_all.yaml (post funnel k 1..5) on
       s43.
+    - DENSE POST-TAKEOFF KNOTS FIX IT ON s43 (23:05): all exact (carry
+      margin 1.0 / launcher 3.0, pre/post funnels faces-fit) with
+      post_takeoff_funnel k 1..5: 212/212, no throw above cost 0.05 (shipped
+      has three costly tossed 2s plus one no-fit), iterations median 4 / p90
+      8 / max 25, NLP ms median 8.2 / p90 14.0 / max 32.2. mix48v = this
+      overlay on the 12 walks, running. Corner fit (TLL 1d77270 --funnel-fit
+      corners, square inscribed in the round cone: post 10.73 deg, pre 3.54
+      deg faces) with dense knots is being tested on s43.
   - Steps, each a short A/B against mix48m (12 seeds; use shorter walks for
     iteration): (a) bucket the pool by override signature; (b) seed only from
     the pool; (c) enumeration seeding for random walks, disk-cached;
