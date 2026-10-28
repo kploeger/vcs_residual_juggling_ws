@@ -697,8 +697,9 @@ code and the data* that would otherwise be lost between sessions.
     (d) guard only on repetitive segments; (e) delete the per-slot machinery
     and the second walk; (f) bounded memory: streamed/decimated recording,
     online walk generation.
-- [ ] **Tossed-2 catches at the default gate: the route chosen 2026-10-28,
-  verification running (mix48m).** jrl branch post-takeoff-inert-margin
+- [x] **Tossed-2 catches at the default gate: the route chosen 2026-10-28,
+  verified (mix48m 12/12, tossed-2 max 13, 0 degenerate seeds) and MERGED (jp
+  master 19ade35, jrl random-walk-baseline 79f188c).** jrl branch post-takeoff-inert-margin
   (b18b36e) goes with juggle_planning post-takeoff-inert-margin (19ade35):
   merge jp first, because the jrl gate 1e10 is only safe once the jp fix is
   in. In jp, axial_slack also relaxes the post-takeoff cone's squared row,
@@ -712,8 +713,7 @@ code and the data* that would otherwise be lost between sessions.
   superseded: with every healthy solve cached it is redundant, and it missed
   the cyclic entry beats. Delete it once mix48m confirms.
 - [ ] **The degeneracy gate is a magnitude test standing in for a
-  constraint-qualification check.** Warning part DONE on jrl branch
-  degenerate-warning (d10486a; merge after post-takeoff-inert-margin). (2026-10-28.) Healthy multipliers reach
+  constraint-qualification check.** Warning part DONE and merged (a0325f4). (2026-10-28.) Healthy multipliers reach
   1.3e8 (a tossed 2 thrown as a 7, cone at 50 ms), while the failure it was
   built for sat at 5e16 and earlier at 1e7-5e8 (2026-09-13). A degenerate
   solve is refused silently, apart from the seeding count. Better: name
@@ -726,9 +726,8 @@ code and the data* that would otherwise be lost between sessions.
   sit within 29 mm / 4 ms / 0 m/s of the nominal, so almost every seed lies
   where no query goes. Decision for Kai: leave it (robot-sized), or scale it
   by the expected noise. Narrowing it changes robot seeding.
-- [ ] **Seed-target dedupe ignores the start velocity.** FIXED on jrl branch
-  seed-targets (206da1a), single-tempo; tick once batch41 (mix48h) is in and
-  the branch is merged. (2026-10-28, slot
+- [x] **Seed-target dedupe ignores the start velocity.** FIXED and merged
+  (206da1a in random-walk-baseline; mix48i/m 12/12). (2026-10-28, slot
   dumps /retain/random_walk/slot_dump_s{0,29,43}.pkl.) `_slot_seed_targets`
   (jrl planner_bank.py:1379) keys a target on (x_catch, t_catch, dx_throw,
   rest/flow, ball) and keeps the first slot per key in str-sorted order, so
@@ -768,9 +767,8 @@ code and the data* that would otherwise be lost between sessions.
   beats as seed targets. Check the robot chains first: their tail
   segment's first cyclic ball also comes from the previous segment (645 ->
   5).
-- [ ] **The seeding pass evicted its own earliest seeds.** FIXED on jrl branch
-  seed-targets (1bfdfb8), all chains; tick once mix48i/mix48j are in and
-  the branch is merged. (2026-10-28.) `_seed_solution_caches` (jrl
+- [x] **The seeding pass evicted its own earliest seeds.** FIXED and merged
+  (1bfdfb8 + load path 9e05e35 in random-walk-baseline; mix48i/m 12/12). (2026-10-28.) `_seed_solution_caches` (jrl
   planner_bank.py, the `need =` line) sized each key's cache as
   targets x 16 + 32. The cache already holds the construction walks' solves
   (about one per transition beat, ~75 per arm on a 150-beat walk), so it
