@@ -681,7 +681,8 @@ code and the data* that would otherwise be lost between sessions.
   superseded: with every healthy solve cached it is redundant, and it missed
   the cyclic entry beats. Delete it once mix48m confirms.
 - [ ] **The degeneracy gate is a magnitude test standing in for a
-  constraint-qualification check.** (2026-10-28.) Healthy multipliers reach
+  constraint-qualification check.** Warning part DONE on jrl branch
+  degenerate-warning (d10486a; merge after post-takeoff-inert-margin). (2026-10-28.) Healthy multipliers reach
   1.3e8 (a tossed 2 thrown as a 7, cone at 50 ms), while the failure it was
   built for sat at 5e16 and earlier at 1e7-5e8 (2026-09-13). A degenerate
   solve is refused silently, apart from the seeding count. Better: name
