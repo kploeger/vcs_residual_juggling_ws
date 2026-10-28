@@ -691,6 +691,23 @@ code and the data* that would otherwise be lost between sessions.
     13-min walk). Needs: the walk generated online (not a pre-built 150-beat
     chain), no per-beat construction stores, recorded state streamed to disk
     and/or decimated, bounded per-throw records.
+    tracemalloc on an 80-throw s43 walk (/retain/random_walk/mem_probe.py,
+    mem_probe_s43.log): RSS 4.7 -> 6.2 GB in the first minute after construction.
+    Growth by site, per minute:
+      jrl environment/mj_env.py:2316, the per-frame processed ball record dicts
+        (`processed_record[...]`, loop at :2204): +88 MB;
+      :2365 / :2367 / :2395, the per-step ball recorder appending `x.copy()`,
+        `dx.copy()` and the last measurement to Python lists: +26 MB each,
+        ~500k small arrays;
+      :1627, the 8 kHz state recorder chunks (preallocated np arrays): +28 MB.
+    At the attempt's end, :1591-1593 turn the state array into a list of
+    per-row dicts (+600 MB), and jugglers/attempt_runner.py:1011 does an FK
+    hand trajectory per recorded row (+36 MB).
+    So: per-step Python objects and per-frame dict copies, not the cache. For
+    an infinite walk: ring-buffer the ball recorder to the label generator's
+    window, stop materialising per-frame dicts (keep arrays), stream the
+    state chunks to disk, and drop each throw's ball trajectory once it is
+    labelled.
   - Fast A/B loop: /retain/random_walk/plan_replay.{py,sh} plans every per-beat
     catch-and-throw of a walk with the online seed selection and solver, and no
     MuJoCo; queries are offset by the measured online catch spread.
