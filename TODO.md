@@ -953,8 +953,8 @@ code and the data* that would otherwise be lost between sessions.
     - mix48s (FUNNELS ONLY, shipped carry): 12/12 clean. Iterations median 5
       (mix48q 6), p90 8, p99 20, max 23 as mix48q; >= 15: 44 vs 39. The exact
       funnels alone are fine on every walk.
-    - mix48t (ALL EXACT, carry margin 1.0 / launcher 3.0): 0/5 finished
-      walks so far. Every failure is a 3 (cost ~1.76, the same value in
+    - mix48t (ALL EXACT, carry margin 1.0 / launcher 3.0, post funnel k [2]):
+      final 1/12 (only s26). Every failure is a 3 (cost ~1.76, the same value in
       every walk: i3_p7_o3, i6_p3_o3, i7_p7_o3, i6_p6_o3), then that ball's
       catch fails (adaptation_out_of_range). s43 throw 56: the release is
       identical to carry-only (ball (0, 1.15, 2.16) m/s). Between +30 and
