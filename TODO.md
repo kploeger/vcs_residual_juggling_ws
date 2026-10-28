@@ -771,6 +771,25 @@ code and the data* that would otherwise be lost between sessions.
     of the previous value (one solve per (arm, value)), or the rest pose after
     a hold. 16 Sobol seeds each (~250 contexts x 2 arms, ~2 min), keyed by cfg
     only and loaded from disk for every walk.
+  - STATUS 2026-10-28 evening (jrl branch chain enum-seeding -> online-walk ->
+    recording-spill -> online-window, all pushed; jp unguarded-solves 92a3f74):
+    (c) DONE, see above. (d) DONE as an option: safety_guard_scope "repetitive"
+    (4b0cb8b; default "all" unchanged). ONLINE WALK DONE (9357f48):
+    siteswap.online_walk runs a walk generated and resolved beat by beat
+    (online_walk.py: WalkSource, OnlineBeatGrid, OnlineSiteswap); learners
+    created on first use; online walk s43 juggled 210/210 drop-free on the
+    enumerated seeds alone, solves median 6 / p99 19 / max 20 (mix48m: 6 / 19
+    / 23); /retain/random_walk/online_run.sh. (f) memory: flight released
+    after labelling (5fb76da), chunked ball recorder (2e0ad1e, output-identical),
+    recordings streamed to disk (3bee901, recording_spill_seconds); a 212-throw
+    walk then grew 2073 -> 2121 MB (8 MB/min, was ~360 MB/min). mix48n (12
+    seeds, enum seeds + guard scope + memory fixes, finite chains): no
+    regression -- construction entries still win the pool there.
+    OPEN: unbounded-walk tracemalloc (running) for the residual per-throw
+    growth (ScheduledThrow.arm_trajectory kept for the attempt is the
+    suspect); SiteswapPattern (tracker prior) keeps every event and scans them
+    linearly; held-2-from-rest seeds skipped for online walks (TODO in
+    _seed_hold_catch_from_rest); (e) stop/throw pools; merging the chain.
   - Steps, each a short A/B against mix48m (12 seeds; use shorter walks for
     iteration): (a) bucket the pool by override signature; (b) seed only from
     the pool; (c) enumeration seeding for random walks, disk-cached;
