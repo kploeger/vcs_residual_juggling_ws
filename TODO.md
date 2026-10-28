@@ -839,7 +839,12 @@ code and the data* that would otherwise be lost between sessions.
     TLL_exact_square's funnels landed (jp master e0ca5c2, jrl main 49ffc9f):
     candidates now jp integrate-buckets-2 62380c6 (suite 210 passed) and
     jrl integrate-pools-2 5d9a831 (full suite running); both merges were
-    conflict-free, the funnels are off by default. Held-2-from-rest seeds:
+    conflict-free, the funnels are off by default. MERGED 21:25: mix48o
+    12/12 and mix48q 12/12 clean (aggregate iterations equal to mix48n;
+    mix48q changes ~1/3 of solves per seed, mean shift ~0, range -7..+5);
+    jrl suite on 5d9a831 5033 passed. jp master -> 62380c6, jrl main and
+    random-walk-baseline -> 5d9a831 (fast-forwards). Review of the pool
+    commits running. Held-2-from-rest seeds:
     deferred, low value. Online s43 catch_and_stop solves took 8-15
     iterations without them.
     GENERAL CONE IN THE DIRECT SIM (Kai's daily note: "reruns to use general
