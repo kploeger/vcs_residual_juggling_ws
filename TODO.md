@@ -881,6 +881,24 @@ code and the data* that would otherwise be lost between sessions.
     e9c9cde). Smoke s43 running. The 12-seed mix48r is queued after mix48q
     (the shipped arm). Check the shipped arm on the new code (s43 throw for
     throw vs mix48q) before reading mix48r.
+    RESULT 2026-10-28 21:45: THE EXACT CARRY CONE BREAKS THE RANDOM WALKS.
+    - s43 ablation on the new code (runs_ideal/h7_s43_t0.44_abl_*). No
+      overlay: 212/212, solve for solve identical to mix48q (code
+      equivalence holds). Funnels only: all 212 throws ran. Carry cone only:
+      fails at throw 30, adaptation_out_of_range, exactly as all-exact.
+    - mix48r (all exact, 12 walks): 0/11 finished seeds survive; each stops
+      at throw 17-48 (9 adaptation_out_of_range, 2 drop_detected).
+    - Badly executed throws: 3s and 4s (cost 1.0-1.7, normal 0.005-0.01),
+      5/6/7 straight out of a tossed 2 (0.17-3.2), tossed 2s without a fit.
+    - s43 throw 22 (a 5 out of a tossed 2): the ball was still ~3 cm off its
+      seat with 2 m/s sideways velocity 15 ms before release, and left
+      0.27 m/s short in vz. Under min_tool_normal_acc it seats ~15 ms before
+      release.
+    - Open: does the planner's square (rotation 0) match the MuJoCo cup's
+      walls (Kai's note: "verify square face orientation")? Testing
+      rotation_deg 45 on s43. Asked TLL_exact_square for the cup geometry
+      and whether the on-axis-equivalent a_margin is right. The funnels
+      alone look fine so far; a funnels-only 12-seed batch is the next run.
   - Steps, each a short A/B against mix48m (12 seeds; use shorter walks for
     iteration): (a) bucket the pool by override signature; (b) seed only from
     the pool; (c) enumeration seeding for random walks, disk-cached;
