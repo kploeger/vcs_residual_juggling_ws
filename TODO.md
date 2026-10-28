@@ -864,6 +864,14 @@ code and the data* that would otherwise be lost between sessions.
     The random-walk configs set false. OPEN: give the IK store its own
     per-slot key (jp planner + solver worker), then check a robot-default
     chain for guard vetoes before pool-only can be the default.
+    IK KEY DONE on branches (jrl ik-slot-key aa3bc21, jp ik-slot-key
+    36eedc1; reviewed, no correctness finding): a pooled slot keeps its own
+    IK guess. Merge after mix48u (12 walks, running). Pool-only results
+    before it (mix48q..v) differ at ~1/4 of solves (s43: 51 of 212), so
+    mix48u is the new pool-only baseline. STILL SHARED: unguarded walk
+    beats (key None) and runtime replans (catch_pipeline.py:730 passes no
+    key and stores, so each replan NLP rolls ONE IK guess in every mode,
+    per-slot included). jp ik-slot-key must reach jp master before jrl's.
     Held-2-from-rest seeds:
     deferred, low value. Online s43 catch_and_stop solves took 8-15
     iterations without them.
