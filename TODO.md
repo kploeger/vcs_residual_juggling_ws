@@ -627,6 +627,27 @@ code and the data* that would otherwise be lost between sessions.
   and `_create_warm_starts` plans that key only after a slot with a
   catch-and-throw reference, so a slot after a 0 has no entry and takes a
   donor. Untested; no cyclic pattern with a held 2 after a 0 in use.
+- [ ] **The 2-hop catch (a tossed 2 caught and thrown on) is the whole
+  iteration tail, and it is never cached.** (2026-10-28, mix48d analysis;
+  numbers and probes in jrl `experiments/random_walk/README.md`, "The whole
+  iteration tail is the 2-hop catch".) mix48d: 309 2-hop catches, median 21
+  IPOPT iterations, max 31, 12 at >= 30; all 6 249 other catch-and-throws:
+  median 7, max 25, none at 30. They are also 77 of the 126 "Slow planning"
+  warnings (> 25 ms). Every 2-hop solve, seed or online, has max|lam_g|
+  4e7-8e7 on the pre-touchdown cone (ball 2.7 / 6.2 cm from the cup at the
+  20 / 50 ms points, 40 deg off vertical), so the cache's degenerate gate
+  (`juggle_planning/planner.py:1852`, 5e6) drops all of them and each 2-hop is
+  seeded from 15-18 units away. Probed on s43 and ruled out:
+  |r|^2-normalised cone rows (1.9e7), a 15 deg cone (6.6e7), the 50 ms point
+  off (5.2e7). Needs Kai's call before the robot, where the online cap is 30
+  and the solve time sits at the 25 ms planning reserve. Options: (a) let the
+  cache keep converged 2-hop solves despite the gate (seeded from its own
+  nominal a 2-hop takes 8-47 iterations against 30-31 from the far entry:
+  mixed, needs a batch); (b) reformulate the cone for a ball that close (e.g. a
+  "ball over the cup" position condition instead of an angle at 2.7 cm); (c)
+  hold 2s on the robot (held-2 catches out of the move: median 9-10, max 18 in
+  mix48). Until then the incoming-ball term stays off by default: it helps
+  every other catch (p90 13 -> 10) but pushes some 2-hops from 28-29 to 30-31.
 
 - [x] **LAUNCH TIME: planner snapshot + in-place solver swap (2026-09-13
   15:00, juggling 66fb6b6/11c4896, trajectory_planning e899a81/094ea61).**
