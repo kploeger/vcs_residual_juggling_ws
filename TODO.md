@@ -741,8 +741,14 @@ code and the data* that would otherwise be lost between sessions.
     the contexts come from an exact BFS of the graph (siteswap_graph
     .throw_contexts; 158 per arm at 5 balls / height 7), not from sampled walks.
     One seed file per cfg: walks s43 and s0 give the same fingerprint (316
-    targets). Replay A/B with seeds only (no construction entries, as an
-    online walk) running. Original design note:
+    targets). Replay A/B with the enumerated seeds ONLY (no construction
+    entries, as an online walk would have), 6 walks / 890 catches, after
+    606c041 (each context's nominal + room for it) and e7ac586 (targets match
+    the walk's own operating points to 1e-12, parity.py): mean 6.79 vs 6.71
+    iterations for walk seeding + construction entries, max 17 both, beats
+    >= 15: 2 vs 3. So (e) can drop the catch-and-throw construction entries
+    without a cost. jrl README "enumerated seeds replace the per-beat
+    construction entries". Original design note:
     the contexts (incoming, previous, outgoing, + hold/toss modes)
     per arm, collected from many seeded walks of the configured graph (exact
     enough, and quick). Per context: geometry from resolve_beat, the ball from
