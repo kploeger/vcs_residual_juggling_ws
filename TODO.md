@@ -666,8 +666,13 @@ code and the data* that would otherwise be lost between sessions.
   mean 6.58 -> 6.82 (max 20 both). "Slow planning" 38 -> 14. No
   Restoration_Failed. The three solves still near the cap lack a seed target
   (next two items), not a cached solve.
-- [ ] **The attempt-end ball-collision summary never runs on direct MuJoCo or
-  ROS tracks (found 2026-10-28).** env_glue.py `_log_attempt_ball_collision_summary`
+- [x] **The attempt-end ball-collision summary never runs on direct MuJoCo or
+  ROS tracks (found 2026-10-28).** FIXED on jrl collision-metric (85fbcc8:
+  tracks from dicts or arrays, window to the last release, parked balls
+  moved away) and collision-episodes (294cfc6: every touch counted, the
+  window ends at the last REAL release, not a catch-and-stop's nominal one).
+  Goes to main with collision-episodes (full suite on 1ac30d5 running
+  2026-10-28 19:25). env_glue.py `_log_attempt_ball_collision_summary`
   takes `np.asarray(arr)` of each ball's recording and needs a 2-D array, but
   `_collect_attempt_result` passes `ball.get_recorded_data()`, a list of
   per-frame dicts: asarray gives a 1-D object array, every track is skipped,
@@ -798,6 +803,22 @@ code and the data* that would otherwise be lost between sessions.
     suspect); SiteswapPattern (tracker prior) keeps every event and scans them
     linearly; held-2-from-rest seeds skipped for online walks (TODO in
     _seed_hold_catch_from_rest); (e) stop/throw pools; merging the chain.
+  - STATUS 2026-10-28 19:25. jrl main fast-forwarded to 8f81667 (the whole
+    chain plus ball's robot manifests; full suite on 933d30b: 4971 passed).
+    random-walk-baseline = main. (f) memory DONE: the unbounded online walk
+    (rssfix, streaming + the planned-trajectory release) held 2190 MB at
+    throw 120 and 2210 MB at throw 1468. Pools: online walk s43 on jp
+    stop-throw-pools + jrl pool-warm-starts matches the unpooled run (solves
+    median 6 / p99 15 / max 20 both). QUALIFIER on "210/210" above: no floor
+    drop, but in both runs throw 130 (a tossed 2, 0.22 s flight) got no
+    usable flight fit (cost 1000); ball 3 stayed at z 0.40-0.60 m, so it was
+    a fit miss, not a drop. mix48o (stop-throw-pools, finite chains): 5/5
+    finished seeds ok, same solve distribution as mix48n so far. ThrowChooser
+    hook DONE (jrl walk-chooser 8d0a98b): online_walk.chooser picks the
+    random part's throws; this is where collision planning plugs in. Still
+    open: held-2-from-rest seeds for online walks; merging jp
+    stop-throw-pools (conflicts with jp master 5b0cef7 expected) and jrl
+    pool-warm-starts after mix48o/p.
   - Steps, each a short A/B against mix48m (12 seeds; use shorter walks for
     iteration): (a) bucket the pool by override signature; (b) seed only from
     the pool; (c) enumeration seeding for random walks, disk-cached;
@@ -900,6 +921,20 @@ code and the data* that would otherwise be lost between sessions.
   1bfdfb8 found the seed-file LOAD path re-truncating such payloads to the
   cfg capacity, construction entries first. That is fixed in the follow-up
   commit.
+- [ ] **Ball-ball collision baseline: ~15 would-be collisions per 100 throws
+  (measured 2026-10-28).** The ideal plant runs with ball-ball contact OFF,
+  so drop-free walks are full of collisions that passed through.
+  jrl experiments/random_walk/contact_baseline.py (branch collision-episodes
+  294cfc6) on mix48n (12 finite walks, h7, 5 balls): 346 contacts (centres
+  < 1 D = 7.5 cm) in 2340 throws, 23-33 per walk. All of them are between
+  two balls in flight, none with a ball in a hand. By values: 6/7 133,
+  5/7 95, 3/6 46, 3/7 37, 3/5 27, 3/4 8. Separation median 2.2 cm, max
+  3.9 cm. Every ball flies in the x ~ 0.49 m plane, so a crossing in y-z is
+  always deep. Checked on raw 8 kHz tracks: a 6 rising through a falling 3
+  at z 0.77 m, 1.1 cm apart; a falling 6 and a rising 7 at z 1.91 m, 2.7 cm.
+  Per-contact JSON: /retain/random_walk/contacts_mix48n.json. This is the
+  number collision planning must bring to zero. New runs report it in
+  result["ball_collisions"]["contacts"].
 - [ ] **Ball count as a difficulty axis.** (Kai, 2026-10-28: "We may do both.
   Especially for trying ball-ball collision planning we may want to ablate
   difficulty over ball numbers.") 5 balls stays the random-walk baseline.
