@@ -1236,7 +1236,24 @@ code and the data* that would otherwise be lost between sessions.
   settings: 346 -> 120 (dy 0), 96 (0.06), 47 (0.08), 6 (0.10). Arm sides
   checked on a recording (beat 0 = right arm at y -0.154). Sim smoke xy10
   (collisions off) / xy10c (on), s43 and s0: /retain/random_walk/
-  batch59_chain.sh, queued behind batch58.
+  batch59_chain.sh.
+  => THE Y LEVER FAILS IN THE PLANT (xy10, 2026-10-29 02:48): all four runs
+  drop at the first moved release (s43 before throw 18, s0 before 17),
+  collisions off as well as on. Not ball-ball: the 3 is hit by the CUP
+  (_xoff_dbg/track.py). s43: throw 12 (right 6) released at y -0.054; at
+  4.49-4.52 s the 3 (ball 1, z 0.775, moving -y) is 6.5 cm off the right
+  cup's axis at 12.7 cm above its frame (rim 11.8) and is kicked from vz
+  -0.24 to +1.69 m/s. s0 mirrors it (ball 0, left cup, 4.27-4.30 s).
+  Mechanism: after a 5.4 m/s release the cup keeps rising ~15 cm (peak
+  25-55 ms after release, rim at ~0.78 m), the height of the 3's apex
+  (0.775 m) that crosses then; and the cup must then reach the 3's catch,
+  so moved inward it starts behind the 3 and overtakes it (1.5-2.4 m/s vs
+  the 3's 1.15). Only "in the mouth" (aligned, the nominal case, where the
+  balls collide) or > ~11.5 cm off-axis is clear of the rim. So no small
+  lateral lever, x or y, clears the low contacts. Left: timing (below),
+  choice (after a 3 the other hand throws only 0 / 2 / 3: offline next),
+  or height (the 3 higher / that release lower: needs a cup model). The
+  queued online cup_dy run was cancelled; batch61b runs online x-only.
   ONLINE (jrl online-placement 2e4c315, jugglers/flight_placement.py,
   siteswap.online_walk.placement): the same program beat by beat, each
   flight fixed when first resolved, the next 10 beats tentative. Offline on
