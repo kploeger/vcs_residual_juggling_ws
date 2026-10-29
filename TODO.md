@@ -1176,6 +1176,34 @@ code and the data* that would otherwise be lost between sessions.
   beat as the value's geometry (507 seeds after a 6 vetoed). Smoke xm12
   (menu 0, +0.06, -0.06, +0.12, margin 1.5 D, s43 nominal contacts 30 -> 3)
   running on wt_exact_xo (wt_exact + that fix).
+  SMOKE xm12 (01:00): stopped at throw 60. Beat 53: the left hand caught a 7
+  at +0.12 m and threw a 3 from 0 in one 0.22 s carry; the 3 left with vx
+  -0.47 m/s (plan 0), arrived 15 cm inside the right cup, off the rim. Both
+  failures are 12 cm moves between consecutive events of one hand ->
+  gen_x_offsets --max-jump (hand_jump: carry, vacant before a catch and after
+  a release). Greedy under 6 cm keeps 29 of s43's 30 contacts (crossing
+  flights need >= 7.5 cm apart); --solver ilp (scipy milp, all flights
+  jointly, jumps hard, contacts soft): levels 0 +-0.04 +0.08, jumps <= 0.08:
+  346 -> 6 nominal contacts on the 12 walks, < 1 s each (jrl 05319c0).
+  SMOKE xi08 (ILP, 01:05): dropped before throw 18, collisions off. Throw 11
+  (a 3, released cleanly at +0.08) was knocked at 4.495 s crossing over the
+  right cup, which had released a 6 at 0 m 30 ms before. In mix48v s43 (no
+  offsets) 12 balls cross the other hand's cup like that, each within 1.2 cm
+  of its axis at rim height for ~150 ms, 3-4 cm clear of the walls: they
+  thread the mouth. Every one is a 3 at beat b over the cup of beat b+1.
+  => THE CONTACTS SPLIT IN TWO (mix48v, 12 walks). LOW, 118 of 346: a 3
+  crossing the ball just thrown at b+1 by the other hand, z ~0.77 m right
+  above that cup (3/6 46, 3/7 37, 3/5 27, 3/4 8). x offsets cannot clear
+  them (offset against the cup the 3 hits the rim). HIGH, 228: 6/7 at z 1.9
+  m, 5/7 at 1.5 m, away from the cups. With the cup alignment (jrl e2a5c0a,
+  cup_passes: the 3 keeps the b+1 throw's offset) the ILP keeps 120 of 346.
+  Offline (nominal model) the low ones need TIMING: the b+1 release 0.10 s
+  earlier clears all 118 (0.08 s: 91, 0.06 s: 46), the 3 released 0.10 s
+  later 83. Per-beat release shifts are not in the beat grid: Kai's call.
+  Running: xc08 (cup-aligned ILP, collisions off, 12 walks) to check the high
+  offsets execute, then collisions ON for control mix48vc and xc08c
+  (/retain/random_walk/batch58_chain.sh). Collisions-ON control s43: drop
+  before throw 18, 2 ball-ball collisions (mix48vc).
 - [ ] **Ball count as a difficulty axis.** (Kai, 2026-10-28: "We may do both.
   Especially for trying ball-ball collision planning we may want to ablate
   difficulty over ball numbers.") 5 balls stays the random-walk baseline.
