@@ -1223,6 +1223,26 @@ code and the data* that would otherwise be lost between sessions.
   hand B at b + 0.44 s; B releases at b + 0.22 s and then moves under the
   3 to catch it. The 3 crosses B's release point near its apex (+0.23 m)
   44 ms after B's release, just as B's ball rises through that height.
+  COLLISIONS ON, x offsets only (xc08c vs mix48vc, 12 walks, 2026-10-29
+  02:40, 10 of 12 xc08c done): every walk still stops on its first
+  ball-ball collision, at throw 13-36 without offsets (median ~17) and
+  17-59 with (median ~18-23). x alone does not make a walk survive.
+  OFFSETS COST THE SOLVER LITTLE (xc08 vs mix48v, paired by seed and throw,
+  _xoff_dbg/offset_iters_paired.py): throws the placement moved (or whose
+  arm's previous throw it moved), n 457: IPOPT median +1, p90 +6, max 29 vs
+  25; unmoved throws unchanged (median +0, p90 +1).
+  THE Y LEVER (jrl 99d234b gen_x_offsets --cup-dy): the b + 1 release of
+  every cup pass DY towards the centre, caught where it was. Offline, xc08
+  settings: 346 -> 120 (dy 0), 96 (0.06), 47 (0.08), 6 (0.10). Arm sides
+  checked on a recording (beat 0 = right arm at y -0.154). Sim smoke xy10
+  (collisions off) / xy10c (on), s43 and s0: /retain/random_walk/
+  batch59_chain.sh, queued behind batch58.
+  ONLINE (jrl online-placement 2e4c315, jugglers/flight_placement.py,
+  siteswap.online_walk.placement): the same program beat by beat, each
+  flight fixed when first resolved, the next 10 beats tentative. Offline on
+  the 12 walks: 118 at dy 0 (whole-walk 120), 0 at dy 0.10 (whole-walk 6),
+  jumps <= 0.08, ~17-25 ms per beat. Sim: batch61_online_place.sh (s43, s0,
+  off and on), queued.
 - [ ] **Ball count as a difficulty axis.** (Kai, 2026-10-28: "We may do both.
   Especially for trying ball-ball collision planning we may want to ablate
   difficulty over ball numbers.") 5 balls stays the random-walk baseline.
