@@ -1385,6 +1385,28 @@ code and the data* that would otherwise be lost between sessions.
   stopped before it launched): oxc30jc (online, uniform, x + c30 + ibc20,
   ON) on the 12 seeds, then oacx3c on 12 fresh seeds (1 2 3 6 7 9 11 12 14
   15 16 17) and 1000-throw walks s0, s4 (oacx3cL). After batch70.
+  BATCH71B (06:58-09:30, 456054f + jp master, online, all exact, ON):
+  oxc30jc (uniform walk, x + inner catch 0.30 + ibc20) 12/12 210/210, no
+  ball-ball collision, 128 3s carried; x alone (oplxc s43) drops at 18.
+  oacx3c on 12 fresh seeds 12/12. BUT THE CUPS COLLIDE in every oxc30jc
+  walk (6-11 episodes, 104 for 128 3s; walls crossing; no arm-arm contact
+  in the plant, arm geoms contype 0, runs show nothing): the crossing 3 lands
+  as its thrower releases the next ball, caught at |y| 0.054 against that
+  release at |y| 0.154, tool frames 0.16-0.20 m apart (corners ~0.11 m).
+  oacx3c tool frames never < 0.30 m. jrl experiments/analysis/
+  cup_clearance.py, bed0b7b, in main (mj_geomDistance: -0.41 m for thin boxes,
+  so box-box is sampled). Every catch3_dy 0.30 result (xq30*, ono7c30)
+  has the same geometry. => smoke oxc20jc (catch3_dy 0.20 + ibc20, catch at
+  |y| 0.154, cups ~0.31 m apart; balls-only 0.20 cleared all 118): s43, s29.
+  => nothing flags a cup clash in any run: add the cup clearance to the
+  attempt summary (next to ball-ball collisions) or arm-arm contact to the
+  plant. Not built.
+  OACX3CL (1000-throw walks s0, s4): every throw ran (1061, last 235.2 s),
+  no drop/stop/strict message, no collision, after a 3 only 3 or 0. Result
+  collection held all 8 kHz rows (batch omitted recording_stream.yaml):
+  ~24 GB each; kernel OOM-killed s0 09:29, watchdog stopped s4 09:42, no
+  runner verdict. jrl experiments/random_walk/online.sh (the launcher, now
+  in the repo, overlay data identical) streams walks over 400 throws.
   REVIEW OF online-placement (fixed 1959180): the placer's window missed a
   6/7 into a held 2 (0.12 m jumps, 3 in ~540 held 2s); time limit 5 s ->
   0.1 s (median 24 ms, max 190 ms per beat under load: a ROS-sim deadline
