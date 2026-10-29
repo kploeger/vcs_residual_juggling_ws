@@ -1210,6 +1210,19 @@ code and the data* that would otherwise be lost between sessions.
   l 0.06 clear all 118, e = l = 0.04 clears 83, either alone needs 0.10 s.
   The b+1 release point 10 cm towards the centre also clears all 118 (6 cm:
   27), but the cup moves with it and is NOT modelled there.
+  XC08 (2026-10-29 02:13; cup-aligned ILP, levels 0 +-0.04 +0.08, jumps
+  <= 0.08, margin 1 D, all exact, collisions off, wt_exact_xo + generator
+  wt_xoff_e2a5): 12/12 clean full walks. Measured contacts 120 in 2340
+  throws (5.1/100, was 346 / 14.8): 3/6 46, 3/7 37, 3/5 27, 3/4 8, 5/7 2.
+  Planned vs measured 120 both, 0 either side only, |sep diff| p90 1.2 mm.
+  /retain/random_walk/contacts_xc08.json. So the high offsets execute and
+  the model predicts the plant; only the low 3s (and 2 soft ILP leftovers)
+  remain. Collisions ON, s43: xc08c drops before throw 18 like mix48vc,
+  because s43's first contact (throws 11/12, a 3/6) is a low one.
+  WHY THE LOW ONES ARE STRUCTURAL: the 3 thrown at b by hand A is caught by
+  hand B at b + 0.44 s; B releases at b + 0.22 s and then moves under the
+  3 to catch it. The 3 crosses B's release point near its apex (+0.23 m)
+  44 ms after B's release, just as B's ball rises through that height.
 - [ ] **Ball count as a difficulty axis.** (Kai, 2026-10-28: "We may do both.
   Especially for trying ball-ball collision planning we may want to ablate
   difficulty over ball numbers.") 5 balls stays the random-walk baseline.
