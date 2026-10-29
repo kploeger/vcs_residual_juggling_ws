@@ -1362,9 +1362,24 @@ code and the data* that would otherwise be lost between sessions.
   and 12 x 3000; at H8 the 2-beat look-ahead can be cornered, at H9 a 3-beat
   one: _xoff_dbg/lookahead_corner.py, chooser_old_vs_new.py, way_back_rule.py). Rerun s43, s5, s13, s39 (the changed way
   backs): batch70_wayback_on.sh (TAG oacx3c), after batch69.
-  Then batch71_fresh_long.sh: 12 fresh seeds (1 2 3 6 7 9 11 12 14 15 16
-  17; 0-2 threes each) x 210 throws ON, and 1000-throw walks s0, s4 ON
-  (TAG oacx3cL).
+  Full suite on 456054f (jp master): 5076 passed (fullsuite_456054f.log).
+  XQ30J (finite, uniform walk, x + inner catch 0.30 + incoming-ball
+  clearance 20 cm = ibc20.yaml, 06:34): s43 212/212 and s0 213/213 OFF, s0
+  213/213 ON, s43 ON strict stop before throw 163 after 1 collision. The
+  20 cm DID apply (config.json min_distance 0.2; the exact overlay only
+  replaces context_overrides) and costs nothing (median 11-12 ms, <= 25
+  iters, 0 planning failures). 23 cup-crossing 3s passed OFF (13 s43, 10 s0;
+  3/7 x8, 3/6 x8, 3/5 x6, 3/4) -- the walk-preserving lever WORKS on these
+  two walks. s43's collision: the 3/5 at throws 156/157 (collision times
+  are from the first throw, 1.325 s), a PLANNED contact at 0.51 D (OFF:
+  the run's only would-be contact, contact_baseline --planned, both). Cause:
+  gen_x_offsets moves only flights with release AND catch inside the walk
+  (offsets_overrides movable/inside), and that 3 lands at 159 in the
+  trailing cascade: no inner catch, 157 pinned at 0. The online placer
+  addresses every beat. => batch71b_lever_fresh.sh (replaces batch71,
+  stopped before it launched): oxc30jc (online, uniform, x + c30 + ibc20,
+  ON) on the 12 seeds, then oacx3c on 12 fresh seeds (1 2 3 6 7 9 11 12 14
+  15 16 17) and 1000-throw walks s0, s4 (oacx3cL). After batch70.
   REVIEW OF online-placement (fixed 1959180): the placer's window missed a
   6/7 into a held 2 (0.12 m jumps, 3 in ~540 held 2s); time limit 5 s ->
   0.1 s (median 24 ms, max 190 ms per beat under load: a ROS-sim deadline
