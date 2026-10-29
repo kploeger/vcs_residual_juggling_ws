@@ -1275,6 +1275,14 @@ code and the data* that would otherwise be lost between sessions.
   Also found: contact_baseline.py's JSON had 'values' sorted, not in throw
   order (fixed jrl 0035684; contacts_mix48v/xc08.json regenerated,
   contacts_mix48n.json labelled with a NOTE file).
+  THE CHOICE LEVER (offline, /retain/random_walk/_xoff_dbg/choice_after_3.py,
+  12 walks via WalkSource + the xc08 x placement): after a 3 the other hand
+  may throw only 0 or 3 (a 2 is never legal there: its landing holds the 3),
+  and a 3 is drawn only if the next beat can then be 0 or 3. Nominal contacts
+  after placement 128 (uniform) -> 25; 3s 6.9% -> 1.6% of throws (264
+  vetoed, 12 forced), 0s 8.4 -> 11.1%, 7s 30.8 -> 32.3%. Without the
+  look-ahead the rule is forced 116 of 135 times. Needs no new geometry
+  (a ThrowChooser for online walks), but it changes the walk: Kai's call.
   ONLINE (jrl online-placement 2e4c315, jugglers/flight_placement.py,
   siteswap.online_walk.placement): the same program beat by beat, each
   flight fixed when first resolved, the next 10 beats tentative. Offline on
