@@ -1337,6 +1337,12 @@ code and the data* that would otherwise be lost between sessions.
       All 3 remaining s43 contacts are 3/x crossings where the 3 was the only
       legal throw (contact_baseline --planned: 3/6 x2, 3/5; planned = measured).
     x only: s43 210/210 off (13 contacts), ON drop before throw 18.
+  XQ30I (xq30 + ibc16.yaml, 05:01): s43 drop before throw 60, off = on. The
+  same 3/7 pass: the right cup's +y wall near its corner touches the 3 at
+  13.76 s with the ball centre 16.6 cm from the tool frame: the corner (+ the
+  ball) reaches ~17-18 cm, and the constraint holds at knots only. 20 cm
+  (ibc20.yaml) queued after batch68 (batch69_chain.sh). Video of the xq20 hit
+  sent as V9 (scratchpad v9/).
   => the chooser looks 2 beats ahead now (jrl 97544b5, LOOKAHEAD): 12 seeds x
   3000 throws, forced 542 -> 0, 3s 0.4% of throws. Collisions-ON batch on all
   12 seeds: batch68_acc2_on.sh (TAG oacx2c), after batch67.
