@@ -1312,7 +1312,21 @@ code and the data* that would otherwise be lost between sessions.
   6.5%, 7s 30.8 -> 29.2%, none forced, all 37 3/7 pairs gone; with x +
   catch3_dy 0.30, 15 nominal contacts) + online placement.catch3_dy 0.30:
   batch66_online_levers.sh (s43, s0, off/on), then avoid_cup_crossing + x,
-  then x only.
+  then x only. (batch66 paired the jrl with wt_jp_exact, which predates the
+  IK slot key: every run died at the first solve; rerun as batch66b with jp
+  master, wt_jp_merge_ik. Failed dirs in _failed_jp_mismatch/ with a NOTE.)
+  ONO7C30 s43 (online, no_7_after_3 + x + catch3_dy 0.30, collisions OFF,
+  04:19): strict stop before throw 78. Throw 70 (a 3 followed by a 5) was
+  knocked at 17.505 s by the LEFT cup, the one about to catch it, 60 ms after
+  that cup released the 5 and while it moved to the inner catch (closest
+  0.5 mm to its wall box, contact_replay.py); vy 0.47 -> 0.02. So the inner
+  catch fails on a 3/5 too: the cup heads for the inner catch point during
+  its follow-through, at the 3's height. The planner already has the guard
+  for this, incoming_ball_clearance (jp vacant_lift_constraints.py; uniform_
+  constraints.yaml: min_distance 0.10, guard 0, ramp 0.001, skip 3 knots),
+  but 10 cm is inside the square cup's reach (corners ~0.11 + 3.75 ball).
+  Test: /retain/random_walk/ibc16.yaml (16 cm, guard 0.07, ramp 0.03) on xq30
+  (s43, s0, off/on) = batch67_chain.sh, after batch66b.
   REVIEW OF online-placement (fixed 1959180): the placer's window missed a
   6/7 into a held 2 (0.12 m jumps, 3 in ~540 held 2s); time limit 5 s ->
   0.1 s (median 24 ms, max 190 ms per beat under load: a ROS-sim deadline
