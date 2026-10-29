@@ -1469,7 +1469,12 @@ code and the data* that would otherwise be lost between sessions.
     ahead in a worker (the walk is known N + 2h + 2 beats ahead) and/or
     warm-start IPOPT; warns outside MuJoCo since d870050.
   - [ ] Cups are not in the placer (box +-15 cm moves hands inward):
-    cup_clearance.py on every placer run until they are.
+    cup_clearance.py on every placer run until they are. 5 balls h7 0.44 s
+    (README, batch_hpb5b7/hpbi5b7): placer alone 2/4, both losses the
+    catching cup (rising after its own release) hitting the incoming
+    crossing 3 at 0.16 m (V11, _xoff_dbg/drop_cause.py); + ibc20.yaml 4/4
+    210/210, closest 1.11 D, no cup touch, cups >= 0.34 m. 8 more seeds:
+    batch_hpbi5b7_more.sh.
   - [ ] Unchecked (review): placed beats carry continuous per-beat deltas;
     _nearest_state_donor_keys / _key_state read beat 8 with one.
   - [ ] tests/environment/test_tracker_buffered_reads.py::
