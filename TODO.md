@@ -1327,6 +1327,19 @@ code and the data* that would otherwise be lost between sessions.
   but 10 cm is inside the square cup's reach (corners ~0.11 + 3.75 ball).
   Test: /retain/random_walk/ibc16.yaml (16 cm, guard 0.07, ramp 0.03) on xq30
   (s43, s0, off/on) = batch67_chain.sh, after batch66b.
+  BATCH66B (online, all exact, jrl 7244564 + jp master, 04:57):
+    no_7_after_3 + x + catch3_dy 0.30: s43 stop 78, s0 stop 148, off = on
+      (the inner-catch cup hits above; no ball-ball contact before).
+    avoid_cup_crossing + x: s43 210/210 off (3 would-be contacts), s0
+      210/210 off (0). Collisions ON: s0 210/210 -- THE FIRST WALK THROUGH
+      WITH REAL BALL-BALL COLLISIONS -- and s43 dropped before throw 79 after
+      1 collision (t 16.589 s), its first remaining contact (throws 72/73).
+      All 3 remaining s43 contacts are 3/x crossings where the 3 was the only
+      legal throw (contact_baseline --planned: 3/6 x2, 3/5; planned = measured).
+    x only: s43 210/210 off (13 contacts), ON drop before throw 18.
+  => the chooser looks 2 beats ahead now (jrl 97544b5, LOOKAHEAD): 12 seeds x
+  3000 throws, forced 542 -> 0, 3s 0.4% of throws. Collisions-ON batch on all
+  12 seeds: batch68_acc2_on.sh (TAG oacx2c), after batch67.
   REVIEW OF online-placement (fixed 1959180): the placer's window missed a
   6/7 into a held 2 (0.12 m jumps, 3 in ~540 held 2s); time limit 5 s ->
   0.1 s (median 24 ms, max 190 ms per beat under load: a ROS-sim deadline
