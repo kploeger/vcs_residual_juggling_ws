@@ -1283,6 +1283,23 @@ code and the data* that would otherwise be lost between sessions.
   vetoed, 12 forced), 0s 8.4 -> 11.1%, 7s 30.8 -> 32.3%. Without the
   look-ahead the rule is forced 116 of 135 times. Needs no new geometry
   (a ThrowChooser for online walks), but it changes the walk: Kai's call.
+  Built as siteswap.online_walk.chooser "avoid_cup_crossing" (jrl
+  online-placement 636ef81); sim: batch65_online_acc.sh (with the x
+  placement, s43 and s0, collisions off and on).
+  INNER CATCH 0.20 FAILS TOO (xq20, s43 and s0, off and on, 03:13): drop
+  before throw 17 / 16. MuJoCo replay of the recording
+  (_xoff_dbg/contact_replay.py: arm q + balls -> mj_forward contacts) puts
+  the hit on the right cup's +y wall box at 4.499 s. The plant's cup is
+  SQUARE (mujoco_tool n_collision 4, r_top 0.0775 inscribed: corners at
+  ~0.11 m) and at that moment tilted 12 deg and yawed so a corner points at
+  the 3 (ball at (0.071, 0.111, 0.104) in the tool frame). The 3 passed the
+  cup axis at ~13 cm; a corner reaches ~11 + 3.75. My round-cup model
+  (cup_lever_model.py) under-calls this. Smoke xq30 (0.30 m: ~18.5 cm)
+  queued (batch64_chain.sh).
+  REVIEW OF online-placement (fixed 1959180): the placer's window missed a
+  6/7 into a held 2 (0.12 m jumps, 3 in ~540 held 2s); time limit 5 s ->
+  0.1 s (median 24 ms, max 190 ms per beat under load: a ROS-sim deadline
+  risk, place ahead before timed runs); horizon >= max_height - 2 checked.
   ONLINE (jrl online-placement 2e4c315, jugglers/flight_placement.py,
   siteswap.online_walk.placement): the same program beat by beat, each
   flight fixed when first resolved, the next 10 beats tentative. Offline on
