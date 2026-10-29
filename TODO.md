@@ -1254,6 +1254,27 @@ code and the data* that would otherwise be lost between sessions.
   choice (after a 3 the other hand throws only 0 / 2 / 3: offline next),
   or height (the 3 higher / that release lower: needs a cup model). The
   queued online cup_dy run was cancelled; batch61b runs online x-only.
+  LEVERS AGAINST BALL AND CUP (offline, /retain/random_walk/_xoff_dbg/
+  cup_lever_model.py: each of xc08's 118 low pairs replayed with that hand's
+  RECORDED cup; validated: xy10 s43 pair wall gap -3.7 cm = the hit, xc08
+  pair +0.4 cm = the clear pass). Clear of ball AND cup, of 118:
+  b+1 release earlier 0.04-0.10 s: 0-34 (its follow-through peak meets the
+  approaching 3: rim); the 3 later 0.06: 0 (shorter, lower flight drops
+  into the rising cup); both 0.06: 0; the 3 earlier 0.06-0.08: 24; b+1 later:
+  0; heights (3 +0.06..0.12, b+1 release -0.06..0.10): 24-27, cups clear but
+  the balls not. Why: the 3 must enter the column above the cup that will
+  catch it while that hand's ball rises through it, ~130 ms around 44 ms
+  after that release; a small shift only trades the ball for the rim. (The
+  balls-only timing table above is right for the balls and wrong as a
+  lever.) The one lever that keeps the 3 out of the column: catch it INSIDE
+  (catch_offset_delta y on its landing beat): balls-only 0.20 m clears all
+  118, and that hand's moves get shorter (release -> catch -> next release
+  ~5 cm each instead of 20). Recorded cups cannot be moved to a new catch,
+  so the cup side needs the planner: jrl 377a984 gen_x_offsets --catch3-dy,
+  smoke xq20 / xq20c (s43, s0) queued after batch60 (batch62_chain.sh).
+  Also found: contact_baseline.py's JSON had 'values' sorted, not in throw
+  order (fixed jrl 0035684; contacts_mix48v/xc08.json regenerated,
+  contacts_mix48n.json labelled with a NOTE file).
   ONLINE (jrl online-placement 2e4c315, jugglers/flight_placement.py,
   siteswap.online_walk.placement): the same program beat by beat, each
   flight fixed when first resolved, the next 10 beats tentative. Offline on
