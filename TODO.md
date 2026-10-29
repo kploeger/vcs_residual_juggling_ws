@@ -1346,6 +1346,22 @@ code and the data* that would otherwise be lost between sessions.
   => the chooser looks 2 beats ahead now (jrl 97544b5, LOOKAHEAD): 12 seeds x
   3000 throws, forced 542 -> 0, 3s 0.4% of throws. Collisions-ON batch on all
   12 seeds: batch68_acc2_on.sh (TAG oacx2c), after batch67.
+  XQ30I s0 (05:09): drop before throw 120 (xq30: 119), off = on: 16 cm buys
+  nothing on s0 either.
+  BATCH68 (oacx2c: avoid_cup_crossing 2-beat + x placement, online, all
+  exact, collisions ON, jrl 97544b5 + jp master, 06:12): 11 of 12 seeds
+  210/210 with no ball-ball collision. s43: strict stop before throw 165
+  after 1 collision (balls 2/4, t 35.518 s) and a drop at throw 161. Not a
+  chooser pick: the random part (150 throws) ended at beat 157 on a 6, the
+  shortest way back to ground (siteswap_graph.transition, rule-blind) was a
+  3 at 158, and the cascade's 5 came after it. Offline 6 of 46 length-150
+  walks end that way (of the 12 seeds only s43).
+  => jrl 456054f: _AfterThree.way_back (shortest rule-keeping way back,
+  including the first cascade beat; s43 [3] -> [6, 2], at most +1 throw) and
+  exact viability instead of LOOKAHEAD (H7 draws identical throws, 46 x 150
+  and 12 x 3000; at H8 the 2-beat look-ahead can be cornered, at H9 a 3-beat
+  one: _xoff_dbg/lookahead_corner.py, chooser_old_vs_new.py, way_back_rule.py). Rerun s43, s5, s13, s39 (the changed way
+  backs): batch70_wayback_on.sh (TAG oacx3c), after batch69.
   REVIEW OF online-placement (fixed 1959180): the placer's window missed a
   6/7 into a held 2 (0.12 m jumps, 3 in ~540 held 2s); time limit 5 s ->
   0.1 s (median 24 ms, max 190 ms per beat under load: a ROS-sim deadline
