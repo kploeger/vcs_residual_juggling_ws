@@ -1243,6 +1243,15 @@ code and the data* that would otherwise be lost between sessions.
   the 12 walks: 118 at dy 0 (whole-walk 120), 0 at dy 0.10 (whole-walk 6),
   jumps <= 0.08, ~17-25 ms per beat. Sim: batch61_online_place.sh (s43, s0,
   off and on), queued.
+  WHAT THE TIMING LEVER WOULD TAKE (scoped, not built; Kai's call): the
+  grid already derives everything from a per-beat dwell (jrl
+  siteswap_segments.BeatTiming: release_time = times[b] + dwell_time(b),
+  flight_time, traj_duration = release(b) - release(b - 2), catch_offset).
+  A release shift d_b is a per-beat dwell. But each distinct
+  (traj_duration, catch_offset) is its own NLP time grid (the tempo-variant
+  keys catch_and_throw@<dur>, ~5 GB AOT compile each): a menu {0, +-0.06 s}
+  gives traj durations 0.44 + d_b - d_(b-2) (5 values) x catch offsets (3),
+  up to 15 variants per arm, each seeded. The y lever needs none of that.
 - [ ] **Ball count as a difficulty axis.** (Kai, 2026-10-28: "We may do both.
   Especially for trying ball-ball collision planning we may want to ablate
   difficulty over ball numbers.") 5 balls stays the random-walk baseline.
