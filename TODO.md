@@ -1362,6 +1362,9 @@ code and the data* that would otherwise be lost between sessions.
   and 12 x 3000; at H8 the 2-beat look-ahead can be cornered, at H9 a 3-beat
   one: _xoff_dbg/lookahead_corner.py, chooser_old_vs_new.py, way_back_rule.py). Rerun s43, s5, s13, s39 (the changed way
   backs): batch70_wayback_on.sh (TAG oacx3c), after batch69.
+  Then batch71_fresh_long.sh: 12 fresh seeds (1 2 3 6 7 9 11 12 14 15 16
+  17; 0-2 threes each) x 210 throws ON, and 1000-throw walks s0, s4 ON
+  (TAG oacx3cL).
   REVIEW OF online-placement (fixed 1959180): the placer's window missed a
   6/7 into a held 2 (0.12 m jumps, 3 in ~540 held 2s); time limit 5 s ->
   0.1 s (median 24 ms, max 190 ms per beat under load: a ROS-sim deadline
