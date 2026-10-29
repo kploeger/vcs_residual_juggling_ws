@@ -1407,6 +1407,23 @@ code and the data* that would otherwise be lost between sessions.
   ~24 GB each; kernel OOM-killed s0 09:29, watchdog stopped s4 09:42, no
   runner verdict. jrl experiments/random_walk/online.sh (the launcher, now
   in the repo, overlay data identical) streams walks over 400 throws.
+  OXC20JC (catch3_dy 0.20 + ibc20, online, ON): s43 210/210, s29 strict
+  stop before throw 105 after 1 collision. Not pursued (below).
+  DIRECTION (Kai, 2026-10-29 10:12): do NOT change the walk (choice lever
+  out); make it work by PLANNING, with an online planner whose look-ahead
+  N is adjustable; the goal is to find how far ahead it must plan, not a
+  fixed rule; hands close to each other are fine; start with 3-ball
+  walks; test the ball-ball planner in isolation (no sim, no arms) first,
+  hand-trajectory constraints after. => jrl jugglers/horizon_placement.py
+  (78cb832, main): release + catch points of the next N beats as free
+  offsets, committed balls fixed, everything after N ignored; exact
+  flight-pair clearance by separating planes (normal = side choice, drawn
+  per start); multi-start IPOPT. experiments/random_walk/horizon_sweep.py.
+  3 balls h5, 12 x 150, isolation (flights only, no hands, box +-0.2):
+  nominal 11.2 contacts/100 throws, N >= 1 clears all (sampled-constraint
+  run, superseded; exact rerun h35_iso pending). Hand limits (box +-8/+-5
+  cm, jump 8 cm, in-hand balls): on one 30-throw walk N = 1 leaves 2 pairs
+  under 1.2 D, N >= 2 = all-at-once 1. Sweeps: /retain/random_walk/horizon/.
   REVIEW OF online-placement (fixed 1959180): the placer's window missed a
   6/7 into a held 2 (0.12 m jumps, 3 in ~540 held 2s); time limit 5 s ->
   0.1 s (median 24 ms, max 190 ms per beat under load: a ROS-sim deadline
