@@ -1453,6 +1453,29 @@ code and the data* that would otherwise be lost between sessions.
   keys catch_and_throw@<dur>, ~5 GB AOT compile each): a menu {0, +-0.06 s}
   gives traj durations 0.44 + d_b - d_(b-2) (5 values) x catch offsets (3),
   up to 15 variants per arm, each seeded. The y lever needs none of that.
+  IN THE SIM (2026-10-29 night, jrl main 41ee290, README "juggling it"):
+  3 balls h5 0.5 s, horizon_hand_b3.yaml (N 4, box y +-15 cm, in hand,
+  hand cost + 3 cm inward bias), collisions ON: 9/9 walks 210/210,
+  closest 1.18-1.19 D, cups >= 0.32 m; nominal + collisions: 9/9 stop
+  before throw 13-16. Runs /retain/random_walk/online_{hp3b5,nombb3b5,
+  nom3b5}_s*. SEARCH GAP FOUND AND FIXED: in the plane the receding plans
+  cost 1.17x (3b h7) / 1.41x (5b h7) all+ and did not improve with N; an
+  all+ start per window recovered most of it (_xoff_dbg/oracle_start.py),
+  so it was the side choice. HorizonSpec.branch (flip the entering throw's
+  near pairs) -> 1.01x / 0.85x, cost falls with N, 2 starts enough (3x
+  faster). 5 balls h7 0.44 s with branch 8 in the sim: batch_hpb5b7.sh.
+  - [ ] Real time: ~0.3 s/beat (3b) to ~0.7 s/beat (5b, 2 starts, in
+    hand) synchronous in beat_for; the robot beat is 0.22-0.25 s. Place
+    ahead in a worker (the walk is known N + 2h + 2 beats ahead) and/or
+    warm-start IPOPT; warns outside MuJoCo since d870050.
+  - [ ] Cups are not in the placer (box +-15 cm moves hands inward):
+    cup_clearance.py on every placer run until they are.
+  - [ ] Unchecked (review): placed beats carry continuous per-beat deltas;
+    _nearest_state_donor_keys / _key_state read beat 8 with one.
+  - [ ] tests/environment/test_tracker_buffered_reads.py::
+    test_the_full_read_converts_outside_the_lock is load-sensitive: 68 ms
+    vs a 20 ms bound under two 8 kHz sims + sweeps (fullsuite_3011450.log);
+    3/3 alone. Loosen or mark it.
 - [ ] **Ball count as a difficulty axis.** (Kai, 2026-10-28: "We may do both.
   Especially for trying ball-ball collision planning we may want to ablate
   difficulty over ball numbers.") 5 balls stays the random-walk baseline.
