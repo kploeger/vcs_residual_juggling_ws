@@ -1204,6 +1204,12 @@ code and the data* that would otherwise be lost between sessions.
   offsets execute, then collisions ON for control mix48vc and xc08c
   (/retain/random_walk/batch58_chain.sh). Collisions-ON control s43: drop
   before throw 18, 2 ball-ball collisions (mix48vc).
+  LEVER MENU FOR THE LOW 118 (offline, nominal model, ball-ball only;
+  /retain/random_walk/_xoff_dbg/low_levers.py): b+1 release e s earlier and
+  the 3 l s later (same points, same landings): e 0.04 / l 0.08 or e 0.06 /
+  l 0.06 clear all 118, e = l = 0.04 clears 83, either alone needs 0.10 s.
+  The b+1 release point 10 cm towards the centre also clears all 118 (6 cm:
+  27), but the cup moves with it and is NOT modelled there.
 - [ ] **Ball count as a difficulty axis.** (Kai, 2026-10-28: "We may do both.
   Especially for trying ball-ball collision planning we may want to ablate
   difficulty over ball numbers.") 5 balls stays the random-walk baseline.
