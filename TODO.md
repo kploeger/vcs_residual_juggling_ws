@@ -1363,6 +1363,11 @@ code and the data* that would otherwise be lost between sessions.
   one: _xoff_dbg/lookahead_corner.py, chooser_old_vs_new.py, way_back_rule.py). Rerun s43, s5, s13, s39 (the changed way
   backs): batch70_wayback_on.sh (TAG oacx3c), after batch69.
   Full suite on 456054f (jp master): 5076 passed (fullsuite_456054f.log).
+  BATCH70 (oacx3c, 456054f, ON, 06:58): s43, s5, s13, s39 all 210/210,
+  "ball-ball collisions: none detected"; s43 took the new way back (6 at
+  158, then the 2). The other 11 mix48 seeds draw identical throws at
+  456054f (their oacx2c runs were at 97544b5), so avoid_cup_crossing + x is
+  12/12 clean with real collisions on the mix48 set. jrl main = dbb8896.
   XQ30J (finite, uniform walk, x + inner catch 0.30 + incoming-ball
   clearance 20 cm = ibc20.yaml, 06:34): s43 212/212 and s0 213/213 OFF, s0
   213/213 ON, s43 ON strict stop before throw 163 after 1 collision. The
