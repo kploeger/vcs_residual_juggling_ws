@@ -1296,6 +1296,17 @@ code and the data* that would otherwise be lost between sessions.
   cup axis at ~13 cm; a corner reaches ~11 + 3.75. My round-cup model
   (cup_lever_model.py) under-calls this. Smoke xq30 (0.30 m: ~18.5 cm)
   queued (batch64_chain.sh).
+  XQ30 (03:37): s43 drop before throw 58, s0 before 119, off and on alike.
+  Both at the first 3 followed by a 7 (s43 throws 53/54, s0 114/115); the
+  cup passes before them ran: 3/6 x2 (s43), 3/6 x3 + 3/5 x3 (s0). s43: the
+  right cup touched the 3 at 13.755 s, 50 ms after releasing the 7, moving
+  inward to the inner catch (contact_replay.py). Small numbers (8 passed,
+  2 failed), but the cup after a 7 (6.47 m/s) rises furthest. => chooser
+  "no_7_after_3" (jrl 7244564: after a 3 nothing >= 7; offline 3s 6.9 ->
+  6.5%, 7s 30.8 -> 29.2%, none forced, all 37 3/7 pairs gone; with x +
+  catch3_dy 0.30, 15 nominal contacts) + online placement.catch3_dy 0.30:
+  batch66_online_levers.sh (s43, s0, off/on), then avoid_cup_crossing + x,
+  then x only.
   REVIEW OF online-placement (fixed 1959180): the placer's window missed a
   6/7 into a held 2 (0.12 m jumps, 3 in ~540 held 2s); time limit 5 s ->
   0.1 s (median 24 ms, max 190 ms per beat under load: a ROS-sim deadline
