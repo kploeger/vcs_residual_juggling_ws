@@ -998,6 +998,12 @@ code and the data* that would otherwise be lost between sessions.
       same walks): iterations median 5 vs 6, p90 8 both, p99 17 vs 20, max
       25 vs 23, >= 15: 52 vs 39. NLP ms median 7.7 vs 7.5, p90 11.3 vs 9.7,
       p99 17.4 vs 13.6, max 32.2 vs 20.2.
+    - ONLINE WALKS UNDER ALL EXACT: 12/12 clean (2026-10-29 04:10,
+      /retain/random_walk/online_exact.sh: the online stack, overlay
+      generated for it = allm1dense_all.yaml body; code wt_exact_xo /
+      wt_jp_exact; 210 throws each, strict). 2540 solves, IPOPT median 5 /
+      p99 17 / max 25, >= 15: 55, NLP p90 9.8 ms, max 20.0; no guard
+      fallback, no planning failure. Logs /retain/random_walk/online_oex_s*.
     - THE TOSSED 2s COME GOOD UNDER THE EXACT CARRY. Throw cost over the 12
       walks: mix48q median 0.0060, p99 0.142, 43 throws above 0.05 and 18
       failed evaluations (cost 1000); mix48v median 0.0054, p99 0.0115, max
