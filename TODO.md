@@ -1424,6 +1424,16 @@ code and the data* that would otherwise be lost between sessions.
   run, superseded; exact rerun h35_iso pending). Hand limits (box +-8/+-5
   cm, jump 8 cm, in-hand balls): on one 30-throw walk N = 1 leaves 2 pairs
   under 1.2 D, N >= 2 = all-at-once 1. Sweeps: /retain/random_walk/horizon/.
+  UNLIMITED (Kai 11:06: no tight limits, large adaptations are a result,
+  find the OPTIMAL plans; jrl c555642/a10f7da main): flights only, box
+  +-1 m, regret of the adaptation (sum sq offsets) vs the best plan per
+  walk. Needed horizon = 1 + the largest release gap of a nominally
+  conflicting pair = h - 3 beats for max height h: h5 N=2 (0%), h7 N=4
+  (<=3%), h9 N=6 (<=1%), 3 and 5 balls alike; N=1 costs 64-94% more.
+  Optimality: whole walk at once never beaten, 4/12/24 starts identical.
+  NEXT (Kai: then the hand-trajectory constraints): put the placer in the
+  sim (OnlinePlacer interface throw_delta/catch_delta) and see what the
+  hands need; a 3-ball online-walk stack is not set up yet.
   REVIEW OF online-placement (fixed 1959180): the placer's window missed a
   6/7 into a held 2 (0.12 m jumps, 3 in ~540 held 2s); time limit 5 s ->
   0.1 s (median 24 ms, max 190 ms per beat under load: a ROS-sim deadline
