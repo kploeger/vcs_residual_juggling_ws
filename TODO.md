@@ -1473,8 +1473,10 @@ code and the data* that would otherwise be lost between sessions.
     (README, batch_hpb5b7/hpbi5b7): placer alone 2/4, both losses the
     catching cup (rising after its own release) hitting the incoming
     crossing 3 at 0.16 m (V11, _xoff_dbg/drop_cause.py); + ibc20.yaml 4/4
-    210/210, closest 1.11 D, no cup touch, cups >= 0.34 m. 8 more seeds:
-    batch_hpbi5b7_more.sh.
+    210/210, closest 1.11 D, no cup touch, cups >= 0.34 m; 12/12 with 8
+    more seeds. The unplaced walks touch no cup (4 x 210): the placer's
+    hand moves bring the cup into the 3's path. Modelling the cup in the
+    placer (or ibc in its constraints) would remove the dependence on ibc20.
   - [ ] Unchecked (review): placed beats carry continuous per-beat deltas;
     _nearest_state_donor_keys / _key_state read beat 8 with one.
   - [ ] tests/environment/test_tracker_buffered_reads.py::
