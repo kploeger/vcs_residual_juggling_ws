@@ -1499,7 +1499,11 @@ code and the data* that would otherwise be lost between sessions.
   - [ ] The opening is never placed (first_movable = opening): the 6-ball
     nominal fountain opening passes at 1.07 D at 2.816 s in every seed
     (online_hpbiz6b7_s*), the closest moment of those walks. Place it too,
-    or check each ball count's opening offline before a run.
+    or check each ball count's opening offline before a run. Mechanism
+    (s0, balls 1 and 3, left hand): the rising and the falling ball of one
+    hand's column meet at 1.79 m with vz +-2.16 m/s and the same vy 0.18
+    m/s, so dy = 0.18 x 0.44 s = 7.9 cm = 1.07 D. Inherent to the nominal
+    6-fountain at 0.44 s and these throw/catch points, every such pair.
 - [ ] **Robot (multi-tempo) chains: the live cyclic-slot references are planned
   at the slot's FIRST occurrence.** (2026-10-28, code review of eb74ee5,
   verified.) With more than one chain duration `_tempo_key_for_throw`
