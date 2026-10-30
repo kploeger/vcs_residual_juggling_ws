@@ -1488,6 +1488,18 @@ code and the data* that would otherwise be lost between sessions.
   difficulty over ball numbers.") 5 balls stays the random-walk baseline.
   Once ball-ball avoidance starts, run the same walks at 3/4/5 balls (shares
   per ball count: thesis plots repo planning/plot_throw_distribution).
+  DONE FOR h7 IN THE SIM (2026-10-30, jrl 900f1ad README "every ball
+  count"): placer branch 8 + ibc20, 0.44 s, collisions on: 3/4/5/6 balls
+  4/4, 4/4, 12/12, 4/4 walks 210/210, closest after the opening 1.09-1.17 D,
+  no cup hit in flight, tool frames >= 0.31 m. 1 ball cannot run (its
+  opening/way back are 1s, UNSUPPORTED_THROWS); 7 balls at h7 is 7s only.
+  Still open: 2 balls (batch_counts_h7_2b.sh; s0 died building the placer,
+  held first 2, fixed b1fd23b) and the 4/6-ball no-placer controls
+  (batch_nom_h7_46b.sh).
+  - [ ] The opening is never placed (first_movable = opening): the 6-ball
+    nominal fountain opening passes at 1.07 D at 2.816 s in every seed
+    (online_hpbiz6b7_s*), the closest moment of those walks. Place it too,
+    or check each ball count's opening offline before a run.
 - [ ] **Robot (multi-tempo) chains: the live cyclic-slot references are planned
   at the slot's FIRST occurrence.** (2026-10-28, code review of eb74ee5,
   verified.) With more than one chain duration `_tempo_key_for_throw`
