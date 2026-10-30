@@ -1498,10 +1498,13 @@ code and the data* that would otherwise be lost between sessions.
   the ending stop (6caebea, review fixes 9281931). No-placer controls, 4/6
   balls: collisions on, all 4 lost to ball-ball by throw 17-37; off, 19 / 31
   episodes under 1 D; the placer cuts hand y travel 55 % / 47 %.
-  - [ ] held-ends changes the ending stop of ANY pattern whose last beat
+  - [x] held-ends changes the ending stop of ANY pattern whose last beat
     has no ball landing (after a held 2 or a 0, e.g. 504 cycles in the
-    robot chains): it rests instead of planning a catch for nothing. Run a
-    504/552 chain on it once (sim) before the next robot session.
+    robot chains): it rests instead of planning a catch for nothing.
+    CHECKED 2026-10-30 (sim, 8 kHz exact, strict; /retain/random_walk/
+    heldends_504): 3x8,44,504* budgets 60/61/62 all succeed on main;
+    before held-ends budget 61 failed at the stop on the 0 (no_incoming_
+    ball). A held-2 chain (552 with holds) is not run yet.
   - [ ] The opening is never placed (first_movable = opening): the 6-ball
     nominal fountain opening passes at 1.07 D at 2.816 s in every seed
     (online_hpbiz6b7_s*), the closest moment of those walks. Place it too,
