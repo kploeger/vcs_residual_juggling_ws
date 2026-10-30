@@ -1493,9 +1493,15 @@ code and the data* that would otherwise be lost between sessions.
   4/4, 4/4, 12/12, 4/4 walks 210/210, closest after the opening 1.09-1.17 D,
   no cup hit in flight, tool frames >= 0.31 m. 1 ball cannot run (its
   opening/way back are 1s, UNSUPPORTED_THROWS); 7 balls at h7 is 7s only.
-  Still open: 2 balls (batch_counts_h7_2b.sh; s0 died building the placer,
-  held first 2, fixed b1fd23b) and the 4/6-ball no-placer controls
-  (batch_nom_h7_46b.sh).
+  2 balls (2026-10-30 04:35, jrl main 622c085 = held-ends): 4/4 210/210,
+  closest 1.18-1.19 D, after fixing held 2s at an arm's first beat and at
+  the ending stop (6caebea, review fixes 9281931). No-placer controls, 4/6
+  balls: collisions on, all 4 lost to ball-ball by throw 17-37; off, 19 / 31
+  episodes under 1 D; the placer cuts hand y travel 55 % / 47 %.
+  - [ ] held-ends changes the ending stop of ANY pattern whose last beat
+    has no ball landing (after a held 2 or a 0, e.g. 504 cycles in the
+    robot chains): it rests instead of planning a catch for nothing. Run a
+    504/552 chain on it once (sim) before the next robot session.
   - [ ] The opening is never placed (first_movable = opening): the 6-ball
     nominal fountain opening passes at 1.07 D at 2.816 s in every seed
     (online_hpbiz6b7_s*), the closest moment of those walks. Place it too,
