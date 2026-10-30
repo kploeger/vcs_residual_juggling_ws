@@ -7,7 +7,7 @@ describes the problem, proposes a fix, and says why it was deferred.
 
 ## The even-ball qualify outward seed reaches the online walk's bank keys
 
-**Where:** `juggling_residual_learning/juggling_residual_learning/jugglers/siteswap_juggler.py:1674`
+**Where:** `juggling_residual_learning/juggling_residual_learning/jugglers/siteswap_juggler.py:1676`
 (jrl main 59be140)
 
 ```python
