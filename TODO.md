@@ -369,6 +369,23 @@ code and the data* that would otherwise be lost between sessions.
   scheduling); attempt 2+ fine. Not seen on Thales. Suspect uninitialised
   controller state on the first transition; re-check after the Release rebuild.
 
+### Random walks: what is left of the vacant-phase dives (2026-10-30, vacant-dive session)
+
+- [ ] **Rests right after a 3 still dip 25 mm, catches right after throwing a 3 re-ascend 20-27 mm.**
+  Seed 0, final config (jrl 477026d / README random_walk "2026-10-30 evening: the hands dive and climb
+  back"): `online_vz_fin_{2..5}b7_s0` worst whole cycle 25.5 mm, all `rest_no_ball` after an o3; the
+  prev3 re-ascents 20.0-26.5 mm (vacant_dive.py --by-cause). Both are the 4 cm post-takeoff separation
+  of a 3 against the hand z price; the separation is load-bearing (`online_vz_sepramp_3b7_s0`: the cup
+  hit its own 3 at 91 ms when it was ramped in). Next lever without a new constraint: the price's time
+  profile after a 3 (Kai: "velocity costs that we could vary over time and per joint").
+- [ ] **The price costs throw accuracy on 6s and 7s.** Landing error median/p95, before -> after (seed 0,
+  vacant_z/accuracy.py): 6s 5.0-5.8/6.8-7.9 -> 6.4-8.4/8.1-12.8 mm, 7s 8.9-10.4/11.4-13.6 ->
+  10.3-12.0/14.7-15.3 mm; 2-5 unchanged. Sim with an ideal plant; check what it means on the robot
+  before shipping vacant_dive.yaml there.
+- [ ] **The stop's price is per knot ~2.3x lighter than the catching NLPs'** at the same weight
+  (mean over ~28 interior knots vs ~12 vacant knots; jp planner._build_vacant_hand_velocity_cost,
+  default_k). A sweep of catch_and_stop's weight retunes the 0-beat stop too.
+
 ### Closed-loop catching
 
 - **FIXED 2026-09-12 21:00 (juggling: seating bound 10.0 at knots 12-25 for every catch-and-throw, settings_20260909.yaml; lab PC 7/8, was 4/8).** Was: the 5-ball drop-in catch (the `ix` slot, throw 80 of the 96-throw chain)
