@@ -5,6 +5,39 @@ describes the problem, proposes a fix, and says why it was deferred.
 
 ---
 
+## The even-ball qualify outward seed reaches the online walk's bank keys
+
+**Where:** `juggling_residual_learning/juggling_residual_learning/jugglers/siteswap_juggler.py:1674`
+(jrl main 59be140)
+
+```python
+if throw_type.startswith(("sstrans_", "sscyclic_")):
+    return None            # the siteswap pattern itself: no bias
+```
+
+`_qualify_initial_offset` gives an even-ball siteswap's QUALIFY learners
+an outward +-`pattern.qualify_outward_vy` (0.1 m/s), so that a learning
+fountain does not collapse into one column. Its docstring scopes it to the
+inherited qualify keys (`throw_<i>_<arm>`, `catch_and_throw_<arm>`). The
+exclusion list predates the similarity bank (Oct), so `ssbank_*` /
+`ssbeat_*` keys get the seed too. Every throw of a 4- or 6-ball online walk
+then flew 0.1 m/s outward: the opening catches were 6.7 cm (4 balls) and
+11.2 cm (6 balls) off, and the strict catch range stopped all 8 planner-only
+seeds before throw 5 / 7 (`/retain/random_walk/online_hpbi{4,6}b7_s*`,
+2026-10-30). `sschain_b*` keys are not excluded either.
+
+**Proposed fix:** bias only the qualify key shapes (or add `ssbank_`,
+`ssbeat_` and possibly `sschain_` to the exclusion), with a test on an
+online-walk bank key.
+
+**Why deferred:** it changes every even-ball LEARNING run that goes through
+the bank or a chain (1be2fe6 seeded the robot's 534 on purpose), which is
+Kai's call. The planner-only random walks set `qualify_outward_vy: 0.0`
+(`experiments/random_walk/configs/online_walk.yaml`), the documented
+setting for zero-residual runs.
+
+---
+
 ## `release_fit_min_fit_points` is silently clamped to 6
 
 **Where:** `juggling_residual_learning/juggling_residual_learning/label_generator.py:275`
