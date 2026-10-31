@@ -409,7 +409,7 @@ code and the data* that would otherwise be lost between sessions.
   pairs over 2-6 balls (`online_tim2_*`, /retain/random_walk/rel/, README random_walk "Throw timing,
   rerun"): greedy (+10 ms in 53/55) mean 0.999, worst 1.130, worse in 22; best-for-both mean 0.978,
   down to 0.886, the big gains after a thrown 3 (-10 ms best in all 7, 1.5-11 %). Options: pick among
-  -10/0/+10 by solving this and the next beat (no NLP change, ~3x solves), or run the NLP on past the
+  -10/0/+10 by solving this and the next beat (no NLP change, 6 solves instead of 1), or run the NLP on past the
   release to the next catch.
 - [ ] **No free catch time on catch_and_stop** (jp catch_timing is catch_and_throw only, fe65f97).
 - [ ] **Free catch time: merge to main once the tp / jp branches are.** jrl beam-starts c23f6df has it
