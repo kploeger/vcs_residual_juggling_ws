@@ -388,15 +388,14 @@ code and the data* that would otherwise be lost between sessions.
 
 ### Random walks: sideways speed when catching a 3, and catch / throw timing (2026-10-31)
 
-- [ ] **3s caught from rest, or into a stop, still move sideways at 52-56 m/s^2 / 2.2-2.4 m/s.** After
-  catch3_lateral.yaml (jrl 077ecd2) the ordinary 3-catches are at the level of the other throws, but
-  `online_c3l_3b7_s0` throws 72 / 122 (`i3_px_o5` / `i3_px_o4`, the hand starting from a rest) and the
-  catch_and_stops 44 / 100 peak 83-85 ms before the catch, i.e. at the cone's 80 ms point
-  (experiments/analysis/vacant_lateral.py --worst). Replayed (/retain/random_walk/hxy/ct_replay.py, r6.log;
-  "px" resolves prev_throw 0, which makes the post-takeoff blocks inert): 55.9 / 52.8 m/s^2, as in the sim.
-  The hand leaves the rest pose 16-18 cm sideways of where it has to be; the cone's 80 ms point off too
-  still leaves 43-48 m/s^2, so it is mostly the move itself in 220 ms. Lever if it matters: where the rest
-  pose of a 0 sits relative to the next catch.
+- [ ] **Catching a 3 is still the fastest sideways move on 2-5 balls: 73-89 m/s^2 max, ~100 ms before the
+  catch.** catch3_lateral.yaml (second version, jrl 4dc2608: the 3's 110 ms cone point at 15 deg) took the
+  max from 98-131 to 73-89 m/s^2 with >= 10 mm rim clearance on 21 replayed 3-catches; every setting that went
+  further left 1-5 mm or hit the rim (README random_walk 2026-10-31, the sweep; the first version dropped a 3
+  on 6 balls). Worst now (`online_c3m_4b7_s0`): 3s after a 7 (throws 47, 140, 127) at the 110 ms point.
+  Levers not tried: a funnel point between 110 and 140 ms at the cup's own 24 deg (the rim hit was at
+  116-121 ms), and the 3s caught from rest (the hand leaves the rest pose 16-18 cm sideways; replayed,
+  even without the 80 ms point 43-48 m/s^2 is the move itself).
 - [ ] **Throw timing: a release shift is paid by the arm's next trajectory.** Replayed pairs
   (/retain/random_walk/hxy/ct_pair.py, 4 balls seed 0): over +-10 ms the two-trajectory objective moves
   -8..+10 %, flat (+-0.5 %) for like neighbours (`i4_p4_o4` then `i4_p4_o4`), 1-8 % to gain where they
@@ -407,10 +406,12 @@ code and the data* that would otherwise be lost between sessions.
   Re-checked 2026-10-31 02:15 with knot windows sized for the shifts (p2.log; the first run masked cone
   points, review F1): the same numbers within 0.2 %.
 - [ ] **No free catch time on catch_and_stop** (jp catch_timing is catch_and_throw only, fe65f97).
-- [ ] **The free catch time (catch_timing) has no valid sim yet.** Replayed with windows sized for it (r7.log,
-  t3.log, 4 balls): the objective drops 0-11.5 % per beat, mostly by catching earlier (a longer dwell); the
-  first numbers (up to 15 %) were inflated by masked cone points. online_tim3l_* were stopped (INVALID.txt).
-  Its rim clearance has not been checked (hxy/ct_replay.py --clearance) and must be before a run.
+- [ ] **Free catch time: merge to main once the tp / jp branches are.** jrl beam-starts c23f6df has it
+  (opt-in, configs/catch_timing.yaml + catch_timing_3late.yaml); it needs trajectory_planning
+  aux-decision-variables a1db894 and juggle_planning catch-throw-timing 1b29570, neither on master yet
+  (tp is a generic package: an additive, opt-in build_nlp API). Sims seed 0, 2-6 balls, 210/210
+  (`online_tim2_*`, README random_walk 2026-10-31): worst vacant re-ascent 20-27 -> 0.4-16 mm, joint motion
+  cost -2..-3 %. Not on catch_and_stop, so the rests after a 3 (25 mm) stay. Other seeds not run.
 
 ### Closed-loop catching
 
