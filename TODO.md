@@ -404,7 +404,13 @@ code and the data* that would otherwise be lost between sessions.
   trajectory's price in the objective (its duration sensitivity, e.g. per next context from the seed
   cache), plus jrl scheduling that takes a planned release off the beat grid. Not built; Kai to decide.
   Re-checked 2026-10-31 02:15 with knot windows sized for the shifts (p2.log; the first run masked cone
-  points, review F1): the same numbers within 0.2 %.
+  points, review F1): the same numbers within 0.2 %. Those 5 pairs had the unsafe C1 3-catch settings
+  (`--c1`) and the catch pinned. Rerun 2026-10-31 15:20 on the final settings, catch wiggle free, 55
+  pairs over 2-6 balls (`online_tim2_*`, /retain/random_walk/rel/, README random_walk "Throw timing,
+  rerun"): greedy (+10 ms in 53/55) mean 0.999, worst 1.130, worse in 22; best-for-both mean 0.978,
+  down to 0.886, the big gains after a thrown 3 (-10 ms best in all 7, 1.5-11 %). Options: pick among
+  -10/0/+10 by solving this and the next beat (no NLP change, ~3x solves), or run the NLP on past the
+  release to the next catch.
 - [ ] **No free catch time on catch_and_stop** (jp catch_timing is catch_and_throw only, fe65f97).
 - [ ] **Free catch time: merge to main once the tp / jp branches are.** jrl beam-starts c23f6df has it
   (opt-in, configs/catch_timing.yaml + catch_timing_3late.yaml); it needs trajectory_planning
