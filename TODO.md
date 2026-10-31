@@ -392,9 +392,11 @@ code and the data* that would otherwise be lost between sessions.
   catch3_lateral.yaml (jrl 077ecd2) the ordinary 3-catches are at the level of the other throws, but
   `online_c3l_3b7_s0` throws 72 / 122 (`i3_px_o5` / `i3_px_o4`, the hand starting from a rest) and the
   catch_and_stops 44 / 100 peak 83-85 ms before the catch, i.e. at the cone's 80 ms point
-  (experiments/analysis/vacant_lateral.py --worst). Not replayed yet: /retain/random_walk/hxy/ct_replay.py
-  takes a beat's start at its recorded t_start, which for a px beat is not where the from-rest NLP starts
-  (its "as run" there read 276 m/s^2 against 87 recorded).
+  (experiments/analysis/vacant_lateral.py --worst). Replayed (/retain/random_walk/hxy/ct_replay.py, r6.log;
+  "px" resolves prev_throw 0, which makes the post-takeoff blocks inert): 55.9 / 52.8 m/s^2, as in the sim.
+  The hand leaves the rest pose 16-18 cm sideways of where it has to be; the cone's 80 ms point off too
+  still leaves 43-48 m/s^2, so it is mostly the move itself in 220 ms. Lever if it matters: where the rest
+  pose of a 0 sits relative to the next catch.
 - [ ] **Throw timing: a release shift is paid by the arm's next trajectory.** Replayed pairs
   (/retain/random_walk/hxy/ct_pair.py, 4 balls seed 0): over +-10 ms the two-trajectory objective moves
   -8..+10 %, flat (+-0.5 %) for like neighbours (`i4_p4_o4` then `i4_p4_o4`), 1-8 % to gain where they
