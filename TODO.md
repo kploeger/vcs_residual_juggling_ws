@@ -396,7 +396,8 @@ code and the data* that would otherwise be lost between sessions.
   Levers not tried: a funnel point between 110 and 140 ms at the cup's own 24 deg (the rim hit was at
   116-121 ms), and the 3s caught from rest (the hand leaves the rest pose 16-18 cm sideways; replayed,
   even without the 80 ms point 43-48 m/s^2 is the move itself).
-- [ ] **Throw timing: a release shift is paid by the arm's next trajectory.** Replayed pairs
+- [x] **Throw timing: a release shift is paid by the arm's next trajectory.** DECIDED (Kai, 2026-10-31
+  18:36): no timing adaptation online, so not built. Kept for what it says about the cost. Replayed pairs
   (/retain/random_walk/hxy/ct_pair.py, 4 balls seed 0): over +-10 ms the two-trajectory objective moves
   -8..+10 %, flat (+-0.5 %) for like neighbours (`i4_p4_o4` then `i4_p4_o4`), 1-8 % to gain where they
   differ (throw 109, an o3 before an o6: 10 ms earlier saves 8 %), while the trajectory alone always
@@ -411,8 +412,13 @@ code and the data* that would otherwise be lost between sessions.
   down to 0.886, the big gains after a thrown 3 (-10 ms best in all 7, 1.5-11 %). Options: pick among
   -10/0/+10 by solving this and the next beat (no NLP change, 6 solves instead of 1), or run the NLP on past the
   release to the next catch.
-- [ ] **No free catch time on catch_and_stop** (jp catch_timing is catch_and_throw only, fe65f97).
-- [ ] **Free catch time: merge to main once the tp / jp branches are.** jrl beam-starts c23f6df has it
+- [x] **No free catch time on catch_and_stop** (jp catch_timing is catch_and_throw only, fe65f97).
+  DECIDED (Kai, 2026-10-31): no timing adaptation online; not needed.
+- [ ] **Free catch time: an offline probe, not an online feature.** Kai, 2026-10-31 18:36: no timing
+  adaptation online. Do not merge the tp / jp branches for online use or add catch_timing to a run
+  stack; the code stays opt-in on its branches for replays (what timing the cost would pick). Open:
+  whether to strip the jrl online plumbing (scheduler / payload catch_time_shift) from beam-starts
+  before it reaches main, or leave it inert. Was: merge once tp / jp are. jrl beam-starts c23f6df has it
   (opt-in, configs/catch_timing.yaml + catch_timing_3late.yaml); it needs trajectory_planning
   aux-decision-variables a1db894 and juggle_planning catch-throw-timing 1b29570, neither on master yet
   (tp is a generic package: an additive, opt-in build_nlp API). Sims seed 0, 2-6 balls, 210/210
