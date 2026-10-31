@@ -386,6 +386,24 @@ code and the data* that would otherwise be lost between sessions.
   (mean over ~28 interior knots vs ~12 vacant knots; jp planner._build_vacant_hand_velocity_cost,
   default_k). A sweep of catch_and_stop's weight retunes the 0-beat stop too.
 
+### Random walks: sideways speed when catching a 3, and catch / throw timing (2026-10-31)
+
+- [ ] **3s caught from rest, or into a stop, still move sideways at 52-56 m/s^2 / 2.2-2.4 m/s.** After
+  catch3_lateral.yaml (jrl 077ecd2) the ordinary 3-catches are at the level of the other throws, but
+  `online_c3l_3b7_s0` throws 72 / 122 (`i3_px_o5` / `i3_px_o4`, the hand starting from a rest) and the
+  catch_and_stops 44 / 100 peak 83-85 ms before the catch, i.e. at the cone's 80 ms point
+  (experiments/analysis/vacant_lateral.py --worst). Not replayed yet: /retain/random_walk/hxy/ct_replay.py
+  takes a beat's start at its recorded t_start, which for a px beat is not where the from-rest NLP starts
+  (its "as run" there read 276 m/s^2 against 87 recorded).
+- [ ] **Throw timing: a release shift is paid by the arm's next trajectory.** Replayed pairs
+  (/retain/random_walk/hxy/ct_pair.py, 4 balls seed 0): over +-10 ms the two-trajectory objective moves
+  -8..+10 %, flat (+-0.5 %) for like neighbours (`i4_p4_o4` then `i4_p4_o4`), 1-8 % to gain where they
+  differ (throw 109, an o3 before an o6: 10 ms earlier saves 8 %), while the trajectory alone always
+  prefers later (-3..-6 % per 10 ms) and would lose 10 % on that pair. So a throw wiggle needs the next
+  trajectory's price in the objective (its duration sensitivity, e.g. per next context from the seed
+  cache), plus jrl scheduling that takes a planned release off the beat grid. Not built; Kai to decide.
+- [ ] **No free catch time on catch_and_stop** (jp catch_timing is catch_and_throw only, fe65f97).
+
 ### Closed-loop catching
 
 - **FIXED 2026-09-12 21:00 (juggling: seating bound 10.0 at knots 12-25 for every catch-and-throw, settings_20260909.yaml; lab PC 7/8, was 4/8).** Was: the 5-ball drop-in catch (the `ix` slot, throw 80 of the 96-throw chain)
