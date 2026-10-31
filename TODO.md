@@ -404,7 +404,13 @@ code and the data* that would otherwise be lost between sessions.
   prefers later (-3..-6 % per 10 ms) and would lose 10 % on that pair. So a throw wiggle needs the next
   trajectory's price in the objective (its duration sensitivity, e.g. per next context from the seed
   cache), plus jrl scheduling that takes a planned release off the beat grid. Not built; Kai to decide.
+  Re-checked 2026-10-31 02:15 with knot windows sized for the shifts (p2.log; the first run masked cone
+  points, review F1): the same numbers within 0.2 %.
 - [ ] **No free catch time on catch_and_stop** (jp catch_timing is catch_and_throw only, fe65f97).
+- [ ] **The free catch time (catch_timing) has no valid sim yet.** Replayed with windows sized for it (r7.log,
+  t3.log, 4 balls): the objective drops 0-11.5 % per beat, mostly by catching earlier (a longer dwell); the
+  first numbers (up to 15 %) were inflated by masked cone points. online_tim3l_* were stopped (INVALID.txt).
+  Its rim clearance has not been checked (hxy/ct_replay.py --clearance) and must be before a run.
 
 ### Closed-loop catching
 
