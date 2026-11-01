@@ -426,14 +426,15 @@ code and the data* that would otherwise be lost between sessions.
   cost -2..-3 %. Not on catch_and_stop, so the rests after a 3 (25 mm) stay. Other seeds not run.
   NOTE (2026-10-31 19:10): Kai's timing wiggle was meant for the PATTERN planner (horizon_placement), not
   the arm NLP; the three items above are a misreading, kept as a record. The pattern-planner item is next.
-- [ ] **Pattern planner: timing room, offline.** jrl placement-timing 850ba49 (code, tests) + 7097e9f
-  (README random_walk "2026-10-31 evening: timing room in the pattern planner"): HorizonSpec
+- [x] **Pattern planner: timing room, offline.** NOTED (Kai, 2026-11-01): under the carry (hands) cost
+  +-10 ms buys roughly 10 % (-8..-13 %, -8..-11 % at price 10); noted, not pursued. jrl
+  placement-timing 850ba49 (code, tests) + 7097e9f (README random_walk "2026-10-31 evening: timing room in the pattern planner"): HorizonSpec
   release_shift / catch_shift / cost_shift, grid fixed (no drift), online placer refuses it; off it is
   bit-identical to main. Study /retain/random_walk/ptime/ (3-5 balls h7, 8 walks x 100, N 4, +-10 ms):
   offsets cost: grid 16/22/34 pairs < 1.2 D -> 0/0/4 with both, cost -43..-51 %, mostly via releases;
   hands cost (the online setting): already clear, -8..-13 % on hand steps, time used broadly. Free time
-  is degenerate (~90 % of contacts moved); cost_shift 1 keeps the gains. Open: whether Kai wants it used
-  offline to fix nominal timing (e.g. the 3s on 4-5 balls ~2 ms early), N = all, other windows; the
+  is degenerate (~90 % of contacts moved); cost_shift 1 keeps the gains. Not pursued: using it offline
+  to fix nominal timing (e.g. the 3s on 4-5 balls ~2 ms early), N = all, other windows. The
   branch is on main's base, its README section will conflict (append) with beam-starts' when merged.
 
 ### Closed-loop catching
