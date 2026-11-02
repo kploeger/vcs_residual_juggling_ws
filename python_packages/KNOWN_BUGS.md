@@ -5,6 +5,24 @@ describes the problem, proposes a fix, and says why it was deferred.
 
 ---
 
+## The multi-start placement program's reported objective reads low
+
+`juggling_residual_learning/jugglers/horizon_placement.py:400` (jrl side-search f017601; main d870050,
+the same line in `Problem.solve`): the program's cost includes `S.penalty * ca.sum1(sl)` with
+`penalty = 1e4` and `sl >= 0`, and `Problem.solve` returns `float(get(cost))` as the objective. IPOPT
+relaxes bounds by `bound_relax_factor` (1e-8), so each slack ends near -1e-8 and the objective comes
+out about 1e-4 low per slack: 8e-4 below the cost of the same plan on a 3-ball N 4 window (beat 97,
+seed 0; /retain/random_walk/pp_review/debug_exact.py), up to ~1e-3 on larger windows. The shortfall
+(`max(sl, 0)`) and the plans are right; only the number logged as `objective` is off, and it is
+off by about the same amount for every start of one program, so start selection is not affected.
+The sweeps (horizon_sweep.py) recompute the cost from the offsets and are not affected.
+
+**Fix:** return the cost without the penalty term plus `penalty * short` (short already clips at 0),
+or set IPOPT's `bound_relax_factor` to 0 for the slacks.
+
+**Why deferred:** found while checking the exact side search against it; nothing reads the logged
+objective for a decision, and `search: exact` replaces the program for the walks.
+
 ## The even-ball qualify outward seed reaches the online walk's bank keys
 
 **Where:** `juggling_residual_learning/juggling_residual_learning/jugglers/siteswap_juggler.py:1676`

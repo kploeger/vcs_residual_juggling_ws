@@ -456,6 +456,15 @@ code and the data* that would otherwise be lost between sessions.
   5 balls d 1.2 D, median / max: N 4 2 / 12, N 8 14 / 102, N 12 106 / 920, N 16 704 / 8384 (4 balls max 18625
   at N 16); at d 2 D N 16 16 / 369. One fixed-side QP (qpOASES via CasADi, rows) 0.18 / 0.52 / 1.37 ms cold at
   N 4 / 8 / 12, = IPOPT to 6 um. Listing everything is real-time up to about N 8. Doc: pattern_planner.md 8da9e1f.
+  BUILT (2026-11-02 evening, Kai: "go ahead"): jrl branch side-search (cf4b14e, e8ab349, fb02e4b, f017601,
+  aacbdd5 README): HorizonSpec.search "exact" (jugglers/side_search.py, branch and bound over sides, each
+  node a qpOASES QP, cuts at the closed-form worst instant, the previous plan orders the search),
+  HorizonSpec.clearance [m] (d = D + c). Offline (pp_review/exact/, summary.py): = brute force; = multi-start
+  at N 4; N 8 0-7 % cheaper and 6-33x faster; 5 balls N 4 / 8 / 12 178.1 / 124.2 / 117.1 cm^2/throw (2 D: 724.7
+  / 553.8 / 518.5); d 2 D clean at N 8 at 3-5 balls; 5 balls N 8 mean 0.05 s/commit, p99 0.16-0.18 s, 2-beat
+  lead. Open: (1) merge side-search into main (main untouched since 2026-10-29 in these files); (2) a walk
+  config with search exact, in_hand false, clearance 0.075, horizon 8, and sim runs (does the arm execute the
+  12-17 cm hand steps of c = 2r?); (3) run the placer ahead of the arm for the ROS sim / robot.
 
 ### Closed-loop catching
 
