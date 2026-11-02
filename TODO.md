@@ -450,6 +450,12 @@ code and the data* that would otherwise be lost between sessions.
   0/1/2, max 3/6/6 at 3/4/5 balls), so enumerate or branch-and-bound the sides for each window's global
   optimum instead of multi-start IPOPT; whole walk as a MIQP for a certified reference; (c) sim runs at
   c = 2r, whether the arm executes the larger hand steps. Waiting on Kai for which of these to do.
+  DECIDED (Kai, 2026-11-02 18:15): switch the clearance to the closed-form min distance, |g| >= d sqrt(1 + q^2)
+  (g = gap when level, q = v_y / v_z; per side a second-order cone, no normals, no instants). Counted first
+  (pp_review/enumerate_sides.py, enumerate_long.py, enum_summary.py): realisable side assignments per window,
+  5 balls d 1.2 D, median / max: N 4 2 / 12, N 8 14 / 102, N 12 106 / 920, N 16 704 / 8384 (4 balls max 18625
+  at N 16); at d 2 D N 16 16 / 369. One fixed-side QP (qpOASES via CasADi, rows) 0.18 / 0.52 / 1.37 ms cold at
+  N 4 / 8 / 12, = IPOPT to 6 um. Listing everything is real-time up to about N 8. Doc: pattern_planner.md 8da9e1f.
 
 ### Closed-loop catching
 
