@@ -618,8 +618,8 @@ with a synthetic flight that a cup touches before the apex.
 
 **Why deferred:** it changes the recorded cost of every short throw and the
 residuals every learner sees, which is Kai's call. It also isn't needed for
-the a_min question: none of the sweep throws comes near cost 0.05. On the
-robot the tracker usually loses the ball near the cup, which already cuts the
-window. Not checked.
+the a_min question: none of the sweep throws comes near cost 0.05. Whether
+it bites on the robot is open: the tracker may lose the ball near the cup and
+cut the window there. Not checked.
 
 *(Noticed 2026-11-02 while analysing mix48am5.)*
