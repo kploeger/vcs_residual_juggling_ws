@@ -463,9 +463,15 @@ code and the data* that would otherwise be lost between sessions.
   HorizonSpec.clearance [m] (d = D + c). Offline (pp_review/exact/, summary.py): = brute force; = multi-start
   at N 4; N 8 0-7 % cheaper and 6-33x faster; 5 balls N 4 / 8 / 12 178.1 / 124.2 / 117.1 cm^2/throw (2 D: 724.7
   / 553.8 / 518.5); d 2 D clean at N 8 at 3-5 balls; 5 balls N 8 mean 0.05 s/commit, p99 0.16-0.18 s, 2-beat
-  lead. Open: (1) merge side-search into main (main untouched since 2026-10-29 in these files); (2) a walk
-  config with search exact, in_hand false, clearance 0.075, horizon 8, and sim runs (does the arm execute the
-  12-17 cm hand steps of c = 2r?); (3) run the placer ahead of the arm for the ROS sim / robot.
+  lead. DONE (night 2026-11-02, jrl main 11e1373, full suite 5237 passed): (1) merged; (2) configs
+  horizon_exact_c2r_n8.yaml / horizon_exact_n8.yaml, sims /retain/random_walk/exact_c2r/ (batch*.sh,
+  summary.py): c = 2r N 8 210/210 on every finished walk, closest pair 1.85-1.92 D, but tool frames down to
+  0.231 m and cup geoms 1.2-2.6 cm apart (old config: >= 6.1 cm) -- the pattern planner does not model cups;
+  (3) HorizonSpec.run_ahead (horizon_runahead.py, worker process; = synchronous commits), not run in ROS yet;
+  (4) HorizonSpec.bnb "compiled" (jugglers/side_bnb, C++ on qpOASES via pybind11; = Python search), 5 balls N 8
+  mean 12-15 ms, p99 50-60 ms per commit. pybind11 joined pip_requirements.txt (installed by hand in rwam until
+  the image is rebuilt). Open: Kai's call on the cup margin at c = 2r; a warm-started dual active-set QP for
+  more speed; ROS-sim run with run_ahead.
 
 ### Closed-loop catching
 
