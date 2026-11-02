@@ -470,8 +470,16 @@ code and the data* that would otherwise be lost between sessions.
   (3) HorizonSpec.run_ahead (horizon_runahead.py, worker process; = synchronous commits), not run in ROS yet;
   (4) HorizonSpec.bnb "compiled" (jugglers/side_bnb, C++ on qpOASES via pybind11; = Python search), 5 balls N 8
   mean 12-15 ms, p99 50-60 ms per commit. pybind11 joined pip_requirements.txt (installed by hand in rwam until
-  the image is rebuilt). Open: Kai's call on the cup margin at c = 2r; a warm-started dual active-set QP for
-  more speed; ROS-sim run with run_ahead.
+  the image is rebuilt). Open: Kai's call on the cup margin at c = 2r; ROS-sim run with run_ahead.
+  LATER THAT NIGHT (jrl main 2e438b8, full suite 5248 passed at 0af088b): the compiled search's node QPs are a
+  warm-started dual active set (side_bnb/dual_qp.hpp, Goldfarb-Idnani; a child continues its parent), default
+  for bnb "compiled"; every 5-ball walk (N 8 / 12, 1.2 D / 2 D, 4 seeds) commits the Python search's plans, mean
+  2.3-4.8 ms per commit, max 8-92 ms, none over a beat (pp_review/compiled/v5_*). All searches now relax cuts by
+  tol/2 and charge slack only beyond it (shifts the Python search's objectives by <= ~3e-3 where tol-short).
+  Cup-margin options built for Kai to choose (not decided): (a) c = r (horizon_exact_cr_n8.yaml) and (b) c = 2r +
+  HorizonSpec.inner_y 8 cm (horizon_exact_c2r_n8_inner8.yaml); offline table pp_review/cupopt/, sims
+  exact_c2r/batch4.sh (online_xcr_*, online_xc2ri8_*). The close cup moments are mid-phase (60-110 ms from any
+  contact), not at contact instants.
 
 ### Closed-loop catching
 
