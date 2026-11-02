@@ -1181,6 +1181,12 @@ code and the data* that would otherwise be lost between sessions.
       (mix48v/am3/am5), median first contact 240/123/106 ms after release
       (planned landing 220). amin_overlays/o2_contact.py. So any o2 cost is
       suspect once the next carry touches the ball before its apex.
+      KNOWN_BUGS entry "The release-velocity fit runs on into ...".
+      OREF (06:38): 1.0/3.0 on current code = online_oex. Same throw
+      sequence on 12/12 walks, costs identical on 11 (s0 drifts from
+      throw 21, max 0.0017), all summary numbers equal (115/34/6). So the
+      oex comparisons are a same-code A/B. README a03e8c5. Left:
+      mix48am0l0 (started 06:39).
   - Steps, each a short A/B against mix48m (12 seeds; use shorter walks for
     iteration): (a) bucket the pool by override signature; (b) seed only from
     the pool; (c) enumeration seeding for random walks, disk-cached;
