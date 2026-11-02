@@ -607,8 +607,10 @@ carry cone (2026-11-02, `experiments/random_walk/README.md`, section
 a_min 5, 14 at a_min 3 and 0 under the old margin. The outgoing-2 cost median
 goes 0.0032 -> 0.0039 -> 0.0076. s8 throw 45 costs 0.0018 / 0.0111 / 0.0220
 with nearly the same planned carry
-(`/retain/random_walk/amin_overlays/o2_contact.py`). So the cost reports a
-release error that isn't there, and a learner would correct it.
+(`/retain/random_walk/amin_overlays/o2_contact.py`). The ground-truth error,
+ball velocity at release from the 8 kHz rows minus the target, stays at a
+median of 0.0032 / 0.0034 / 0.0033. So the cost reports a release error that
+isn't there, and a learner would correct it.
 
 **Proposed fix:** end the window at the first non-ballistic sample when it
 comes before the apex. Either the residual of the running fit or the

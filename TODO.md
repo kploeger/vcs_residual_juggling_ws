@@ -1195,6 +1195,11 @@ code and the data* that would otherwise be lost between sessions.
       tossed-2 counts, caught-7 max at 3/5, o2 cost at 5 do. ALL RUNS IN.
       Summary + open decisions (a_min 0 vs small margin; floor from the
       planned catch): README db8c175, jrl cone-amin pushed. Kai's call.
+      CORRECTED 08:15 (code review): "tossed 2s N of 84" above counted 35
+      held 2s (0.0 mm always); it is N of 49 (86 % ride at a_min 3/5). The
+      caught-3 9.2 mm at a_min 2 was the old window (1.6). o2 cost rise
+      confirmed as fit-window only: true release error median 0.0032-0.0036
+      in every tag. seat_deviation reports "held 2" apart now. jrl 86a499b.
   - Steps, each a short A/B against mix48m (12 seeds; use shorter walks for
     iteration): (a) bucket the pool by override signature; (b) seed only from
     the pool; (c) enumeration seeding for random walks, disk-cached;
