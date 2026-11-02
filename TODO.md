@@ -1087,6 +1087,100 @@ code and the data* that would otherwise be lost between sessions.
       come from how min_tool_normal_acc throws a tossed 2, not from the fit
       (inference; the ball's contact with the cup after release was not
       checked, these runs keep no recording).
+    - MARGIN-FREE CONE + a_min (Kai, 2026-11-01 21:06, relayed by the
+      planning-paper session): contact_force_cone at a_margin 0 plus
+      min_tool_normal_acc n.(a_tool - g) >= a_min on the cone's knots, a_min 1
+      every catch (the 10 for incoming 2s replaced too; first_throw too),
+      launcher-fed 3. Question: how much in-hand normal acceleration is
+      needed? Generator: jrl cone-amin 33d9ed5 (--a-min / --launcher-a-min;
+      at 1.0/3.0 it reproduces allm1dense_all.yaml byte for byte), overlays
+      /retain/random_walk/amin_overlays/a*_l*.yaml. Unseating is measured
+      from the recordings by experiments/random_walk/seat_deviation.py
+      (f4a8d03). CORRECTION to "keep no recording" above: these batches do
+      record (8 kHz ball/hand rows in attempts/001.npz). mix48v reference:
+      whole-carry max 30 mm, all >20 mm on caught 6s/7s ~100 ms before
+      release, clean throws. Chain (batch_amin_chain.sh, started 21:19):
+      mix48am1 (12 mix48 walks, code wt_exact/wt_jp_exact as mix48v) ->
+      online rerun oam1 (12 online walks x 210, current code wt_amin + jp
+      5095ad3) if 12/12 -> sweep a_min 0, 0.5, 2, 3, 5 (mix48am0/05/2/3/5).
+      Paper cut-off for sim reruns 2026-11-02.
+      MIX48AM1 (22:20): 12/12 clean; solves and throw costs as mix48v (IPOPT
+      5/17/25 both, cost median 0.0054 both, none > 0.05). More mid-carry
+      unseating (>10 mm: 224 vs 120 carries; last 50 ms 43 vs 35), the same
+      at release (>2 mm 12 vs 9 of 2340). New: own-hand tossed 2s ride 7-22
+      mm up a wall for ~150 ms (s8 throw 94), reseated by the throw burst.
+      README random_walk "2026-11-01: margin-free cone + a_min" (d3bb6c6).
+      oam1 online rerun started 22:21; oref (same-code 1.0/3.0 control)
+      queued after the sweep (batch_amin_chain2.sh).
+      OAM1 (23:24): 12/12 clean, 2540 solves 5/17/25, cost median 0.0054
+      max 0.018, as online_oex (older code). At release >2 mm 9 vs 6 of 2317;
+      whole-carry >10 mm 216 vs 117. Not a clean A/B until oref is in.
+      MIX48AM0 (2026-11-02 00:26): a_min 0 (= cone alone; launcher floor
+      still 3) 12/12 clean, solves/costs as mix48v. Unseating 223/43/13 as at
+      a_min 1, minus the tossed-2 rides (s8 throw 94 late 7.2 mm vs 21.9).
+      0 = candidate (TLL), NOT Kai's choice until he confirms. Reordered
+      (batch_amin_chain3.sh, 00:30): online
+      oam0 at 0/3 first, then mix48am05 (10 seeds left)/2/3/5, then oref,
+      then mix48am0l0 (launcher floor 0 too). README aa12b45.
+      OAM0 (01:39): 12/12 clean, 2540 solves 5/17/25 (62 at >=15), cost
+      median 0.0054. Unseating 217/42/9 as oam1, tossed-2 rides gone. Worst
+      throw s43 #148 i7_p3_o2 (worst in every run): cost 0.0245 vs 0.0178,
+      13.0 mm off the seat at release vs 9.3. README 437320c.
+      (#148 i7_p3_o2 = caught 7 thrown on as a 2; o = outgoing.)
+      CONE IN THE TOOL FRAME (01:50, experiments/random_walk/cone_check.py,
+      512ae41; Rubber Duck asked): the plan sits ON the cone border, not
+      outside (the earlier world-frame 2.4 vs 0.8 numbers were wrong for
+      this). s8 #94 k12..k15: a_min 1 n.f 1.00, |f_xy| 2.24, 66.0 deg =
+      along one wall's inward normal (neutral along that wall, so the ball
+      rides up); a_min 0 f = 0 (apex, free fall, zero normal force around
+      the catch); mix48v n.f 1.18 along the axis, 1.0 inside every face.
+      With margin 0 every binding knot is on the border; the floor fixes
+      only the axial size. CAVEAT for the a_min 0 candidate: no robustness
+      to tracking/catch error. Open: is a small margin (e.g. 0.3) plus
+      a_min the better pair? (Kai's call; he said drop the margin.)
+      MEASUREMENT CAVEAT seat_deviation.py: for tossed 2s (i2_p2) the ball
+      flies within 15 mm of the cup, so "first seating" can come before the
+      planned catch (s8 #94: window from -300 ms, catch planned -220 ms).
+      Whole-carry numbers of incoming 2s include ~80 ms of near-cup flight;
+      last-50-ms and at-release numbers are unaffected. Fix: start the
+      window at max(first seating, t_start + catch_t_planned) + SETTLE_S.
+      FIXED 03:50 (jrl 5f8e75a): last 50 ms / at release unchanged on all
+      8 tags; whole >10 mm -1..-7 (mix48v 115, am1 220, am0 217, am05 216,
+      am2 232; oex 115, oam1 214, oam0 216). README banner b2d4c47.
+      Also: the tossed ball of s8 #94 hits the cup BEFORE the planned catch
+      in every run (mix48v -272/-269 ms, a_min 1 -296/-277, a_min 2
+      -318/-280; planned -220), bounces, and is in sustained contact only
+      from -182 / -162 / -160 ms. CAUSE (04:15, README a4b498b): in the
+      plan the seat meets the ballistic ball at ~k11, 50 ms before
+      catch_t_planned (k14.5), and tracks it; the floor's wall-normal f on
+      k12..k14 (|f| = 2.46 a_min) runs a wall up to 1.1 mm into it at
+      a_min 2, from k8.6 via the lead-in (mix48v gap >= -0.2 mm). Candidate
+      fix, NOT run, Kai's call: floor from the planned catch, not from k12.
+      CAUGHT 7 (s29 #127): after the impact a_min 0 eases to f ~ 0, a_min 1
+      to the floor on the border, mix48v 1.2-1.5 along the axis; max |d|
+      35.5 / 28.8 / 27.3 mm. The floor's size matters on fast catches too.
+      MIX48AM05 (02:30): 12/12 clean, 223/44/11, tossed-2 late >5 mm 3
+      (a_min 0: 1, a_min 1: 6), worst cost 0.0191. README ee069f4.
+      MIX48AM2 (03:33): 12/12 clean, 237/57/14. Tossed-2 late >5 mm 27/84,
+      max 26.7 mm (every i2_p2_o7 rides ~20-27 mm), all reseated at release;
+      plan on one wall normal at n.f 2.00 (cone_check s8 #94). Caught 7s
+      late >5 mm 61 (a_min 0: 77), worst cost 0.0163 (mix48v 0.0194).
+      So the floor trades tossed-2 rides against fast-catch settling; no
+      value fails a throw. README d7ea583.
+      MIX48AM3 (04:35): 12/12 clean. Tossed-2 late >5 mm 42/84; s8 #94
+      cost 0.0179 (0.0105 at a_min 2), the batch's worst. Caught 7s late
+      >5 mm 59, max 20.7 mm (best so far). One sweep table: README 04cb311,
+      amin_overlays/sweep_table.py.
+      MIX48AM5 (launcher 5, 05:35): 12/12 clean, 242/54/11. Tossed-2 late
+      >5 mm 42/84, max 29.7. Caught 7s late >5 mm 70 but max 13.6, caught
+      6s max 7.3. Sweep done: all six values clean, so smallest clean = 0.
+      Worst 3 throws all outgoing 2s (max 0.0220); o2 cost median 0.0076
+      (am3 0.0039, mix48v 0.0032). MEASUREMENT: not the release. The cost
+      fits the ascending half of the flight (0..~110-120 ms after release);
+      the catching hand's first contact lands in it in 0/14/44 of 53 o2s
+      (mix48v/am3/am5), median first contact 240/123/106 ms after release
+      (planned landing 220). amin_overlays/o2_contact.py. So any o2 cost is
+      suspect once the next carry touches the ball before its apex.
   - Steps, each a short A/B against mix48m (12 seeds; use shorter walks for
     iteration): (a) bucket the pool by override signature; (b) seed only from
     the pool; (c) enumeration seeding for random walks, disk-cached;

@@ -584,3 +584,42 @@ therefore a no-op by default. Confirm with a LIVE run before changing it.
 
 *(Noticed 2026-09-15 while building the per-key freeze/reload; the reload hit
 the identical bug and the fix is in `siteswap_juggler._claim_reloaded_offset`.)*
+
+---
+
+## The release-velocity fit runs on into the catching hand's contact
+
+**Where:** `juggling_residual_learning/juggling_residual_learning/analyze_ball_trajectory.py:344`
+(`fit_early_flight_velocity`, jrl main 6ebc429)
+
+```python
+if apex_idx + 1 >= min_fit_points:
+    end_idx = apex_idx
+```
+
+A throw's cost is the norm of the release-velocity error, estimated from a
+parabola fit to the flight from release to the observed apex (window kind
+`ascending`). Nothing ends the window early when the ball is touched before
+its apex. For a tossed 2 (flight 0.22 s, apex ~110 ms after release) the hand
+that catches it can get there first. In the a_min sweep of the margin-free
+carry cone (2026-11-02, `experiments/random_walk/README.md`, section
+"2026-11-01: margin-free cone + a_min") that happens in 44 of 53 outgoing 2s at
+a_min 5, 14 at a_min 3 and 0 under the old margin. The outgoing-2 cost median
+goes 0.0032 -> 0.0039 -> 0.0076. s8 throw 45 costs 0.0018 / 0.0111 / 0.0220
+with nearly the same planned carry
+(`/retain/random_walk/amin_overlays/o2_contact.py`). So the cost reports a
+release error that isn't there, and a learner would correct it.
+
+**Proposed fix:** end the window at the first non-ballistic sample when it
+comes before the apex. Either the residual of the running fit or the
+acceleration test the analysis scripts use (|a - g| > 20 m/s^2 on the 8 kHz
+ball rows; the tracker's rate needs its own threshold) would do. Add a test
+with a synthetic flight that a cup touches before the apex.
+
+**Why deferred:** it changes the recorded cost of every short throw and the
+residuals every learner sees, which is Kai's call. It also isn't needed for
+the a_min question: none of the sweep throws comes near cost 0.05. On the
+robot the tracker usually loses the ball near the cup, which already cuts the
+window. Not checked.
+
+*(Noticed 2026-11-02 while analysing mix48am5.)*
