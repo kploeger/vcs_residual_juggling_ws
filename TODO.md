@@ -457,7 +457,8 @@ code and the data* that would otherwise be lost between sessions.
   at N 16); at d 2 D N 16 16 / 369. One fixed-side QP (qpOASES via CasADi, rows) 0.18 / 0.52 / 1.37 ms cold at
   N 4 / 8 / 12, = IPOPT to 6 um. Listing everything is real-time up to about N 8. Doc: pattern_planner.md 8da9e1f.
   BUILT (2026-11-02 evening, Kai: "go ahead"): jrl branch side-search (cf4b14e, e8ab349, fb02e4b, f017601,
-  aacbdd5 README): HorizonSpec.search "exact" (jugglers/side_search.py, branch and bound over sides, each
+  aacbdd5 README, 3c07a83 review fixes: max_jump rows on offsets, QP failure through failed, spec validation):
+  HorizonSpec.search "exact" (jugglers/side_search.py, branch and bound over sides, each
   node a qpOASES QP, cuts at the closed-form worst instant, the previous plan orders the search),
   HorizonSpec.clearance [m] (d = D + c). Offline (pp_review/exact/, summary.py): = brute force; = multi-start
   at N 4; N 8 0-7 % cheaper and 6-33x faster; 5 balls N 4 / 8 / 12 178.1 / 124.2 / 117.1 cm^2/throw (2 D: 724.7
