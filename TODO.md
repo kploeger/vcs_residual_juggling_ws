@@ -436,6 +436,20 @@ code and the data* that would otherwise be lost between sessions.
   is degenerate (~90 % of contacts moved); cost_shift 1 keeps the gains. Not pursued: using it offline
   to fix nominal timing (e.g. the 3s on 4-5 balls ~2 ms early), N = all, other windows. The
   branch is on main's base, its README section will conflict (append) with beam-starts' when merged.
+- [ ] **Pattern planner after Kai's review of the write-up (2026-11-02).** The write-up now lives in
+  thesis_ws/overleaf/planning/pattern_planner.md (Overleaf 3ad117a), revised there. Kai's calls: no
+  balls in the hands (held balls are out of the pattern); clearance d = 2r + c instead of margin x D,
+  and c = 2r (d = 2 D = 15 cm) "fair in our experiments"; no mirrored start. Offline evidence
+  (/retain/random_walk/pp_review/, the walks' settings, 4 walks h7 x 150): without the balls in the
+  hands the plans are identical to ~0.1 mm at 3 and 5 balls (122.3 / 178.1 cm^2/throw), 3x faster
+  (25 vs 81 s, 88 vs 271 s per walk); at d = 2 D: 3 balls clean, 4 balls 2 pairs < d (1.83 D), 5 balls
+  9 (1.60 D), cost x3.3-4.9, hand step RMS ~doubles to 12-17 cm. Open, none started: (a) code takes
+  the clearance as `HorizonSpec.margin` in D; switch to a clearance in metres and set in_hand false /
+  mirror_starts false in horizon_hand_b3_branch8.yaml; (b) proposed to Kai: with the y-only box and
+  sides fixed the window program is a convex QP (pair_stats.py: open sides per N = 4 window median
+  0/1/2, max 3/6/6 at 3/4/5 balls), so enumerate or branch-and-bound the sides for each window's global
+  optimum instead of multi-start IPOPT; whole walk as a MIQP for a certified reference; (c) sim runs at
+  c = 2r, whether the arm executes the larger hand steps. Waiting on Kai for which of these to do.
 
 ### Closed-loop catching
 
