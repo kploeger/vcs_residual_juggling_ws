@@ -1187,6 +1187,14 @@ code and the data* that would otherwise be lost between sessions.
       throw 21, max 0.0017), all summary numbers equal (115/34/6). So the
       oex comparisons are a same-code A/B. README a03e8c5. Left:
       mix48am0l0 (started 06:39).
+      MIX48AM0L0 (07:41): cone alone everywhere, 12/12 clean, 208/42/12;
+      launcher catches the same at floor 0/3/5. NOISE: it differs from
+      mix48am0 only at the launcher catches; costs differ from throw 2,
+      median 0.0001 max 0.0031, counts ~10 (217 vs 208, caught-7 late >5
+      77 vs 66). So worst-cost and caught-7 counts don't rank the sweep;
+      tossed-2 counts, caught-7 max at 3/5, o2 cost at 5 do. ALL RUNS IN.
+      Summary + open decisions (a_min 0 vs small margin; floor from the
+      planned catch): README db8c175, jrl cone-amin pushed. Kai's call.
   - Steps, each a short A/B against mix48m (12 seeds; use shorter walks for
     iteration): (a) bucket the pool by override signature; (b) seed only from
     the pool; (c) enumeration seeding for random walks, disk-cached;
