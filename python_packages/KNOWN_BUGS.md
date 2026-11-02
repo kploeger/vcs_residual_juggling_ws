@@ -7,7 +7,7 @@ describes the problem, proposes a fix, and says why it was deferred.
 
 ## The multi-start placement program's reported objective reads low
 
-`juggling_residual_learning/jugglers/horizon_placement.py:400` (jrl side-search f017601; main d870050,
+`juggling_residual_learning/jugglers/horizon_placement.py:390` (jrl side-search f017601; main d870050,
 the same line in `Problem.solve`): the program's cost includes `S.penalty * ca.sum1(sl)` with
 `penalty = 1e4` and `sl >= 0`, and `Problem.solve` returns `float(get(cost))` as the objective. IPOPT
 relaxes bounds by `bound_relax_factor` (1e-8), so each slack ends near -1e-8 and the objective comes
