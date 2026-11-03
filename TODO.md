@@ -492,6 +492,12 @@ code and the data* that would otherwise be lost between sessions.
   images tagged *_prev20260529); _side_bnb builds and tests/test_side_{bnb,search}.py + test_horizon_runahead.py
   pass in it (37). rwam still runs the old image until Kai restarts it. Global reference DROPPED (Kai 2026-11-03
   09:52: skip it); the 5-ball whole-walk run was stopped unfinished.
+  PRUNING (Kai 2026-11-03 10:30, "try two and 3"): jrl branch side-bnb-prune a63b8d9, HorizonSpec.prune
+  ("propagate" interval propagation + forced sides; "learn" nogoods from the dual QP's Farkas certificate),
+  off by default. pp_review/prune/table.md (c = r, 4 walks x 150, 4-6 balls, N 8/12): learn alone cuts 6 balls
+  N 12 search max 177 -> 59 ms, p99 86 -> 40, mean 9.8 -> 5.4; propagate cuts QPs 2-4x but not time, and
+  starves learn (no QP infeasibility left). At N 8 the search is 0.2-1.6 ms of a 1.4-3.9 ms commit (rest is the
+  Python window build). Open for Kai: default prune ("learn",)?; merge to main.
 
 ### Closed-loop catching
 
