@@ -3275,3 +3275,17 @@ Logs: /retain/pattern_bo/motion_bo/{leakprobe*,clean_vel}.log, data/ros_sim/real
   - Option: a `drop_rule="flights"` mode in recompute_attempt_success, used for env=real. It changes every real-robot number in evaluations/, so it is Kai's call.
   - Caveats of the flight rule: a tracker dropout reads as a loss, and a ball_id reused by a mid-attempt refill would mix two balls.
 
+
+## Chains past 17 balls on the current pipeline: follow-ups (2026-11-03, jrl highlow-patterns 717bca8, direct sim)
+
+- [ ] Merge `highlow-patterns` into jrl main (11 ahead, 0 behind at fc8b805). Waiting on Kai: it makes every noop
+  learner refuse seeds, so noop + `offset_by_outgoing` runs change. Keys outside the table go from donor-seeded to
+  their own initial_offset, and opening / segment-start `ssbeat_b<k>` keys go from zero/donor to table[value].
+  Affects the random-walk calib1 batches (batch20/24/30/31/31b/32, `u3c`; review 2026-11-03).
+- [ ] OnlineSiteswap under-scans for `max_height > 9`. `ResolvedSiteswap.scan_depth` is max(9, the pattern's
+  highest value), but OnlineSiteswap's tuples are empty, so it reports 9, and online_walk.py:566 uses
+  MAX_THROW_VALUE (9) directly. No walk above 9 exists yet. Fix: `scan_depth = max(9, spec.max_height)` there.
+- [ ] Throws from rest do not take a constant residual. On 25 25 21 21 the release error of a first throw moves
+  with its commanded offset (right z: offset 0 -> +18, -18 -> -5, -14 -> +16 mm/s; runs
+  /retain/random_walk/highlow/chain_hl23_H0, H1, H3). Every catch-and-throw is constant to 0.5 mm/s. Unexplained;
+  ball settling in the square cup during the 0.5 s from-rest throw is the guess. flying_start_empty_hands avoids it.
