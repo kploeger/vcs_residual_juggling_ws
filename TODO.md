@@ -480,6 +480,15 @@ code and the data* that would otherwise be lost between sessions.
   HorizonSpec.inner_y 8 cm (horizon_exact_c2r_n8_inner8.yaml); offline table pp_review/cupopt/, sims
   exact_c2r/batch4.sh (online_xcr_*, online_xc2ri8_*). The close cup moments are mid-phase (60-110 ms from any
   contact), not at contact instants.
+  DECIDED (Kai, 2026-11-03 00:21): c = r (d = 1.5 D, horizon_exact_cr_n8.yaml), N 8. Results (jrl README random_walk
+  "2026-11-03 night", commit e5ea7fe on side-bnb-dual): c = r sims all 16 walks 210/210 (3-6 balls x s0 1 2 43,
+  exact_c2r/batch6.sh), closest pair 1.35-1.48 D; cup/forearm geoms (replayed, exact_c2r/cups/table.md) c = r
+  >= 2.9 cm (6 balls), >= 7.0 cm at 3-5; c = 2r OVERLAPS once (4 balls s2, -2.5 mm, 20 ms; plant has no cup
+  contact). Study (pp_review/study_cr/): N >= 4 clean at 2-6 balls; N 8 lateral step RMS 3.7-11.9 cm, within
+  0.8 cm of N 12; 6 balls N 8 commit max 61 ms, N 12 max 212 ms. Whole walk at once (pp_review/whole/, cap 20k):
+  unproven, never below N 8. Open: (a) cup-cup clearance in the TRAJECTORY planner if 6 balls at c = r is too
+  close (not built); (b) ROS-sim run with run_ahead; (c) Docker image rebuild for pybind11; (d) a certified
+  global reference needs a bound, not more nodes.
 
 ### Closed-loop catching
 
