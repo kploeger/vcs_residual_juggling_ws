@@ -486,9 +486,10 @@ code and the data* that would otherwise be lost between sessions.
   >= 2.9 cm (6 balls), >= 7.0 cm at 3-5; c = 2r OVERLAPS once (4 balls s2, -2.5 mm, 20 ms; plant has no cup
   contact). Study (pp_review/study_cr/): N >= 4 clean at 2-6 balls; N 8 lateral step RMS 3.7-11.9 cm, within
   0.8 cm of N 12; 6 balls N 8 commit max 61 ms, N 12 max 212 ms. Whole walk at once (pp_review/whole/, cap 20k):
-  unproven, never below N 8. Open: (a) cup-cup clearance in the TRAJECTORY planner if 6 balls at c = r is too
-  close (not built); (b) ROS-sim run with run_ahead; (c) Docker image rebuild for pybind11; (d) a certified
-  global reference needs a bound, not more nodes.
+  unproven, never below N 8. Kai 2026-11-03 08:41: the pattern planner is a theoretical result, never for the
+  real robot, so 2.9 cm cups at 6 balls is enough (no trajectory-planner cup clearance) and no ROS-sim run.
+  Open: (c) Docker image rebuild for pybind11 (in progress 2026-11-03); (d) a certified global reference
+  needs a bound, not more nodes.
 
 ### Closed-loop catching
 
