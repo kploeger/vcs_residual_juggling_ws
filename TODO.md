@@ -490,8 +490,8 @@ code and the data* that would otherwise be lost between sessions.
   real robot, so 2.9 cm cups at 6 balls is enough (no trajectory-planner cup clearance) and no ROS-sim run.
   DONE 2026-11-03 08:47: wam:residual + wam:residual_kai rebuilt (origin/main requirements, pybind11 3.0.4; old
   images tagged *_prev20260529); _side_bnb builds and tests/test_side_{bnb,search}.py + test_horizon_runahead.py
-  pass in it (37). rwam still runs the old image until Kai restarts it. Open: (d) a certified global reference
-  needs a bound, not more nodes.
+  pass in it (37). rwam still runs the old image until Kai restarts it. Global reference DROPPED (Kai 2026-11-03
+  09:52: skip it); the 5-ball whole-walk run was stopped unfinished.
 
 ### Closed-loop catching
 
