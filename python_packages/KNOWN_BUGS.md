@@ -5,6 +5,29 @@ describes the problem, proposes a fix, and says why it was deferred.
 
 ---
 
+## A fallback catch records the previous throw's replan prediction as its own
+
+`juggling_residual_learning/jugglers/catch_pipeline.py:1653` (jrl main 9bf7b65; the same code at
+provenance/robot-ch1-noise-propagation-2026-09-17, `catch_pipeline.py:1494`):
+`_adapted_targets_from_prediction` writes `self._last_catch_predicted[target_hand]` on EVERY call,
+the mid-cycle replans included (source="replan"). Only `_schedule_throw` pops it
+(`throw_scheduler.py:1920`, `pred_record = ..._last_catch_predicted.pop(arm_name)`), and
+`_fallback_to_nominal` does not clear it. So after a replanned catch, the NEXT same-arm throw that
+falls back to nominal (`catch_fallback_reason = no_usable_prediction`) has the previous throw's last
+replan prediction in its `catch_x_predicted`, `catch_dx_predicted` and `catch_t_predicted`. Its
+`catch_delta_*` and `catch_applied_*` are its own, so the record is inconsistent. In the 17 Sep
+error-propagation recordings, 10 such records match the previous throw's R2 exactly (found by
+replaying the tracker stream, experiments/analysis/error_propagation/cancellation_history.py; code
+review 2026-11-04). All have `catch_adapted False`, and none are in the canonical pair tables.
+
+**Fix:** pop `_last_catch_predicted[target_hand]` at the top of `_resolve_catch_targets` (or in
+`_fallback_to_nominal`), or have the replan path skip the stash.
+
+**Why deferred:** found in an offline analysis that must not touch robot code. It is a recording-only
+defect: the plan itself is right, since it uses the nominal target. Analyses already filter on
+`catch_adapted` (cancellation_history marks these `not_adapted`; cancellation_ablation masks their
+prediction features).
+
 ## The multi-start placement program's reported objective reads low
 
 `juggling_residual_learning/jugglers/horizon_placement.py:390` (jrl side-search f017601; main d870050,
