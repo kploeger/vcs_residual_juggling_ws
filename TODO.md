@@ -3298,7 +3298,10 @@ Kai's 2026-11-03 call ("theoretical result; 2.9 cm cups at 6 balls is enough", i
 across): pp3_r1_N8/7/6/5_3b7 failed in the tail on it (cups overlapping 158-178 ms; videos V55/V56); 6-ball walks
 overlap 6-20 ms in the random part without failing. Offline (scratch _scratch/pp3/handgap/E_in007.jsonl) predicts ~7
 more 3-ball tail clashes in round 2 (seed 1), 1 in round 3, and 14 cm gaps at low N for 5-6 balls.
-Built, not decided: jrl branch hand-gap (HorizonSpec.hand_gap; 0.24 free offline, 0.25 costs one 6-ball pair 1.3 mm
-at N 7), pilot campaign4 (pp4, 1 sim). Evidence: jrl experiments/planning_paper/README.md "Cup clashes";
-cup_clearance.py; hand_travel.failed_in. Open: Kai adopts hand_gap (merge hand-gap into highlow-patterns, pp4
-becomes the campaign) or keeps pp3; Fig 9's failure definition (thesis_plots plot.py --failed walk|random).
+DECIDED 2026-11-05 noon (Kai): hand_gap 0.23 (0.20 still let a 6-ball walk's cups touch 8 ms, 0.25 cleared; the real
+cups have rounded corners). campaign5.sh (pp5, jrl hand-gap, provenance/planning-paper-handgap023-2026-11-05) reruns
+everything, campaign3's lost walks first; campaign3 and the pilot stopped. Fig 9 crosses only random-part failures.
+Still open: (1) check campaign5's cup scans show no overlap (cup_scan_yield.py pp5); (2) hand_gap covers only
+instants with contacts of both hands: a beat with a 0 or a held 2 leaves the other hand mid-carry unchecked
+(0.231 m at such instants with 0.25 in a 3-ball N 6 probe); a linear row through the neighbouring contacts
+would cover the linear-motion model, offered to Kai; (3) merge hand-gap into highlow-patterns.
