@@ -3325,20 +3325,26 @@ eq. planning:hand-separation says so). Still open: rescan once campaign7 is comp
 
 ## Ball launchers: timing calibration, a silent-late bug, and the Sobol demo branch (2026-11-05)
 
-- [ ] ball_launcher: a launch can go out LATE with no warning. ball_launcher_node.py:74 converts the request to
-  "seconds from now" at dequeue, then ball_launcher.py:284 blocks on `_reload_done.wait()` (a lazy reload after the
-  previous batch: LAZY_RELOAD_EXTRA_TIME 0.5 s + the stepper) BEFORE `start_time = time.time()` (:295). The whole
-  schedule slips by the remaining wait; with verbose=False a negative sleep_time (:309) just pushes late, unlogged.
-  Fix: take start_time / the time base before the wait, or recompute the times after it and refuse (log) a late
-  push. The node publishes no actual push times, so whether it fired on the robot is unknown.
-- [ ] Launcher timing has no per-launcher calibration. Implicit in two shared values: HOLD_BALL_TIME = 0.17
-  (ball_launcher.py:68, a class constant, both launchers; launch time = end of push) and jrl
-  LauncherCfg.absolute_height = 3.3 (jugglers/config.py:1238; 3.2 -> 3.3 in f0dff97b on 2026-05-24, two days after
-  HOLD 0.09 -> 0.17 in 6d86d3b: an effective height). A one-off fit on ball (subagent, 2026-11-05, nothing saved,
-  not re-run by me) of 833 startup drops 2026-09-17..10-11 from the raw OptiTrack stream in the attempt pkls:
-  arrival vs the 3.3 m model median -2 ms, sd 4 ms, both launchers; fitted release ~+25 ms after the command from
-  ~3.18 m. No real-robot data after 2026-10-11 exists. Kai 2026-11-05: "Something changed about the ball
-  launchers" -- direction (menu-node calibration vs jrl-side monitoring + online correction) open with Kai.
+- [ ] ball_launcher branch launch-calibration (26cc7cd, c44671f; pushed, NOT on master, NOT run on the hardware).
+  Needs `catkin build ball_launcher` (new LaunchEvent msg) and a relaunch of the launcher nodes; then one menu-node
+  "Calibrate launch height (OptiTrack)" run and a short juggle before merging into master. Contents:
+  - Pull held THROUGH the reload (Kai 2026-11-05: "The reload can start, while we are still pulling"):
+    PULL_BACK_TIME 0.07 (reload start, as before e1af874) + PULL_HOLD_TIME 0.17 (Julian's value, now overlapping).
+    e1af874 (Julian, 2026-10-30) had set PULL_BACK_TIME 0.17, delaying every reload: same-launcher cycle 0.49 ->
+    0.59 s, between requests 0.99 -> 1.09 s. Back to 0.49 / 0.99.
+  - Reload-wait slip fixed: launch_balls(t_ref): the schedule is anchored where the node converted the request,
+    not after `_reload_done.wait()` (ball_launcher.py:284 before). Late pushes always logged; LaunchEvent per
+    release on <ns>/launch_events.
+  - calibration.py + config/launch_calibration.yaml (seeded: left 3.352, right 3.362 m at z 0.55, from the
+    2026-10 robot records; fall-average 3.30, direct at 0.8 m right 3.369 m on 20 first drops).
+- [ ] jrl branch launcher-calibration (e0684299, off main af89772c; pushed): LauncherCfg.use_calibration (default true: plan
+  with the announced <ns>/release_height), every commanded launch logged on the attempt (`launches`,
+  `launcher_heights`, `launch_events`), jugglers/launcher_monitor.py fits them against raw_measurements per
+  attempt, per-attempt menu "Launcher start heights ..." apply / apply + save. Ball runs jrl 114da4b + the
+  demo branch: none of this is on the robot PC until it is updated.
+- [ ] jrl does not know the launcher cycle (only the 0.19 s lead): two launches from one launcher closer than
+  ~0.49 s (one request) / ~0.99 s (two requests) go out late. 5*@0.48 start-ups do. Now visible
+  (launch_events, monitor "pushes released LATE"); a planning-time check / alternating launchers is open.
 - [ ] jrl branch demo/sobol-cascades (72257d6, on ball and origin) is based on ball's 114da4b, 428 commits behind
   main: demos/sobol_cascades_3ball.py + _demo_lib manifest parameter + JRL_ROS_STRICT=0 for real demos. Before
   merging into main: run tests/demos against main (the motion_bo stack may have moved).
