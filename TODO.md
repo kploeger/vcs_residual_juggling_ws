@@ -3298,10 +3298,10 @@ Kai's 2026-11-03 call ("theoretical result; 2.9 cm cups at 6 balls is enough", i
 across): pp3_r1_N8/7/6/5_3b7 failed in the tail on it (cups overlapping 158-178 ms; videos V55/V56); 6-ball walks
 overlap 6-20 ms in the random part without failing. Offline (scratch _scratch/pp3/handgap/E_in007.jsonl) predicts ~7
 more 3-ball tail clashes in round 2 (seed 1), 1 in round 3, and 14 cm gaps at low N for 5-6 balls.
-DECIDED 2026-11-05 noon (Kai): hand_gap 0.23 (0.20 still let a 6-ball walk's cups touch 8 ms, 0.25 cleared; the real
-cups have rounded corners). campaign5.sh (pp5, jrl hand-gap, provenance/planning-paper-handgap023-2026-11-05) reruns
-everything, campaign3's lost walks first; campaign3 and the pilot stopped. Fig 9 crosses only random-part failures.
-Still open: (1) check campaign5's cup scans show no overlap (cup_scan_yield.py pp5); (2) hand_gap covers only
-instants with contacts of both hands: a beat with a 0 or a held 2 leaves the other hand mid-carry unchecked
-(0.231 m at such instants with 0.25 in a 3-ball N 6 probe); a linear row through the neighbouring contacts
-would cover the linear-motion model, offered to Kai; (3) merge hand-gap into highlow-patterns.
+DECIDED 2026-11-05 (Kai): hand_gap 0.23 under the linear hand-motion model ("I don't want any hand-hand contacts as
+defined by the 23cm"): every contact instant of either hand, an idle hand interpolated (hand_gap_terms; jrl
+hand-gap 973da596, merged into highlow-patterns 059faed7). 6-ball start rule moved 0.10 -> 0.12 (two hands within
+0.10 cannot be 0.23 apart). campaign6.sh (pp6, provenance/planning-paper-handgap023-linear-2026-11-05) reruns
+everything, campaign3's lost walks first; campaign3, the pilot and campaign5 stopped. Offline it costs nothing
+(same clean-from-N, travel within 0.05 cm). Still open: check campaign6's cup scans show no overlap
+(cup_scan_yield.py pp6), and that the 0.12 start clears the drop-ins in the sim (6-ball openings).
