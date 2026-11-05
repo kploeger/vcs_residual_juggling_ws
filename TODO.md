@@ -3299,9 +3299,9 @@ across): pp3_r1_N8/7/6/5_3b7 failed in the tail on it (cups overlapping 158-178 
 overlap 6-20 ms in the random part without failing. Offline (scratch _scratch/pp3/handgap/E_in007.jsonl) predicts ~7
 more 3-ball tail clashes in round 2 (seed 1), 1 in round 3, and 14 cm gaps at low N for 5-6 balls.
 DECIDED 2026-11-05 (Kai): hand_gap 0.23 under the linear hand-motion model ("I don't want any hand-hand contacts as
-defined by the 23cm"): every contact instant of either hand, an idle hand interpolated (hand_gap_terms; jrl
-hand-gap 973da596, merged into highlow-patterns 059faed7). 6-ball start rule moved 0.10 -> 0.12 (two hands within
-0.10 cannot be 0.23 apart). campaign6.sh (pp6, provenance/planning-paper-handgap023-linear-2026-11-05) reruns
-everything, campaign3's lost walks first; campaign3, the pilot and campaign5 stopped. Offline it costs nothing
-(same clean-from-N, travel within 0.05 cm). Still open: check campaign6's cup scans show no overlap
-(cup_scan_yield.py pp6), and that the 0.12 start clears the drop-ins in the sim (6-ball openings).
+defined by the 23cm"): every contact instant of either hand, an idle hand interpolated (hand_gap_terms), and the
+launchers' drop-ins planned around as fixed flights instead of a start rule (Walk.feeds; "Can't we just actively
+plan around the ball launcher init throws rather than add custom rules?"). jrl hand-gap 34a14796, merged into
+highlow-patterns a3210a8b. campaign7.sh (pp7, provenance/planning-paper-handgap023-feeds-2026-11-05) reruns
+everything, campaign3's lost walks first; campaigns 3-6 and the pilot stopped. Still open: check campaign7's cup
+scans show no overlap (cup_scan_yield.py pp7).
