@@ -580,6 +580,21 @@ code and the data* that would otherwise be lost between sessions.
 
 ### Instrumentation
 
+- [ ] **Ctrl-C between attempts logs a phantom attempt with a stale start.**
+  (2026-11-05, video-cutting session.) `runners/experiment_utils.py:951` takes
+  `juggler._attempt_start_iso` for the interrupted entry, but that still holds
+  the PREVIOUS attempt's start, so a session ended between attempts gets a
+  final `outcome: interrupted`, `total_throws: 0` entry whose `attempt_start`
+  equals the last real attempt's (e.g.
+  `data/real/real_robot/siteswap_sequence/std__newton__cascade5_645_s1/timeline.json`
+  index 22 and 23, both 14:11:06.590831). 12 such entries across
+  siteswap_sequence (8) / ilc (1) / motion_bo (3) real-robot data. Anything
+  windowing by timestamp (video cutting, timing analysis) double-counts that
+  attempt. The vault's `scripts/cut_attempts.py` now skips them
+  (experiment_data_vault a8e4116). Fix at the source: clear
+  `_attempt_start_iso` when an attempt is saved, or write `attempt_start: null`
+  when no attempt was in flight.
+
 - [ ] **`expected_states` is not recorded** (`None` in every attempt), so the
   publish-vs-describe delay above cannot be measured from saved data at all —
   only read off the code. Record the expected states we publish, with both
