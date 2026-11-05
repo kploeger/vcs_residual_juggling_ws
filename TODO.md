@@ -3322,3 +3322,23 @@ everything, campaign3's lost walks first; campaigns 3-6 and the pilot stopped. C
 (_scratch/pp7/cup_scan_pp7_all.jsonl): one overlap, 4 balls N 1, 40 ms, -3.6 mm, BETWEEN contacts (an empty hand's
 swing, V63); near misses only at N <= 4. Kai 2026-11-05: fine, but report it accurately (the paper's TODO note at
 eq. planning:hand-separation says so). Still open: rescan once campaign7 is complete and update that note.
+
+## Ball launchers: timing calibration, a silent-late bug, and the Sobol demo branch (2026-11-05)
+
+- [ ] ball_launcher: a launch can go out LATE with no warning. ball_launcher_node.py:74 converts the request to
+  "seconds from now" at dequeue, then ball_launcher.py:284 blocks on `_reload_done.wait()` (a lazy reload after the
+  previous batch: LAZY_RELOAD_EXTRA_TIME 0.5 s + the stepper) BEFORE `start_time = time.time()` (:295). The whole
+  schedule slips by the remaining wait; with verbose=False a negative sleep_time (:309) just pushes late, unlogged.
+  Fix: take start_time / the time base before the wait, or recompute the times after it and refuse (log) a late
+  push. The node publishes no actual push times, so whether it fired on the robot is unknown.
+- [ ] Launcher timing has no per-launcher calibration. Implicit in two shared values: HOLD_BALL_TIME = 0.17
+  (ball_launcher.py:68, a class constant, both launchers; launch time = end of push) and jrl
+  LauncherCfg.absolute_height = 3.3 (jugglers/config.py:1238; 3.2 -> 3.3 in f0dff97b on 2026-05-24, two days after
+  HOLD 0.09 -> 0.17 in 6d86d3b: an effective height). A one-off fit on ball (subagent, 2026-11-05, nothing saved,
+  not re-run by me) of 833 startup drops 2026-09-17..10-11 from the raw OptiTrack stream in the attempt pkls:
+  arrival vs the 3.3 m model median -2 ms, sd 4 ms, both launchers; fitted release ~+25 ms after the command from
+  ~3.18 m. No real-robot data after 2026-10-11 exists. Kai 2026-11-05: "Something changed about the ball
+  launchers" -- direction (menu-node calibration vs jrl-side monitoring + online correction) open with Kai.
+- [ ] jrl branch demo/sobol-cascades (72257d6, on ball and origin) is based on ball's 114da4b, 428 commits behind
+  main: demos/sobol_cascades_3ball.py + _demo_lib manifest parameter + JRL_ROS_STRICT=0 for real demos. Before
+  merging into main: run tests/demos against main (the motion_bo stack may have moved).
