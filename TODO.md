@@ -3289,3 +3289,16 @@ Logs: /retain/pattern_bo/motion_bo/{leakprobe*,clean_vel}.log, data/ros_sim/real
   with its commanded offset (right z: offset 0 -> +18, -18 -> -5, -14 -> +16 mm/s; runs
   /retain/random_walk/highlow/chain_hl23_H0, H1, H3). Every catch-and-throw is constant to 0.5 mm/s. Unexplained;
   ball settling in the square cup during the 0.5 s from-rest throw is the guess. flying_start_empty_hands avoids it.
+
+## Planning-paper walks: the band's 0.07 inner limit lets the cups clash (2026-11-05 night, direct sim)
+
+The pattern planner keeps balls >= r_b apart, not cups, and cup-cup contact is off in the sim (plates contype 0).
+Kai's 2026-11-03 call ("theoretical result; 2.9 cm cups at 6 balls is enough", item above) was made with the old
++-0.15 box. campaign3's band |y| 0.07..0.36 puts both hands at +-0.07 at one instant (14 cm apart, cups 156 mm
+across): pp3_r1_N8/7/6/5_3b7 failed in the tail on it (cups overlapping 158-178 ms; videos V55/V56); 6-ball walks
+overlap 6-20 ms in the random part without failing. Offline (scratch _scratch/pp3/handgap/E_in007.jsonl) predicts ~7
+more 3-ball tail clashes in round 2 (seed 1), 1 in round 3, and 14 cm gaps at low N for 5-6 balls.
+Built, not decided: jrl branch hand-gap (HorizonSpec.hand_gap; 0.24 free offline, 0.25 costs one 6-ball pair 1.3 mm
+at N 7), pilot campaign4 (pp4, 1 sim). Evidence: jrl experiments/planning_paper/README.md "Cup clashes";
+cup_clearance.py; hand_travel.failed_in. Open: Kai adopts hand_gap (merge hand-gap into highlow-patterns, pp4
+becomes the campaign) or keeps pp3; Fig 9's failure definition (thesis_plots plot.py --failed walk|random).
