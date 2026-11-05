@@ -3318,5 +3318,7 @@ defined by the 23cm"): every contact instant of either hand, an idle hand interp
 launchers' drop-ins planned around as fixed flights instead of a start rule (Walk.feeds; "Can't we just actively
 plan around the ball launcher init throws rather than add custom rules?"). jrl hand-gap 34a14796, merged into
 highlow-patterns a3210a8b. campaign7.sh (pp7, provenance/planning-paper-handgap023-feeds-2026-11-05) reruns
-everything, campaign3's lost walks first; campaigns 3-6 and the pilot stopped. Still open: check campaign7's cup
-scans show no overlap (cup_scan_yield.py pp7).
+everything, campaign3's lost walks first; campaigns 3-6 and the pilot stopped. Cup scans of the first 35 walks
+(_scratch/pp7/cup_scan_pp7_all.jsonl): one overlap, 4 balls N 1, 40 ms, -3.6 mm, BETWEEN contacts (an empty hand's
+swing, V63); near misses only at N <= 4. Kai 2026-11-05: fine, but report it accurately (the paper's TODO note at
+eq. planning:hand-separation says so). Still open: rescan once campaign7 is complete and update that note.
