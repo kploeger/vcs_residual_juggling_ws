@@ -3318,10 +3318,15 @@ defined by the 23cm"): every contact instant of either hand, an idle hand interp
 launchers' drop-ins planned around as fixed flights instead of a start rule (Walk.feeds; "Can't we just actively
 plan around the ball launcher init throws rather than add custom rules?"). jrl hand-gap 34a14796, merged into
 highlow-patterns a3210a8b. campaign7.sh (pp7, provenance/planning-paper-handgap023-feeds-2026-11-05) reruns
-everything, campaign3's lost walks first; campaigns 3-6 and the pilot stopped. Cup scans of the first 35 walks
-(_scratch/pp7/cup_scan_pp7_all.jsonl): one overlap, 4 balls N 1, 40 ms, -3.6 mm, BETWEEN contacts (an empty hand's
-swing, V63); near misses only at N <= 4. Kai 2026-11-05: fine, but report it accurately (the paper's TODO note at
-eq. planning:hand-separation says so). Still open: rescan once campaign7 is complete and update that note.
+everything, campaign3's lost walks first; campaigns 3-6 and the pilot stopped. Kai 2026-11-05: cup overlaps are
+fine, but report them accurately. DONE 2026-11-06: campaign7 complete, 164 of 180 passed, every failure a planned
+shortfall at N <= 3, none on a cup. Full cup scan (_scratch/pp7/cup_scan_pp7_r123.jsonl): 10 walks overlap, at most
+40 ms / -3.6 mm. 3 are between contacts (a releasing hand's inward swing, V63); 7 are at release-and-catch instants
+with the planned contacts exactly 0.23 apart and catch adaptation moving the catch up to 10 mm inward. Recorded in
+the paper's hand-separation note and Fig 9 (overleaf fd15470, thesis_plots 9800fc8, jrl README 74546d89).
+- [ ] Open (not decided): the 7 at-contact touches come from catch adaptation eating the 0.23 margin. A margin
+  for adaptation (e.g. hand_gap + 0.01) or accepting it (the real cups have rounded corners; the depths are within
+  the scan's +-6 mm resolution) is Kai's call; 6 balls also come within 0.6 mm without touching (N 10).
 
 ## Ball launchers: timing calibration, a silent-late bug, and the Sobol demo branch (2026-11-05)
 
