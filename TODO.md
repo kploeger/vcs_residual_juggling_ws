@@ -3332,6 +3332,8 @@ the paper's hand-separation note and Fig 9 (overleaf fd15470, thesis_plots 9800f
   same pinned code jrl7 and seeds, tags pp8, 14 at a time in rwam_ball (wam:residual_kai_thales), sim tree
   ball:/home/kai/sim, log ball:/home/kai/sim/retain/planning_paper/campaign8.log. Campaign7's 10 cup-overlap walks and
   16 failures first, then rounds 1-3. Data for the decision only; copy back to Thales /retain, then cup-scan.
+  Priority set (2026-11-07 00:35, jrl README "Campaign8"): all 7 at-contact touches gone at 0.24; between-contact
+  swings remain (4b N 1 seed 0: 32 ms, -3.6 mm); the 16 failures unchanged. Full campaign due ~05:00-06:00.
 
 ## Ball launchers: timing calibration, a silent-late bug, and the Sobol demo branch (2026-11-05)
 
