@@ -3327,6 +3327,11 @@ the paper's hand-separation note and Fig 9 (overleaf fd15470, thesis_plots 9800f
 - [ ] Open (not decided): the 7 at-contact touches come from catch adaptation eating the 0.23 margin. A margin
   for adaptation (e.g. hand_gap + 0.01) or accepting it (the real cups have rounded corners; the depths are within
   the scan's +-6 mm resolution) is Kai's call; 6 balls also come within 0.6 mm without touching (N 10).
+  RUNNING 2026-11-06 23:43 (ball, Kai: "You can use ball 24h a day the next days"): campaign8 = campaign7 at
+  hand_gap 0.24 (jrl highlow-patterns 7947e291, experiments/planning_paper/campaign8.sh + configs/hand_gap_024.yaml),
+  same pinned code jrl7 and seeds, tags pp8, 14 at a time in rwam_ball (wam:residual_kai_thales), sim tree
+  ball:/home/kai/sim, log ball:/home/kai/sim/retain/planning_paper/campaign8.log. Campaign7's 10 cup-overlap walks and
+  16 failures first, then rounds 1-3. Data for the decision only; copy back to Thales /retain, then cup-scan.
 
 ## Ball launchers: timing calibration, a silent-late bug, and the Sobol demo branch (2026-11-05)
 
