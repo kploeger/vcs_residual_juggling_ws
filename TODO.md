@@ -3330,6 +3330,15 @@ the paper's hand-separation note and Fig 9 (overleaf fd15470, thesis_plots 9800f
 
 ## Ball launchers: timing calibration, a silent-late bug, and the Sobol demo branch (2026-11-05)
 
+- [ ] Per-throw planning overhead grows with the attempt's length (2026-11-06 demo run, ball
+  data/demos/sobol_cascades_3ball/20261106_095902_real, copy on Thales /retain/demo_ball/runs/): the attempt stopped at
+  throw 7983 on trajectory_scheduling_deadline_missed (slack at solve end +35 ms early, -5 ms at the end). Two O(N) costs:
+  (1) the kNN ask, 0.5 -> 9.7 ms median; for the demo capped (jrl 0c9b98f8, memory_when_full "freeze" at 500), not
+  for the studies. (2) trajectory_planning TrajectoryScheduler keeps every trajectory of the attempt and
+  get_current_trajectory scans them linearly, on every schedule_trajectory and every RosArm.is_executing watchdog
+  check: +3 ms of untimed precheck by throw 8000. Fix: bisect over a kept start-time list (same result), or prune
+  trajectories that ended before now. Generic package: warn before changing it.
+
 - [ ] ball_launcher branch launch-calibration (26cc7cd, c44671f; pushed, NOT on master, NOT run on the hardware).
   Needs `catkin build ball_launcher` (new LaunchEvent msg) and a relaunch of the launcher nodes; then one menu-node
   "Calibrate launch height (OptiTrack)" run and a short juggle before merging into master. Contents:
