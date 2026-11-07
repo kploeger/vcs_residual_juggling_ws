@@ -3324,7 +3324,7 @@ shortfall at N <= 3, none on a cup. Full cup scan (_scratch/pp7/cup_scan_pp7_r12
 40 ms / -3.6 mm. 3 are between contacts (a releasing hand's inward swing, V63); 7 are at release-and-catch instants
 with the planned contacts exactly 0.23 apart and catch adaptation moving the catch up to 10 mm inward. Recorded in
 the paper's hand-separation note and Fig 9 (overleaf fd15470, thesis_plots 9800fc8, jrl README 74546d89).
-- [ ] Open (not decided): the 7 at-contact touches come from catch adaptation eating the 0.23 margin. A margin
+- [x] Open (decided 2026-11-07, 0.24): the 7 at-contact touches come from catch adaptation eating the 0.23 margin. A margin
   for adaptation (e.g. hand_gap + 0.01) or accepting it (the real cups have rounded corners; the depths are within
   the scan's +-6 mm resolution) is Kai's call; 6 balls also come within 0.6 mm without touching (N 10).
   RUNNING 2026-11-06 23:43 (ball, Kai: "You can use ball 24h a day the next days"): campaign8 = campaign7 at
@@ -3345,10 +3345,22 @@ the paper's hand-separation note and Fig 9 (overleaf fd15470, thesis_plots 9800f
   DECIDED 2026-11-07 (Kai: "let's adopt 0.24 and extend the study to 5 seeds"): d_h = 0.24 m in the paper (overleaf
   a7cd4b0, plus a findings/argument plan box in sec. planning:sim-siteswap). RUNNING since 13:08 Berlin on ball:
   campaign8.sh rounds 4-5 (seeds 3-4, tags pp8_r4/pp8_r5), watcher syncing to Thales.
-- [ ] When pp8 rounds 4-5 are in: cup scan + classify (_scratch/pp8/scan_compare_pp8.py, ../pp3/classify_fail.py),
+- [x] When pp8 rounds 4-5 are in: cup scan + classify (_scratch/pp8/scan_compare_pp8.py, ../pp3/classify_fail.py),
   Fig 9 from pp8 rounds 1-5 (fig9/export.sh with ROUNDS="1 2 3 4 5"), fix plot.py's floor labels covering in-axis
   crosses (pp8: 5b -40/-70 over the 6-ball crosses at -14.7/-15.6 mm), install into overleaf, rewrite the
   hand-separation note and the plan box's numbers for five sequences.
+  DONE 2026-11-07 17:50 (_scratch/pp8/analyse_r45.sh): rounds 4-5 108/120, all five rounds 270/300; all 30 failures
+  planned shortfalls at N <= 2 throws beyond the next; no cup overlap in rounds 4-5. Floor fix thesis_plots f7c9d10
+  (floor_clear_of_labels; its message's "pp7 unchanged" is wrong by 0.5 mm, corrected in 6f55aed), default data
+  pp8 r12345 thesis_plots 6f55aed, paper overleaf 3a55136 (Fig 9, caption, plan box, hand-separation note).
+  jrl README 0a1429e5 (rounds 4-5 write-up) NOT pushed: git.ias receive-pack hung twice at ~17:45 (ssh greeting fine).
+  Push it once git.ias answers; no retry loop.
+- [ ] Open for Kai: keep or revert the plan box in sec. planning:sim-siteswap (pushed by Claude at 13:13 before Kai
+  had read the chat version; Kai asked how it got pushed, no decision yet). Its numbers are five-sequence now.
+- [ ] Max throw height 4-10, planner only (Kai 2026-11-07, for a qualitative remark): done, jrl README section
+  "Maximum throw height 4-10" (68bdaae0), figures /retain/planning_paper/_scratch/heights/fig/. Not in the paper;
+  Kai writes the remark. Open: why travel per throw falls with the height (candidate: fewer flights per beat, unchecked);
+  h10 9 balls N 11 (lookahead 12) was still running at 17:00, not plotted.
 
 ## Ball launchers: timing calibration, a silent-late bug, and the Sobol demo branch (2026-11-05)
 
