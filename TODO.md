@@ -3342,6 +3342,13 @@ the paper's hand-separation note and Fig 9 (overleaf fd15470, thesis_plots 9800f
   /retain/planning_paper/_scratch/pp8/fig9 (rendered at a -26 mm floor; at -20 the 0.24 figure's floor labels cover
   two 6-ball crosses, so adopting 0.24 for the paper needs that fixed in plot.py's _floor_labels or the floor).
   Nothing in the paper changed. More seeds: Kai to decide (2026-11-06: "We'll decide for more seeds or not later").
+  DECIDED 2026-11-07 (Kai: "let's adopt 0.24 and extend the study to 5 seeds"): d_h = 0.24 m in the paper (overleaf
+  a7cd4b0, plus a findings/argument plan box in sec. planning:sim-siteswap). RUNNING since 13:08 Berlin on ball:
+  campaign8.sh rounds 4-5 (seeds 3-4, tags pp8_r4/pp8_r5), watcher syncing to Thales.
+- [ ] When pp8 rounds 4-5 are in: cup scan + classify (_scratch/pp8/scan_compare_pp8.py, ../pp3/classify_fail.py),
+  Fig 9 from pp8 rounds 1-5 (fig9/export.sh with ROUNDS="1 2 3 4 5"), fix plot.py's floor labels covering in-axis
+  crosses (pp8: 5b -40/-70 over the 6-ball crosses at -14.7/-15.6 mm), install into overleaf, rewrite the
+  hand-separation note and the plan box's numbers for five sequences.
 
 ## Ball launchers: timing calibration, a silent-late bug, and the Sobol demo branch (2026-11-05)
 
