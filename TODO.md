@@ -3333,7 +3333,15 @@ the paper's hand-separation note and Fig 9 (overleaf fd15470, thesis_plots 9800f
   ball:/home/kai/sim, log ball:/home/kai/sim/retain/planning_paper/campaign8.log. Campaign7's 10 cup-overlap walks and
   16 failures first, then rounds 1-3. Data for the decision only; copy back to Thales /retain, then cup-scan.
   Priority set (2026-11-07 00:35, jrl README "Campaign8"): all 7 at-contact touches gone at 0.24; between-contact
-  swings remain (4b N 1 seed 0: 32 ms, -3.6 mm); the 16 failures unchanged. Full campaign due ~05:00-06:00.
+  swings remain (4b N 1 seed 0: 32 ms, -3.6 mm); the 16 failures unchanged.
+  DONE 2026-11-07 04:31 (jrl README "Campaign8 complete", 19a16e9d): 162/180 passed at 0.24 (campaign7 164). The
+  trade, for Kai: 0.24 removes every at-contact cup touch (cup overlaps 10 walks -> 2, both 4-ball between-contact
+  swings) and costs 2 walks, 5b N 2 seed 0 and 6b N 3 seed 1, new planned shortfalls on campaign7's two tightest
+  passes (3.5, 1.6 mm). All 18 failures planned shortfalls; 5-6 ball walks make slightly more short commits
+  (38 -> 43, 164 -> 183 on the walks that ran full length in both). Fig 9 at 0.24 beside the paper's:
+  /retain/planning_paper/_scratch/pp8/fig9 (rendered at a -26 mm floor; at -20 the 0.24 figure's floor labels cover
+  two 6-ball crosses, so adopting 0.24 for the paper needs that fixed in plot.py's _floor_labels or the floor).
+  Nothing in the paper changed. More seeds: Kai to decide (2026-11-06: "We'll decide for more seeds or not later").
 
 ## Ball launchers: timing calibration, a silent-late bug, and the Sobol demo branch (2026-11-05)
 
