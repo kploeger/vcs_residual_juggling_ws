@@ -3361,6 +3361,9 @@ the paper's hand-separation note and Fig 9 (overleaf fd15470, thesis_plots 9800f
   "Maximum throw height 4-10" (68bdaae0), figures /retain/planning_paper/_scratch/heights/fig/. Not in the paper;
   Kai writes the remark. Open: why travel per throw falls with the height (candidate: fewer flights per beat, unchecked);
   h10 9 balls N 11 (lookahead 12) was still running at 17:00, not plotted.
+  -> 2026-11-09: h10 finished 11-07 18:02, all 96 settings x 5 seeds (h10.jsonl, 480 rows). The plotted copy
+  fig/final_in/h10.jsonl lacks only (9b, lookahead 12, seeds 3-4), i.e. paper N 11, which no figure shows: the
+  figures and the overview are complete as sent.
 
 ## Ball launchers: timing calibration, a silent-late bug, and the Sobol demo branch (2026-11-05)
 
