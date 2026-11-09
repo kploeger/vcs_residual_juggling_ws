@@ -3372,6 +3372,12 @@ the paper's hand-separation note and Fig 9 (overleaf fd15470, thesis_plots 9800f
   -> 2026-11-09: h10 finished 11-07 18:02, all 96 settings x 5 seeds (h10.jsonl, 480 rows). The plotted copy
   fig/final_in/h10.jsonl lacks only (9b, lookahead 12, seeds 3-4), i.e. paper N 11, which no figure shows: the
   figures and the overview are complete as sent.
+- [ ] Campaign8 rounds 6-10 (seeds 5-9; Kai 2026-11-09 21:30 "Can we do 10k total per scenario?"): running on ball
+  since 21:36 Berlin (`campaign8.sh 6 10`, 10 at a time, ball:/home/kai/sim/retain/planning_paper/campaign8.log),
+  mover _scratch/pp8/move_pp8_r610.sh --loop on Thales (sync + free ball's slim npz after a sha256 match; ball had
+  47 GB free for ~100 GB). Then analyse_r610.sh in rwam, Fig 9 data r1-10 into thesis_plots (DATA / CLEARANCE),
+  paper numbers (caption "five sequences", plan box, figure note, hand-separation note) to ten sequences.
+  jrl README c2e75273 (unpushed with 0a1429e5: git.ias "Internal API unreachable" 2026-11-09 15:4x).
 
 ## Ball launchers: timing calibration, a silent-late bug, and the Sobol demo branch (2026-11-05)
 
