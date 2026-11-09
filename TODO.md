@@ -738,6 +738,14 @@ code and the data* that would otherwise be lost between sessions.
 
 ### Process
 
+- [ ] **Push jrl `8dd0ef18` (analysis/error-propagation-real) once GitLab works again.**
+  The pattern-scaling exporter now writes full precision; the commit lives only in the retained clone
+  `~/.local/share/docker_retain/lab_20260922/jrl` (ahead 1, full suite 4258 passed). Push was refused
+  2026-11-09 17:00 and 17:20: `ssh -T git@git.ias...` answers "Failed to get username: Internal API
+  unreachable" (server side, same key that pushed fine on 11-04). Once on origin, thesis_plots
+  `planning/table_pattern_scaling/export_full_precision.py` and the "until it is on the remote" sentence in
+  its provenance.yaml can go (the session that wrote them said it would retire them).
+
 - [ ] **`docker_ws` should use `--init` (or tini) instead of `sleep infinity`.**
   Needs Kai — it is a function in `~/.zshrc`. pid 1 never reaps, so every
   killed roslaunch leaves unreaped children: `rwam_plan` reached **168 zombies
