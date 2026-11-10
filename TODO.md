@@ -746,6 +746,19 @@ code and the data* that would otherwise be lost between sessions.
   `planning/table_pattern_scaling/export_full_precision.py` and the "until it is on the remote" sentence in
   its provenance.yaml can go (the session that wrote them said it would retire them).
 
+- [ ] **`<retain>/tp_planner_snapshot` grows ~110 MB per run and is almost never read back.**
+  `planner_bank._save_planner_snapshot` pickles every built NLP once per run, keyed on a fingerprint of the
+  resolved cfg (`_planner_snapshot_fingerprint`), and a random walk's cfg differs per walk, so the file is
+  write-only there. Evidence (2026-11-10 03:45): ball, all 542 walk logs under random_walk say "none for
+  fingerprint ...; building" + "saved", zero loads; 541 files, 50 GB since 11-05, which took ball's /home/kai to
+  16 GB free mid-campaign8 (disk guard fired). Thales: 3598 files, 97 GB since 2026-09; of 1259 random-walk
+  builds 17 loaded a snapshot. Ball's pre-03:17 files were MOVED to Thales
+  (`docker_retain/ball_tp_planner_snapshot/`, sha256-checked, list in moved_*.txt; script
+  `planning_paper/_scratch/pp8/move_snapshots.sh`), not deleted. Thales's own dir is shared by every session's
+  runs: cleaning it is Kai's call. Fix options (jrl, juggling-specific): `planner_snapshot_dir: null`-style off
+  switch for one-shot walk campaigns (online.sh), or keep walk-specific fields (seed, walk sequence) out of the
+  fingerprint if they do not change the built NLPs, or an LRU cap on the directory.
+
 - [ ] **`docker_ws` should use `--init` (or tini) instead of `sleep infinity`.**
   Needs Kai — it is a function in `~/.zshrc`. pid 1 never reaps, so every
   killed roslaunch leaves unreaped children: `rwam_plan` reached **168 zombies
