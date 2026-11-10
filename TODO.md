@@ -745,6 +745,8 @@ code and the data* that would otherwise be lost between sessions.
   unreachable" (server side, same key that pushed fine on 11-04). Once on origin, thesis_plots
   `planning/table_pattern_scaling/export_full_precision.py` and the "until it is on the remote" sentence in
   its provenance.yaml can go (the session that wrote them said it would retire them).
+  -> 2026-11-10 06:38: git.ias intermittent. jrl highlow-patterns pushed fine at ~06:35, then one push of
+  8dd0ef18 and an ls-remote both timed out (60 s / 30 s). Not retried; still ahead 1.
 
 - [ ] **`<retain>/tp_planner_snapshot` grows ~110 MB per run and is almost never read back.**
   `planner_bank._save_planner_snapshot` pickles every built NLP once per run, keyed on a fingerprint of the
@@ -3385,12 +3387,13 @@ the paper's hand-separation note and Fig 9 (overleaf fd15470, thesis_plots 9800f
   -> 2026-11-09: h10 finished 11-07 18:02, all 96 settings x 5 seeds (h10.jsonl, 480 rows). The plotted copy
   fig/final_in/h10.jsonl lacks only (9b, lookahead 12, seeds 3-4), i.e. paper N 11, which no figure shows: the
   figures and the overview are complete as sent.
-- [ ] Campaign8 rounds 6-10 (seeds 5-9; Kai 2026-11-09 21:30 "Can we do 10k total per scenario?"): running on ball
-  since 21:36 Berlin (`campaign8.sh 6 10`, 10 at a time, ball:/home/kai/sim/retain/planning_paper/campaign8.log),
-  mover _scratch/pp8/move_pp8_r610.sh --loop on Thales (sync + free ball's slim npz after a sha256 match; ball had
-  47 GB free for ~100 GB). Then analyse_r610.sh in rwam, Fig 9 data r1-10 into thesis_plots (DATA / CLEARANCE),
-  paper numbers (caption "five sequences", plan box, figure note, hand-separation note) to ten sequences.
-  jrl README c2e75273 (unpushed with 0a1429e5: git.ias "Internal API unreachable" 2026-11-09 15:4x).
+- [x] Campaign8 rounds 6-10 (seeds 5-9; Kai 2026-11-09 21:30 "Can we do 10k total per scenario?"): DONE 2026-11-10.
+  Ball 2026-11-09 21:36 to 2026-11-10 05:59 Berlin, all 300 synced, ball's slim copies freed after sha256.
+  Results (jrl README c156974c, pushed with 0a1429e5 / c2e75273): 539 of 600 passed, all 61 failures planned
+  shortfalls at x <= 2; full clearance from x 0/4/5/5/6 (was 0/4/5/5/5); 6 cup overlaps of 600, all between
+  contacts. Installed: thesis_plots c379fa1 (data _pp8_r1-10; full suite 442 passed), overleaf 502bc94 (figure,
+  caption, plan box, figure TODO, hand-separation note). Open for Kai: the plan box Argument still says "from about
+  six [throws] every plan keeps full clearance"; with ten seeds 6 balls need N 6 (7 throws). Left as written.
 
 ## Ball launchers: timing calibration, a silent-late bug, and the Sobol demo branch (2026-11-05)
 
