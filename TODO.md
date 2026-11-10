@@ -580,6 +580,24 @@ code and the data* that would otherwise be lost between sessions.
 
 ### Instrumentation
 
+- [ ] **Real-robot siteswap-sequence "success" misses balls dropped late in the
+  sequence.** (2026-11-10, TLL_video_editor, while looking for a clean streak to
+  film.) Four attempts that the clip index
+  (`~/Videos/real_robot_2026-10/clips/siteswap_sequence/<run>/index.json`, fields
+  `success: true`, `ball_dropped: false`, `total_throws: 130`) counts as clean
+  successes have a ball on the floor in the phone footage that was not there at
+  the start: cascade5_645 newton s1 att17 (lands ~37 s into the 39 s attempt,
+  front floor) and att20 (~32 s, left floor); newton_noinit s1 att18 (~37 s,
+  base plate) and att19 (~36 s, rolls to the right). The robot finished all 130
+  throws in each. Clean by the same floor check: newton_s1 att18-19, newton_s2
+  att17-19, knn_perthrow_s0 att7-9, noinit_s1 att17. So any success count or
+  rate for these runs taken from the log is too high, at least for late drops.
+  Check how `success`/`ball_dropped` are set (cf. `drop_detection._mark_ball_dropped`
+  above) and recount the siteswap-sequence successes against the footage before
+  a number goes into the planning paper. Evidence frames: floor at start vs end
+  per attempt, made with ffmpeg crops of the per-attempt clips (crop=2160:1100:0:2700
+  of the rotated phone frame); notes in `~/Videos/siteswap_streak/cuts.txt`.
+
 - [ ] **Ctrl-C between attempts logs a phantom attempt with a stale start.**
   (2026-11-05, video-cutting session.) `runners/experiment_utils.py:951` takes
   `juggler._attempt_start_iso` for the interrupted entry, but that still holds
