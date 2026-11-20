@@ -3447,3 +3447,17 @@ the paper's hand-separation note and Fig 9 (overleaf fd15470, thesis_plots 9800f
 - [ ] jrl branch demo/sobol-cascades (72257d6, on ball and origin) is based on ball's 114da4b, 428 commits behind
   main: demos/sobol_cascades_3ball.py + _demo_lib manifest parameter + JRL_ROS_STRICT=0 for real demos. Before
   merging into main: run tests/demos against main (the motion_bo stack may have moved).
+
+## 7-ball random walks for the planning paper (2026-11-20, TLL_exact_square)
+
+Kai 2026-11-20: "run the random walk experiment for 7 balls ... 10x1000 catches of 7 ball cascade with the catch
+and throw positions planned with the pattern planner just as the siteswaps". campaign8's settings with b = 7
+(/retain/exact_square/walk7/campaign_w7.sh + online_7b_h7.yaml; pinned jrl7, hand_gap 0.24, N 1..12, seeds 0-9),
+tags pp8_r<r>_N<N>_7b7. Thales: rounds 1-2 (log /retain/exact_square/walk7/campaign_w7.log). Ball (Kai: "Use Ball
+if available"): rounds 3-10 plus pp8ball_r1_N12_7b7 (Thales r1 N12 rerun on Intel, for the mixing check), log
+ball:/home/kai/sim/retain/exact_square/walk7/campaign_w7.log, container rwam_ball, maxpar 12.
+- [ ] Copy ball's walks back (chmod a+rX in rwam_ball first) and compare pp8ball_r1_N12 with Thales's pp8_r1_N12.
+- [ ] Seeds: an all-7 walk has one possible throw per beat, so seeds may give identical walks. Compare r1 and r2 at
+  equal N when both are in; if identical, tell Kai before reading ten seeds as ten samples.
+- [ ] Analyse with the pp8 pipeline (contact_travel.py / random_part_clearance.py on the branch that knows pp8;
+  jrl origin/main's PREFIXES stop at pp7) and decide with Kai whether 7 balls joins Fig 9.
