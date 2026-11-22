@@ -765,7 +765,7 @@ code and the data* that would otherwise be lost between sessions.
 
 ### Process
 
-- [ ] **Push jrl `8dd0ef18` (analysis/error-propagation-real) once GitLab works again.**
+- [x] DONE 2026-11-22 (pushed). **Push jrl `8dd0ef18` (analysis/error-propagation-real) once GitLab works again.**
   The pattern-scaling exporter now writes full precision; the commit lives only in the retained clone
   `~/.local/share/docker_retain/lab_20260922/jrl` (ahead 1, full suite 4258 passed). Push was refused
   2026-11-09 17:00 and 17:20: `ssh -T git@git.ias...` answers "Failed to get username: Internal API
