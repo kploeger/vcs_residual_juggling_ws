@@ -24,8 +24,15 @@ code and the data* that would otherwise be lost between sessions.
   docker_retain/exact_square/p645/gen_c075_config.py). Planned only: hand travel 19.7 cm per throw in the
   645 against 39.7 for six_carry_012, every ball pair of beats 84..130 >= 74.3 mm apart (ball_clearance.py;
   six_carry_012: 46.6 mm at the 5 -> 645 seam). Not checked: reachability / velocity envelope at build (the
-  seams throw 5s from |y| 0.09 and catch at 0.36), direct sim with mild DR, ROS-sim timing. Do those before
-  the robot. Branch is not merged to main.
+  seams throw 5s from |y| 0.09 and catch at 0.36), ROS-sim timing. Do those before the robot. Branch is
+  not merged to main.
+  -> Direct sim, mild DR (2026-11-22): matched A/B vs cascade5_645, newton, 12 attempts x seeds 0-2,
+     --dr-dist uniform --dr-mass 0.15 --dr-armature 0.15 (same draw per seed): c075 35/36 full runs
+     (one drop at throw 127, the tail), six_carry_012 30/36 (drops at 113,119,113,118 on s0; 122,104 on
+     s2). Builds and runs, no vetoes stopped it. Suggestive, not significant (Fisher one-sided p~0.05).
+     Caveat: rwam's juggle_planning predates 2026-10-28, so funnel configs were inactive in BOTH arms.
+     Data: docker_retain/exact_square/jrl_645/data/sim/real_robot/siteswap_sequence; logs simab/;
+     runner: untracked manifest_simab.yaml (sim copy, prompts+plots off, run_order = the two rungs).
 
 - [ ] **The left 534 four-after-five vetoes under the Fs wide-hands geometry, not
   per se.** (2026-09-14 19:05, from a supervisor cross-check.) Direct MuJoCo,
