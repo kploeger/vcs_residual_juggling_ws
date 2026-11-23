@@ -3486,3 +3486,19 @@ N 1..12, tags pp8_r1_N<N>_7b7. N 12-4 on Thales, N 3-1 on ball (copy back to Tha
      place_opening; tags pp8n7_r1_N<N>_7b7): 12/12 ok, all outside layout, travel 24.2-24.4 cm flat, gap 32.6-35.3
      mm. Fig 9 now uses them: thesis_plots fig9-seven-balls 2446f58 (pushed). Still not installed in overleaf:
      caption needs Kai's wording (one sequence per N for 7 balls, nominal start).
+
+## Catch-at-rest ablation for tab:planning:pattern-scaling (2026-11-23, TLL_exact_square)
+
+Kai: "set vel and acc at the catch to zero, decoupling catching from throwing ... 3-7 and 17 ball uniform juggling ...
+everything else the same". juggle_planning ablation/catch-at-rest dbf312f (catch_state.at_rest: dq = ddq = 0 at the
+catch; off by default; off the planning-paper pin 5095ad3). Runs: docker_retain/exact_square/catch_rest/ablation.sh
+(chain.sh = the table rows' stack; 40 throws, AOT off per Kai "very short runs ... no pre compile"); summary
+catch_rest/summary_short.txt. Sim baseline reproduces the table's sim rows (6 15.2, 7 21.2, 17 43.9 vs 44.2 g) and
+real 3 (9.9 g); sim 4/5 are 8.9/11.9 vs real 12.4/14.6 (different geometry: compare the ablation to the SIM baseline).
+At rest a_max: 4 14.2 (x1.6), 5 20.0 (x1.7), 6 36.2 (x2.4), 7 44.7 (x2.1), 17 165.8 g (x3.8); a_brake ~unchanged.
+With balls: 4 and 5 juggle 40/40; 6, 7 adaptation_out_of_range, 17 drop (7: the ball lifts out during the dip after a
+still catch). Min tool normal acc (Kai's concern) is null in this stack (exact overlay -> contact_force_cone, which
+holds gravity at a = 0); it WOULD conflict on stacks that keep min_tool_normal_acc.
+- [ ] 3 balls: LEFT arm only fails: seeds outside the envelope (|dq| 24 > 20) and, envelope off, 100-iter capped
+  solves with a 1.5e11 multiplier on the catch position equality. Find why (right arm and 4-17 fine).
+- [ ] Longer runs / table rows once Kai picks the form (no-balls commanded accelerations vs with-balls feasibility).
