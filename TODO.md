@@ -3523,4 +3523,19 @@ holds gravity at a = 0); it WOULD conflict on stacks that keep min_tool_normal_a
      the stack's -8e3 at 1 substep (damping*dt = 1, deadbeat) was the most forgiving. Cup tracking is exact (max
      |q_meas - q_des| 2 mrad), so the rebound is the ball-cup contact, not the arm. Not tried: lower contact
      stiffness, solimp.
+  -> 18:00-20:00 limit sweeps (catch_rest/sweep_limit*.sh, damping -64000 / 16 substeps, 7 balls; limit_report.py,
+     seat.py, carry_profile.py, jumps.py):
+     * min_tool_normal_acc is GRAVITY-compensated, (a - g).n >= a_min: a still catch gives ~9.8, so a floor <= ~9.8
+       is compatible AT the catch (my earlier "conflicts" claim was wrong). It must cover the catch (Kai): started
+       after it, the solver dips hard in the gap. Catch is at knot 14.5 of a 30-knot 0.44 s catch_and_throw.
+     * The stack's carry window (cone, floor) ends at knot 25; release is knot 29. A still catch used the free last 4
+       knots for a 24 g dip + 50 g throw (carry_profile.py lim4_amin95_c7). Normal catches do not (they dip through
+       the carry). CARRY_TO=29 (extend_carry.py) seats the ball (rel speed 0.05-0.23 m/s before release).
+     * With carry to release the FIRST catch_and_throw after the opening is infeasible (Restoration_Failed), launcher
+       or flying start; strict off (diag) the steady pattern juggles 11-15 catches, throws systematic (cone: +0.07 m/s
+       forward, lands on the front rim). Wide adaptation 15; learner over 6 attempts learns nothing (stops at 8).
+     * The at-rest throw is a ~20 ms flick at the end of the dwell: elbow ddq 1250-1300 rad/s2 (normal catch 495).
+       Kinematic: v = 0 at the catch, release at the same height, downward acc <= ~g while held => ~0.17 s dip then
+       ~50 ms at ~16 g. Lowering the carry bounds only moves the dip limit towards g (runs lim10 m0, mneg2 pending).
+     Videos: catch_rest/videos/ab_7balls_carry_{cone,m6}_*.mp4.
 - [ ] Longer runs / table rows once Kai picks the form (no-balls commanded accelerations vs with-balls feasibility).
