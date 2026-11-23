@@ -3475,3 +3475,10 @@ N 1..12, tags pp8_r1_N<N>_7b7. N 12-4 on Thales, N 3-1 on ball (copy back to Tha
 - [x] Copy ball's three walks back (done; N 1-3 in /retain/random_walk, all 12 walks 1039/1041, 0 placer failures).
 - [ ] Analyse with the pp8 pipeline (contact_travel.py / random_part_clearance.py on the branch that knows pp8;
   jrl origin/main's PREFIXES stop at pp7) and add 7 balls to Fig 9 with Kai.
+  -> 2026-11-23: Fig 9 with 7 balls on thesis_plots fig9-seven-balls 2a48584 (pushed, not installed: the caption's
+     'same ten sequences' needs Kai's wording). Planner-only follow-up (Kai: 'plans only', no MuJoCo):
+     exact_square/walk7/plan_w7.py (+ plan_w7.jsonl, plan_w7.png). Offline place() reproduces the sim walks' layouts
+     exactly at N 1,3,4,5. The steady 7-ball cascade is BISTABLE: catch inside (|y| 0.11-0.14, 22.9-23.8 cm/throw)
+     or catch outside (0.34-0.36, 23.9-24.2 cm); the opening picks which (10 random h8 openings: e.g. N 4 6 in, 4
+     out). Starting from 7 nominal inside throws always stays outside (24.2 cm). N 4's bump is real within the inside
+     layout (23.76 vs 22.9-23.0 at N 3, 5; same layout from every opening). N 1 never settles.
