@@ -3516,4 +3516,11 @@ holds gravity at a = 0); it WOULD conflict on stacks that keep min_tool_normal_a
      z range in the first 100 ms 15-22 mm (normal 4-6), lateral only 2-5 mm. Carry constraints assume a seated ball
      and cannot act on a ball in the air; the impact (6-7 m/s into a still cup) is the problem. Contact is
      solref -8e5/-8e3 (ideal_contact_stiff.yaml).
+  -> 17:40 contact damping x substeps (sweep_damp.sh, sweep_damp2.sh; physics dt = 1/8000 s / SUBSTEPS): damping*dt
+     > 1 reverses the penetration velocity each step (1.25 gave a 6 cm rebound, a sweep mistake of mine); at
+     damping*dt 0.25-0.5 (-8e3 n4, -1.6e4 n8, -3.2e4 n8) the ball still sits 13.5-25.8 mm high at catch+50 ms (normal
+     catch 3.5-5) and every run stops at throw 9-10. Finer steps at the same damping bounce MORE (21-26 vs 13 mm), so
+     the stack's -8e3 at 1 substep (damping*dt = 1, deadbeat) was the most forgiving. Cup tracking is exact (max
+     |q_meas - q_des| 2 mrad), so the rebound is the ball-cup contact, not the arm. Not tried: lower contact
+     stiffness, solimp.
 - [ ] Longer runs / table rows once Kai picks the form (no-balls commanded accelerations vs with-balls feasibility).
