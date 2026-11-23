@@ -3482,3 +3482,7 @@ N 1..12, tags pp8_r1_N<N>_7b7. N 12-4 on Thales, N 3-1 on ball (copy back to Tha
      or catch outside (0.34-0.36, 23.9-24.2 cm); the opening picks which (10 random h8 openings: e.g. N 4 6 in, 4
      out). Starting from 7 nominal inside throws always stays outside (24.2 cm). N 4's bump is real within the inside
      layout (23.76 vs 22.9-23.0 at N 3, 5; same layout from every opening). N 1 never settles.
+  -> 2026-11-23 15:00: Kai chose the nominal start. campaign_w7n7 (walk7/campaign_w7n7.sh, OPENING=7, no
+     place_opening; tags pp8n7_r1_N<N>_7b7): 12/12 ok, all outside layout, travel 24.2-24.4 cm flat, gap 32.6-35.3
+     mm. Fig 9 now uses them: thesis_plots fig9-seven-balls 2446f58 (pushed). Still not installed in overleaf:
+     caption needs Kai's wording (one sequence per N for 7 balls, nominal start).
