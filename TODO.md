@@ -3509,4 +3509,11 @@ holds gravity at a = 0); it WOULD conflict on stacks that keep min_tool_normal_a
   (seat.py): the ball still moves relative to the cup just before release, 1.4-1.8 m/s at 7 balls (0.77 at 5,
   0.01-0.02 for the normal catch), so throw errors scatter 0.1-0.38 m/s. Options for Kai: longer dwell for the
   at-rest variant, contact damping, or report 6+ as physically infeasible.
+  -> 17:20 Kai: stronger carry constraints. Sweep (sweep_cone.sh; chain_abl.sh SLOPE/A_MARGIN): slope 35/45/55
+     (force-cone half-angle 45/35/26 deg), a_margin 3/6, 45+3: all still stop at throw 8-10, seating WORSE (rel speed
+     before release 2-4 m/s, ball 13-146 mm off the seat). Longer dwell (0.55/0.65) also worse. Cause (seat.py): the
+     ball BOUNCES on the still cup: +50 ms after the catch it sits 12-13 mm higher than seated (normal catch 3.5-5),
+     z range in the first 100 ms 15-22 mm (normal 4-6), lateral only 2-5 mm. Carry constraints assume a seated ball
+     and cannot act on a ball in the air; the impact (6-7 m/s into a still cup) is the problem. Contact is
+     solref -8e5/-8e3 (ideal_contact_stiff.yaml).
 - [ ] Longer runs / table rows once Kai picks the form (no-balls commanded accelerations vs with-balls feasibility).
