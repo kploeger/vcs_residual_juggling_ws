@@ -3538,4 +3538,20 @@ holds gravity at a = 0); it WOULD conflict on stacks that keep min_tool_normal_a
        Kinematic: v = 0 at the catch, release at the same height, downward acc <= ~g while held => ~0.17 s dip then
        ~50 ms at ~16 g. Lowering the carry bounds only moves the dip limit towards g (runs lim10 m0, mneg2 pending).
      Videos: catch_rest/videos/ab_7balls_carry_{cone,m6}_*.mp4.
+  -> 20:00-21:20:
+     * Cone margin 0 (hand may decelerate at up to g; Kai "allow the hand to move down"), carry to release, damping
+       -64000/16, flying start: 7 balls 60/60 (strict off, but 0 strict events, throw error 0.01-0.03 m/s, elbow 942
+       rad/s2); margin -2 also 60/60. Strict on (sweep_m0.sh): 6 balls flying 60/60 (seat 0.09 m/s); 7 flying stops at
+       throw 10 on a catch-time correction of 5.2 > 5.0 ms; launcher starts and 17 stop at throw 3: the first beat
+       after the opening is Restoration_Failed (transition, open).
+     * Table: thesis_plots table-catch-at-rest 9515fce (pushed, not installed): free / at rest [g] split, one extra
+       header row; 3-5 at rest 9.9/14.3/20.9 a_max; 6/7/17 'fails' (may change after the robot-setup runs).
+     * 3-5 'free' in the table is the REAL robot; the at-rest values are the sim stack: not comparable. Same geometry,
+       dwell 0.5, tempo; differences: robot carry constraints (min_tool_normal_acc 10 on knots 12-25 + round cones,
+       no contact cone) vs the exact cone/funnels, the frozen anchor offsets (offsets_cN.yaml, never committed;
+       copies in lab_20260917/error_propagation/_untracked_configs_on_ball), qualify_outward_vy 0.1 vs 0. 100 Hz
+       subsampling does not close the gap (sim peaks are broad).
+     * RUNNING 21:05: catch_rest/robot/sweep_robot.sh = the real rows' exact cfg list on the pinned jrl, frozen
+       offsets, noop learner, not strict: free (reproduction check) and at rest R5 (cone margin 0 + floor 5, both
+       knots 12-29, pre-touchdown off) / R0 (cone only), default contact and -64000/16. Report: robot/rows.csv.
 - [ ] Longer runs / table rows once Kai picks the form (no-balls commanded accelerations vs with-balls feasibility).
