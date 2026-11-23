@@ -3472,6 +3472,6 @@ Checked first: seed 2 at N 12 on ball gave the same numbers as seed 0 on Thales 
 seeds are identical and Thales/ball agree (ball log campaign_w7_aborted_r3r4.log). campaign8's settings with
 b = 7 (/retain/exact_square/walk7/campaign_w7.sh + online_7b_h7.yaml; pinned jrl7, hand_gap 0.24), seed 0,
 N 1..12, tags pp8_r1_N<N>_7b7. N 12-4 on Thales, N 3-1 on ball (copy back to Thales /retain/random_walk).
-- [ ] Copy ball's three walks back (chmod a+rX in rwam_ball first).
+- [x] Copy ball's three walks back (done; N 1-3 in /retain/random_walk, all 12 walks 1039/1041, 0 placer failures).
 - [ ] Analyse with the pp8 pipeline (contact_travel.py / random_part_clearance.py on the branch that knows pp8;
   jrl origin/main's PREFIXES stop at pp7) and add 7 balls to Fig 9 with Kai.
