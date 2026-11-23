@@ -3499,6 +3499,14 @@ At rest a_max: 4 14.2 (x1.6), 5 20.0 (x1.7), 6 36.2 (x2.4), 7 44.7 (x2.1), 17 16
 With balls: 4 and 5 juggle 40/40; 6, 7 adaptation_out_of_range, 17 drop (7: the ball lifts out during the dip after a
 still catch). Min tool normal acc (Kai's concern) is null in this stack (exact overlay -> contact_force_cone, which
 holds gravity at a = 0); it WOULD conflict on stacks that keep min_tool_normal_acc.
-- [ ] 3 balls: LEFT arm only fails: seeds outside the envelope (|dq| 24 > 20) and, envelope off, 100-iter capped
-  solves with a 1.5e11 multiplier on the catch position equality. Find why (right arm and 4-17 fine).
+- [x] 3 balls: the pre-touchdown funnel (5 deg at up to 4 points before contact) contradicts a cup at rest: its axis is
+  fixed at the catch and the 3-ball approach is ~16 deg off vertical (4: 4, 5: 7, 6: 2 deg measured). Funnel off
+  (catch_rest/bis_v5_nofunnel.yaml): 3 plans cleanly, 0 capped, envelope on, a_max 9.9 g = baseline, juggles 40/40
+  with balls. Funnel off changes no other row's numbers (4-17 identical). Bisection logs catch_rest/ablation3.log.
+- [ ] 6, 7, 17 balls at rest do not juggle (short runs, catch_rest/ablation_ex.log): not fixed by a_min 5 m/s^2 from
+  2 knots after the catch (chain_abl.sh A_MIN), the Newton learner (LEARN, 6 attempts: each stops at throw 8-10
+  before its first correction), catch adaptation 10 cm / 50 ms, or a flying start (no launcher drop-ins). Cause
+  (seat.py): the ball still moves relative to the cup just before release, 1.4-1.8 m/s at 7 balls (0.77 at 5,
+  0.01-0.02 for the normal catch), so throw errors scatter 0.1-0.38 m/s. Options for Kai: longer dwell for the
+  at-rest variant, contact damping, or report 6+ as physically infeasible.
 - [ ] Longer runs / table rows once Kai picks the form (no-balls commanded accelerations vs with-balls feasibility).
