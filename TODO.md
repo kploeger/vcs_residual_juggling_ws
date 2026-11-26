@@ -3554,4 +3554,13 @@ holds gravity at a = 0); it WOULD conflict on stacks that keep min_tool_normal_a
      * RUNNING 21:05: catch_rest/robot/sweep_robot.sh = the real rows' exact cfg list on the pinned jrl, frozen
        offsets, noop learner, not strict: free (reproduction check) and at rest R5 (cone margin 0 + floor 5, both
        knots 12-29, pre-touchdown off) / R0 (cone only), default contact and -64000/16. Report: robot/rows.csv.
+  -> 2026-11-24 robot setup results (robot/sweep_robot2.sh, robot/rows2.csv; real 100 Hz vs sim, a_max/a_brake g):
+     * No balls + frozen real offsets REPRODUCES the real rows: h and v0 to 1e-9, accelerations within 0.5-1 g at
+       100 Hz (free 9.7/9.7, 12.9/12.9, 13.9/13.9 vs real 9.9/8.7, 12.4/12.2, 14.6/13.5).
+     * R0 (at rest, cone margin 0 to release, floor 0): 9.7/9.7, 12.9/12.9, 17.4/13.9 at 100 Hz; dq=ddq=0 at every
+       catch. With balls, no offsets: 3 and 5 juggle 60/60, 4 drops before throw 6. R5 (floor 5): 20-33 g, drops
+       everywhere (throws 6-8). With the real offsets even free 4/5 drop in sim (they correct real-arm errors).
+  -> 2026-11-26 Kai: table from REQUIRED COMMANDED values for every row, one setup, real-robot categories in bold.
+     robot/sweep_std.sh: robot cfg, OFFSETS=0 (nominal pattern), no balls, free + R0, 3-7 and 17 (std.log).
+     thesis_plots branch table-commanded (make_summary.py -> data/summary.csv).
 - [ ] Longer runs / table rows once Kai picks the form (no-balls commanded accelerations vs with-balls feasibility).
