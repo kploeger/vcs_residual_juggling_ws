@@ -3564,7 +3564,8 @@ holds gravity at a = 0); it WOULD conflict on stacks that keep min_tool_normal_a
      robot/sweep_std.sh: robot cfg, OFFSETS=0 (nominal pattern), no balls, free + R0, 3-7 and 17 (std.log).
      thesis_plots branch table-commanded (make_summary.py -> data/summary.csv).
      Done 16:40: all plannable, free and at rest (17 only with flying start + geometry_c17 + no envelope; plain robot
-     cfg discards 733/768 seeds). thesis_plots table-commanded ecf5654 (robot cfg) and table-commanded-simstack 58f27d4
-     (sim stack), both pushed, not installed. Robot cfg 17 free 78 g (vacant-phase oscillation, 40-57 g) vs sim stack 44
+     cfg: see below). thesis_plots table-commanded ecf5654 (robot cfg) and table-commanded-simstack 58f27d4
+     (sim stack), both pushed, not installed. Plain robot cfg 17: envelope rejects the launcher first throw
+     (max|q-q_rest| 1.62 > 1.2 rad). Robot cfg 17 free 78 g (vacant-phase oscillation, 40-57 g) vs sim stack 44
      g; sim stack free 3-5 gentler than the robot's (4: 8.9 vs 13.6 g). Every free a_max == a_brake. Kai picks.
 - [ ] Longer runs / table rows once Kai picks the form (no-balls commanded accelerations vs with-balls feasibility).
