@@ -3592,4 +3592,10 @@ holds gravity at a = 0); it WOULD conflict on stacks that keep min_tool_normal_a
      at-rest numbers came from plans that dip faster than g in the 4 unconstrained knots (ball leaves the cup).
      Kinematic bound (ball in cup => hand down-acc <= g): >= 3.0/5.2/8.0/11.2/15.0/79.6 g in the last
      150/100/80/63/55/11 ms. Kai to pick how to mark 7 and 17 at rest.
+  -> 15:40-16:15: 7 at rest JUGGLES 100/100 (strict, default contact; r7A late20 + iters3000, r7B + wide adapt): the
+     throw-9 stop was catch_late005 (late catches limited to 5 ms), catches ran 1-6 ms late (median 5.0). 17 at rest:
+     strict stops at the first beat after the opening (Restoration_Failed even at 3000 iters, balls or not); the cyclic
+     plan exists (r17nb_ns: 34/35 catches at rest) -> 120.3 g / 18914 g/s, gray in the table (thesis_plots
+     table-commanded-2cm-jerk-carry f0c7fc1). RUNNING: probe_rest7L.sh, 7 at rest with the Newton residual learner,
+     5 attempts x 100, L5 (stack's 5 ms late limit) and L20.
 - [ ] Longer runs / table rows once Kai picks the form (no-balls commanded accelerations vs with-balls feasibility).
