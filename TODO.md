@@ -3577,4 +3577,12 @@ holds gravity at a = 0); it WOULD conflict on stacks that keep min_tool_normal_a
      separation matches, 17 balls included (my 11-26 'vacant-phase oscillation' reading was the effect, not a cause).
      At rest still differs (5: 20.0 vs 18.5, 6: 36.2 vs 33.2, 17: 165.8 vs 117.6): the throw flick, set by the carry
      window (R0 to release vs the stack's knot 25). Old Table I 6/7/17 sim rows were planned at 2 cm.
+  -> 2026-11-27 afternoon: 3 balls at 2 cm (chain_abl.sh SEP3=0.02, set_sep3.py edits the overlay's prev_throw 3
+     override): a_max 7.2 g (4 cm: 9.9) -> at equal separation the peak rises with ball count (2 cm: 7.2 / 8.9 / 11.9
+     / 15.2 / 21.2 / 43.9; 4 cm: 9.9 / 13.6 / 14.5 / 16.8 / 21.2 / 80.7). 7 balls does not move with the separation.
+     Metrics (robot/std_export/metrics.py -> metrics.csv, metrics_sep002_c3.csv): mean |a|, RMS |a|, peak / p99 / mean
+     |jerk| (finite difference at 1 kHz; p99 within 3% of peak, no spikes). Mean |a| is ~independent of the
+     separation and of at-rest (3: 2.1, 4: 2.9, 5: 3.7, 6: 4.9, 7: 5.8 g); at rest doubles the peak jerk from 4 balls
+     up. Robot cfg 17 balls: mean |a| 30 g vs the sim stack's 14-15 g (its vacant-phase motion is real; only the PEAK
+     was the separation). Kai wants the four-sided funnels (sim stack); separation and metric open.
 - [ ] Longer runs / table rows once Kai picks the form (no-balls commanded accelerations vs with-balls feasibility).
