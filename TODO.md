@@ -3598,4 +3598,6 @@ holds gravity at a = 0); it WOULD conflict on stacks that keep min_tool_normal_a
      plan exists (r17nb_ns: 34/35 catches at rest) -> 120.3 g / 18914 g/s, gray in the table (thesis_plots
      table-commanded-2cm-jerk-carry f0c7fc1). RUNNING: probe_rest7L.sh, 7 at rest with the Newton residual learner,
      5 attempts x 100, L5 (stack's 5 ms late limit) and L20.
+     -> L5: attempt 1 stops at throw 10, attempts 2-5 100/100; learned offset 0.024 m/s, throw vel error 0.020 ->
+        0.004 m/s, catch dt median 0 / max 2.1 ms. L20: 5/5 attempts 100/100. r7C (damping -64000/16): 100/100.
 - [ ] Longer runs / table rows once Kai picks the form (no-balls commanded accelerations vs with-balls feasibility).
