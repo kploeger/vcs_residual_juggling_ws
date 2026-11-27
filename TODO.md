@@ -3568,4 +3568,9 @@ holds gravity at a = 0); it WOULD conflict on stacks that keep min_tool_normal_a
      (sim stack), both pushed, not installed. Plain robot cfg 17: envelope rejects the launcher first throw
      (max|q-q_rest| 1.62 > 1.2 rad). Robot cfg 17 free 78 g (vacant-phase oscillation, 40-57 g) vs sim stack 44
      g; sim stack free 3-5 gentler than the robot's (4: 8.9 vs 13.6 g). Every free a_max == a_brake. Kai picks.
+  -> 2026-11-27 why the sim stack is gentler at 4/5 balls (and 4 < 3): the peak is the post-release brake (17-29 ms
+     after release) and it is set by post_takeoff_min_separation: robot cfg 4 cm (ros_645_postakeoff_long.yaml), sim
+     stack 2 cm; BOTH override it to 4 cm after a 3-throw (prev_throw 3), so 3 balls matches (9.9 g) and 4/5 get 2 cm
+     in the sim stack only. Verified: sim stack + catch_rest/sep004.yaml -> 4: 13.6 g, 5: 14.5 g (robot 13.6 / 14.4),
+     same brake profile. Running: probe_sep_all.sh, the rest of the sim stack at 4 cm (probe_sep.log).
 - [ ] Longer runs / table rows once Kai picks the form (no-balls commanded accelerations vs with-balls feasibility).
