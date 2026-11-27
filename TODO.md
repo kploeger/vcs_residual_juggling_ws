@@ -3600,4 +3600,9 @@ holds gravity at a = 0); it WOULD conflict on stacks that keep min_tool_normal_a
      5 attempts x 100, L5 (stack's 5 ms late limit) and L20.
      -> L5: attempt 1 stops at throw 10, attempts 2-5 100/100; learned offset 0.024 m/s, throw vel error 0.020 ->
         0.004 m/s, catch dt median 0 / max 2.1 ms. L20: 5/5 attempts 100/100. r7C (damping -64000/16): 100/100.
-- [ ] Longer runs / table rows once Kai picks the form (no-balls commanded accelerations vs with-balls feasibility).
+  -> 16:50 INSTALLED: overleaf cfa0962 (planning/media/table_pattern_scaling.tex, pushed to Overleaf); thesis_plots
+     main fast-forwarded to 2dcbb76 (metric-grouped, moving / still, single column 246 pt). Old caption kept with a
+     \TODO{Kai} holding the new-caption draft and the 15 g -> ~12 g note. Builds: planning 0 errors; chapter
+     04_planning 0 errors (3 cross-chapter refs, expected). Remote branches table-catch-at-rest, table-commanded,
+     table-commanded-simstack, table-commanded-2cm-jerk(-carry) are merged or superseded: deleting them is Kai's call.
+- [x] Longer runs / table rows once Kai picks the form (no-balls commanded accelerations vs with-balls feasibility).
