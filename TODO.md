@@ -3572,5 +3572,9 @@ holds gravity at a = 0); it WOULD conflict on stacks that keep min_tool_normal_a
      after release) and it is set by post_takeoff_min_separation: robot cfg 4 cm (ros_645_postakeoff_long.yaml), sim
      stack 2 cm; BOTH override it to 4 cm after a 3-throw (prev_throw 3), so 3 balls matches (9.9 g) and 4/5 get 2 cm
      in the sim stack only. Verified: sim stack + catch_rest/sep004.yaml -> 4: 13.6 g, 5: 14.5 g (robot 13.6 / 14.4),
-     same brake profile. Running: probe_sep_all.sh, the rest of the sim stack at 4 cm (probe_sep.log).
+     same brake profile. probe_sep_all.sh (rest of the sim stack at 4 cm), make_summary --setup simstack4: free
+     9.9/13.6/14.5/16.8/21.2/80.7 g vs robot cfg 9.9/13.6/14.4/16.7/20.8/78.4 -> the free column agrees once the
+     separation matches, 17 balls included (my 11-26 'vacant-phase oscillation' reading was the effect, not a cause).
+     At rest still differs (5: 20.0 vs 18.5, 6: 36.2 vs 33.2, 17: 165.8 vs 117.6): the throw flick, set by the carry
+     window (R0 to release vs the stack's knot 25). Old Table I 6/7/17 sim rows were planned at 2 cm.
 - [ ] Longer runs / table rows once Kai picks the form (no-balls commanded accelerations vs with-balls feasibility).
