@@ -3585,4 +3585,11 @@ holds gravity at a = 0); it WOULD conflict on stacks that keep min_tool_normal_a
      separation and of at-rest (3: 2.1, 4: 2.9, 5: 3.7, 6: 4.9, 7: 5.8 g); at rest doubles the peak jerk from 4 balls
      up. Robot cfg 17 balls: mean |a| 30 g vs the sim stack's 14-15 g (its vacant-phase motion is real; only the PEAK
      was the separation). Kai wants the four-sided funnels (sim stack); separation and metric open.
+  -> 2026-11-27 15:10-15:45: table at 2 cm, a_max + j_max [g/s], no bold (thesis_plots table-commanded-2cm-jerk
+     c49ba47). At rest with the carry constraint to the release (probe_restc*.sh, make_summary --setup simstack2c,
+     branch table-commanded-2cm-jerk-carry 5a43018): with balls 3-6 juggle 40/40 at rest (flying starts; launcher
+     openings make the first beat infeasible), 7 plans but stops at throw 9 (catch 5.7 > 5 ms), 17 no plan. Old 6/7/17
+     at-rest numbers came from plans that dip faster than g in the 4 unconstrained knots (ball leaves the cup).
+     Kinematic bound (ball in cup => hand down-acc <= g): >= 3.0/5.2/8.0/11.2/15.0/79.6 g in the last
+     150/100/80/63/55/11 ms. Kai to pick how to mark 7 and 17 at rest.
 - [ ] Longer runs / table rows once Kai picks the form (no-balls commanded accelerations vs with-balls feasibility).
