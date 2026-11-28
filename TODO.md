@@ -3605,4 +3605,8 @@ holds gravity at a = 0); it WOULD conflict on stacks that keep min_tool_normal_a
      \TODO{Kai} holding the new-caption draft and the 15 g -> ~12 g note. Builds: planning 0 errors; chapter
      04_planning 0 errors (3 cross-chapter refs, expected). Remote branches table-catch-at-rest, table-commanded,
      table-commanded-simstack, table-commanded-2cm-jerk(-carry) are merged or superseded: deleting them is Kai's call.
+  -> 2026-11-28 RESTYLED (Kai: fill the column, vertical outside lines): boxed like the predictability table, eight
+     equal centred columns at \linewidth, group rules inside the label cells (\cmidrule breaks the outside rules).
+     thesis_plots main 40c4a63 (branch table-pattern-scaling-boxed), overleaf 08c1b83 (table file only; another
+     session's figure-width edits were uncommitted in the same checkout, left alone). Both builds 0 errors.
 - [x] Longer runs / table rows once Kai picks the form (no-balls commanded accelerations vs with-balls feasibility).
